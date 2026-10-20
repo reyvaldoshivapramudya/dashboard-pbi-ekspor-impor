@@ -55,6 +55,25 @@ const periodOptions = computed(() => buildPeriodOptions())
 const selectedPeriod = ref(currentPeriod)
 const selectedMedia = ref<string[]>([...NEWS_MEDIA_SOURCES])
 
+// State untuk custom month picker
+const isPeriodPickerOpen = ref(false)
+const calendarYear = ref(Number(currentPeriod.slice(0, 4)))
+
+const months = [
+  { label: 'Jan', value: '01' },
+  { label: 'Feb', value: '02' },
+  { label: 'Mar', value: '03' },
+  { label: 'Apr', value: '04' },
+  { label: 'Mei', value: '05' },
+  { label: 'Jun', value: '06' },
+  { label: 'Jul', value: '07' },
+  { label: 'Agu', value: '08' },
+  { label: 'Sep', value: '09' },
+  { label: 'Okt', value: '10' },
+  { label: 'Nov', value: '11' },
+  { label: 'Des', value: '12' },
+]
+
 const history = ref<CrawlRun[]>([])
 
 const isLoadingHistory = ref(true)
@@ -69,11 +88,7 @@ const currentPeriodLabel = computed(() => {
   return option?.label ?? currentPeriod
 })
 
-const selectedPeriodLabel = computed(() => {
-  const option = periodOptions.value.find((item) => item.value === selectedPeriod.value)
-
-  return option?.label ?? selectedPeriod.value
-})
+const selectedPeriodLabel = computed(() => formatPeriod(selectedPeriod.value))
 
 const currentPeriodHasSuccessfulRun = computed(() =>
   history.value.some((run) => run.period === currentPeriod && run.status === 'success'),
@@ -112,6 +127,29 @@ function formatPeriod(period: string): string {
     year: 'numeric',
     timeZone: 'UTC',
   }).format(new Date(`${period}-01T12:00:00Z`))
+}
+
+function togglePeriodPicker(): void {
+  if (isRunning.value) return
+
+  if (!isPeriodPickerOpen.value) {
+    calendarYear.value = Number(selectedPeriod.value.slice(0, 4))
+  }
+
+  isPeriodPickerOpen.value = !isPeriodPickerOpen.value
+}
+
+function changeCalendarYear(direction: number): void {
+  calendarYear.value += direction
+}
+
+function selectMonth(month: string): void {
+  selectedPeriod.value = `${calendarYear.value}-${month}`
+  isPeriodPickerOpen.value = false
+}
+
+function closePeriodPicker(): void {
+  isPeriodPickerOpen.value = false
 }
 
 function statusLabel(status: CrawlStatus): string {
@@ -220,7 +258,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div class="space-y-6" @click="closePeriodPicker">
     <!-- Current-period reminder -->
     <section
       v-if="!currentPeriodHasSuccessfulRun"
@@ -365,21 +403,89 @@ onMounted(() => {
         </div>
       </div>
 
-      <div class="max-w-md">
-        <label for="crawl-period" class="mb-2 block text-xs font-medium text-slate-600">
+      <!-- Periode Target -->
+      <div class="relative w-full max-w-md">
+        <label
+          for="crawl-period"
+          class="mb-2 block text-sm font-medium text-slate-600"
+        >
           Periode target
         </label>
 
-        <select
+        <!-- Input periode -->
+        <button
           id="crawl-period"
-          v-model="selectedPeriod"
+          type="button"
           :disabled="isRunning"
-          class="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none transition focus:border-bps-blue focus:ring-2 focus:ring-bps-blue/15 disabled:bg-slate-50"
+          @click.stop="togglePeriodPicker"
+          class="flex h-[60px] w-full items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 text-left text-xl text-slate-700 shadow-sm outline-none transition hover:border-blue-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 disabled:cursor-not-allowed disabled:bg-slate-50"
+          :class="{
+            'border-sky-500 ring-2 ring-sky-500/20': isPeriodPickerOpen,
+          }"
         >
-          <option v-for="option in periodOptions" :key="option.value" :value="option.value">
-            {{ option.label }}
-          </option>
-        </select>
+          <span>{{ selectedPeriodLabel }}</span>
+          <AppIcon name="calendar" class="h-5 w-5 shrink-0 text-slate-500" />
+        </button>
+
+        <!-- Popup kalender -->
+        <div
+          v-if="isPeriodPickerOpen"
+          class="absolute left-0 top-full z-50 mt-2 w-full min-w-[320px] rounded-2xl border border-slate-200 bg-white p-4 shadow-xl sm:min-w-[440px]"
+          @click.stop
+        >
+          <!-- Navigasi tahun -->
+          <div class="mb-5 flex items-center justify-between">
+            <button
+              type="button"
+              aria-label="Tahun sebelumnya"
+              @click="changeCalendarYear(-1)"
+              class="flex h-9 w-9 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100"
+            >
+              <AppIcon name="chevron-left" class="h-5 w-5" />
+            </button>
+
+            <span class="text-lg font-semibold text-slate-800">
+              {{ calendarYear }}
+            </span>
+
+            <button
+              type="button"
+              aria-label="Tahun berikutnya"
+              @click="changeCalendarYear(1)"
+              class="flex h-9 w-9 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100"
+            >
+              <AppIcon name="chevron-right" class="h-5 w-5" />
+            </button>
+          </div>
+
+          <!-- Grid bulan: 4 kolom -->
+          <div class="grid grid-cols-4 gap-x-2 gap-y-3">
+            <button
+              v-for="month in months"
+              :key="month.value"
+              type="button"
+              @click="selectMonth(month.value)"
+              class="flex h-14 items-center justify-center rounded-xl text-base text-slate-600 transition hover:bg-blue-50 hover:text-sky-600"
+              :class="{
+                'bg-blue-50 font-semibold text-sky-600':
+                  selectedPeriod === `${calendarYear}-${month.value}`,
+              }"
+            >
+              {{ month.label }}
+            </button>
+          </div>
+
+          <!-- Tombol tutup -->
+          <div class="mt-4 border-t border-slate-100 pt-4">
+            <button
+              type="button"
+              @click="closePeriodPicker"
+              class="flex h-[54px] w-full items-center justify-center rounded-xl bg-blue-50 text-base font-medium text-sky-600 transition hover:bg-blue-100"
+            >
+              Tutup
+            </button>
+          </div>
+        </div>
       </div>
 
       <div class="mb-3 mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

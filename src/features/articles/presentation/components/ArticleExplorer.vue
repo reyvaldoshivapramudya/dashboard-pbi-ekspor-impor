@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import AppIcon from '@/shared/components/AppIcon.vue'
 
 import { createArticle, deleteArticle, searchArticles, updateArticle } from '@/app/container'
@@ -23,8 +23,6 @@ const props = withDefaults(
     canManage: false,
   },
 )
-
-type CategoryFilter = 'all' | NewsCategory
 
 interface ArticleFormState {
   publishedAt: string
@@ -52,12 +50,28 @@ const CATEGORY_OPTIONS: {
 
 const ROW_OPTIONS = [20, 50, 100]
 
+const MONTH_OPTIONS = [
+  { label: 'Jan', value: '01' },
+  { label: 'Feb', value: '02' },
+  { label: 'Mar', value: '03' },
+  { label: 'Apr', value: '04' },
+  { label: 'Mei', value: '05' },
+  { label: 'Jun', value: '06' },
+  { label: 'Jul', value: '07' },
+  { label: 'Agu', value: '08' },
+  { label: 'Sep', value: '09' },
+  { label: 'Okt', value: '10' },
+  { label: 'Nov', value: '11' },
+  { label: 'Des', value: '12' },
+]
+
 const availableArticles = ref<NewsArticle[]>([])
 const filteredArticles = ref<NewsArticle[]>([])
 
 const periodInput = ref('all')
-const mediaInput = ref('all')
-const categoryInput = ref<CategoryFilter>('all')
+const periodPickerOpen = ref(false)
+const periodPickerYear = ref(new Date().getFullYear())
+const periodPickerRoot = ref<HTMLElement | null>(null)
 const queryInput = ref('')
 const appliedFilters = ref<SearchArticleFilters>({
   period: 'all',
@@ -96,21 +110,9 @@ function emptyForm(): ArticleFormState {
 
 const form = ref<ArticleFormState>(emptyForm())
 
-const mediaOptions = computed(() =>
-  [...new Set(availableArticles.value.map((article) => article.mediaName))].sort((a, b) =>
-    a.localeCompare(b, 'id'),
-  ),
+const selectedPeriodLabel = computed(() =>
+  periodInput.value === 'all' ? 'Semua Periode' : formatPeriod(periodInput.value),
 )
-
-const periodOptions = computed(() => [
-  { label: 'Semua Periode', value: 'all' },
-  ...[...new Set(availableArticles.value.map((article) => article.period))]
-    .sort((a, b) => b.localeCompare(a))
-    .map((period) => ({
-      label: formatPeriod(period),
-      value: period,
-    })),
-])
 
 const totalPages = computed(() =>
   Math.max(1, Math.ceil(filteredArticles.value.length / rowsPerPage.value)),
@@ -148,6 +150,38 @@ function formatPeriod(period: string): string {
     year: 'numeric',
     timeZone: 'UTC',
   }).format(date)
+}
+
+function isPeriodMonthSelected(month: string): boolean {
+  return periodInput.value === `${periodPickerYear.value}-${month}`
+}
+
+function selectPeriodMonth(month: string): void {
+  periodInput.value = `${periodPickerYear.value}-${month}`
+  periodPickerOpen.value = false
+}
+
+function selectAllPeriods(): void {
+  periodInput.value = 'all'
+  periodPickerOpen.value = false
+}
+
+function changePeriodPickerYear(offset: number): void {
+  periodPickerYear.value += offset
+}
+
+function handlePeriodPickerOutsideClick(event: PointerEvent): void {
+  const target = event.target
+
+  if (target instanceof Node && !periodPickerRoot.value?.contains(target)) {
+    periodPickerOpen.value = false
+  }
+}
+
+function handlePeriodPickerKeydown(event: KeyboardEvent): void {
+  if (event.key === 'Escape') {
+    periodPickerOpen.value = false
+  }
 }
 
 function formatDate(dateString: string): string {
@@ -203,6 +237,16 @@ async function loadAllArticles(): Promise<void> {
     category: 'all',
     query: '',
   })
+
+  if (periodInput.value === 'all') {
+    const periods = availableArticles.value
+      .map((article) => article.period)
+      .filter(Boolean)
+      .sort((a, b) => b.localeCompare(a))
+    periodPickerYear.value = periods[0] ? Number(periods[0].slice(0, 4)) : new Date().getFullYear()
+  } else {
+    periodPickerYear.value = Number(periodInput.value.slice(0, 4))
+  }
 }
 
 async function runSearch(): Promise<void> {
@@ -225,10 +269,15 @@ async function runSearch(): Promise<void> {
 }
 
 function handleSearch(): void {
+  periodPickerOpen.value = false
+
+  // Filter sumber berita dan kategori disembunyikan dari UI,
+  // sehingga pencarian tetap mencakup seluruh media dan kategori.
+  // Field mediaName dan category tetap dikirim untuk menjaga kontrak SearchArticleFilters.
   appliedFilters.value = {
     period: periodInput.value,
-    mediaName: mediaInput.value,
-    category: categoryInput.value,
+    mediaName: 'all',
+    category: 'all',
     query: queryInput.value.trim(),
   }
 
@@ -240,8 +289,12 @@ function handleSearch(): void {
 
 function resetFilters(): void {
   periodInput.value = 'all'
-  mediaInput.value = 'all'
-  categoryInput.value = 'all'
+  periodPickerOpen.value = false
+  const periods = availableArticles.value
+    .map((article) => article.period)
+    .filter(Boolean)
+    .sort((a, b) => b.localeCompare(a))
+  periodPickerYear.value = periods[0] ? Number(periods[0].slice(0, 4)) : new Date().getFullYear()
   queryInput.value = ''
 
   handleSearch()
@@ -382,6 +435,9 @@ async function handleDelete(article: NewsArticle): Promise<void> {
 }
 
 onMounted(async () => {
+  document.addEventListener('pointerdown', handlePeriodPickerOutsideClick)
+  document.addEventListener('keydown', handlePeriodPickerKeydown)
+
   isLoading.value = true
 
   try {
@@ -393,6 +449,11 @@ onMounted(async () => {
   } finally {
     isLoading.value = false
   }
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('pointerdown', handlePeriodPickerOutsideClick)
+  document.removeEventListener('keydown', handlePeriodPickerKeydown)
 })
 </script>
 
@@ -438,58 +499,86 @@ onMounted(async () => {
         </button>
       </div>
 
-      <form
-        class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
-        @submit.prevent="handleSearch"
-      >
-        <div>
-          <label for="article-period" class="mb-2 block text-xs font-medium text-slate-600">
+      <form class="grid grid-cols-1 gap-4 sm:grid-cols-2" @submit.prevent="handleSearch">
+        <div ref="periodPickerRoot" class="relative">
+          <label for="article-period-trigger" class="mb-2 block text-xs font-medium text-slate-600">
             Periode
           </label>
 
-          <select
-            id="article-period"
-            v-model="periodInput"
-            class="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-bps-blue focus:ring-2 focus:ring-bps-blue/15"
+          <button
+            id="article-period-trigger"
+            type="button"
+            aria-haspopup="dialog"
+            :aria-expanded="periodPickerOpen"
+            class="flex h-11 w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-3 text-left text-sm text-slate-700 outline-none transition hover:border-slate-300 focus:border-bps-blue focus:ring-2 focus:ring-bps-blue/15"
+            @click="periodPickerOpen = !periodPickerOpen"
           >
-            <option v-for="option in periodOptions" :key="option.value" :value="option.value">
-              {{ option.label }}
-            </option>
-          </select>
-        </div>
+            <span>{{ selectedPeriodLabel }}</span>
+            <AppIcon name="calendar" :size="17" class="shrink-0 text-slate-500" />
+          </button>
 
-        <div>
-          <label for="article-media" class="mb-2 block text-xs font-medium text-slate-600">
-            Sumber berita
-          </label>
-
-          <select
-            id="article-media"
-            v-model="mediaInput"
-            class="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-bps-blue focus:ring-2 focus:ring-bps-blue/15"
+          <div
+            v-if="periodPickerOpen"
+            role="dialog"
+            aria-label="Pilih periode berdasarkan bulan"
+            class="absolute left-0 top-full z-30 mt-2 w-full min-w-72 rounded-xl border border-slate-200 bg-white p-3 shadow-xl shadow-slate-900/10"
           >
-            <option value="all">Semua Media</option>
-            <option v-for="media in mediaOptions" :key="media" :value="media">
-              {{ media }}
-            </option>
-          </select>
-        </div>
+            <div class="flex items-center justify-between gap-2">
+              <button
+                type="button"
+                aria-label="Tahun sebelumnya"
+                class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-bps-blue/30"
+                @click="changePeriodPickerYear(-1)"
+              >
+                <AppIcon name="chevron-left" :size="16" />
+              </button>
 
-        <div>
-          <label for="article-category" class="mb-2 block text-xs font-medium text-slate-600">
-            Kategori fenomena
-          </label>
+              <span class="text-sm font-semibold text-slate-800">{{ periodPickerYear }}</span>
 
-          <select
-            id="article-category"
-            v-model="categoryInput"
-            class="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-bps-blue focus:ring-2 focus:ring-bps-blue/15"
-          >
-            <option value="all">Semua Kategori</option>
-            <option v-for="option in CATEGORY_OPTIONS" :key="option.value" :value="option.value">
-              {{ option.label }}
-            </option>
-          </select>
+              <button
+                type="button"
+                aria-label="Tahun berikutnya"
+                class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-bps-blue/30"
+                @click="changePeriodPickerYear(1)"
+              >
+                <AppIcon name="chevron-right" :size="16" />
+              </button>
+            </div>
+
+            <div class="mt-3 grid grid-cols-4 gap-2">
+              <button
+                v-for="month in MONTH_OPTIONS"
+                :key="month.value"
+                type="button"
+                :aria-label="`${month.label} ${periodPickerYear}`"
+                :aria-pressed="isPeriodMonthSelected(month.value)"
+                :class="[
+                  'rounded-lg px-2 py-2.5 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-bps-blue/30',
+                  isPeriodMonthSelected(month.value)
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'text-slate-700 hover:bg-slate-100',
+                ]"
+                @click="selectPeriodMonth(month.value)"
+              >
+                {{ month.label }}
+              </button>
+            </div>
+
+            <div class="mt-3 border-t border-slate-100 pt-3">
+              <button
+                type="button"
+                :class="[
+                  'w-full rounded-lg px-3 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-bps-blue/30',
+                  periodInput === 'all'
+                    ? 'bg-blue-50 text-bps-blue'
+                    : 'text-slate-600 hover:bg-slate-50',
+                ]"
+                @click="selectAllPeriods"
+              >
+                Semua Periode
+              </button>
+            </div>
+          </div>
         </div>
 
         <div>
@@ -515,7 +604,7 @@ onMounted(async () => {
         </div>
 
         <div
-          class="flex flex-col gap-3 sm:col-span-2 xl:col-span-4 xl:flex-row xl:items-center xl:justify-between"
+          class="flex flex-col gap-3 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
             <label for="article-rows" class="mr-3 text-xs font-medium text-slate-600">
@@ -730,7 +819,7 @@ onMounted(async () => {
                 <p class="mt-4 text-sm font-semibold text-slate-800">Artikel tidak ditemukan</p>
 
                 <p class="mt-1 text-xs text-slate-500">
-                  Coba ubah periode, kategori, media, atau kata kunci.
+                  Coba ubah periode atau kata kunci pencarian.
                 </p>
               </td>
             </tr>

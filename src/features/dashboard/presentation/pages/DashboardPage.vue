@@ -27,6 +27,23 @@ const COLORS = {
 } as const
 
 const selectedPeriod = ref('all')
+const isPeriodPickerOpen = ref(false)
+const calendarYear = ref(new Date().getFullYear())
+
+const months = [
+  { label: 'Jan', value: '01' },
+  { label: 'Feb', value: '02' },
+  { label: 'Mar', value: '03' },
+  { label: 'Apr', value: '04' },
+  { label: 'Mei', value: '05' },
+  { label: 'Jun', value: '06' },
+  { label: 'Jul', value: '07' },
+  { label: 'Agu', value: '08' },
+  { label: 'Sep', value: '09' },
+  { label: 'Okt', value: '10' },
+  { label: 'Nov', value: '11' },
+  { label: 'Des', value: '12' },
+] as const
 const availablePeriods = ref<string[]>([])
 const summary = ref<DashboardSummary | null>(null)
 
@@ -55,16 +72,27 @@ function formatPercentage(numerator: number, denominator: number): string {
   return `${Math.round((numerator / denominator) * 100)}%`
 }
 
-const periodOptions = computed(() => [
-  {
-    label: 'Semua Periode',
-    value: 'all',
-  },
-  ...availablePeriods.value.map((period) => ({
-    label: formatPeriod(period),
-    value: period,
-  })),
-])
+const selectedPeriodInputLabel = computed(() =>
+  selectedPeriod.value === 'all' ? 'Semua Periode' : formatPeriod(selectedPeriod.value),
+)
+
+function changeCalendarYear(amount: number): void {
+  calendarYear.value += amount
+}
+
+function selectMonth(month: string): void {
+  selectedPeriod.value = `${calendarYear.value}-${month}`
+  isPeriodPickerOpen.value = false
+}
+
+function selectAllPeriods(): void {
+  selectedPeriod.value = 'all'
+  isPeriodPickerOpen.value = false
+}
+
+function isSelectedMonth(month: string): boolean {
+  return selectedPeriod.value === `${calendarYear.value}-${month}`
+}
 
 const selectedPeriodLabel = computed(() =>
   selectedPeriod.value === 'all' ? 'Semua periode' : formatPeriod(selectedPeriod.value),
@@ -278,7 +306,7 @@ const commodityScopeData = computed(() => {
   <div class="space-y-6">
     <!-- Period filter -->
     <section
-      class="flex flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-200/30 sm:flex-row sm:items-center sm:justify-between sm:p-5"
+      class="flex flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-200/30 sm:flex-row sm:items-start sm:justify-between sm:p-5"
     >
       <div class="flex items-start gap-3">
         <div
@@ -295,20 +323,83 @@ const commodityScopeData = computed(() => {
         </div>
       </div>
 
-      <div class="flex flex-col gap-2 sm:min-w-56">
-        <label for="dashboard-period" class="text-xs font-medium text-slate-600">
+      <div class="relative w-full sm:w-[340px]">
+        <label for="dashboard-period" class="mb-2 block text-xs font-medium text-slate-600">
           Periode target
         </label>
 
-        <select
+        <button
           id="dashboard-period"
-          v-model="selectedPeriod"
-          class="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none transition focus:border-bps-blue focus:ring-2 focus:ring-bps-blue/15"
+          type="button"
+          :aria-expanded="isPeriodPickerOpen"
+          aria-haspopup="dialog"
+          class="flex h-[58px] w-full items-center justify-between rounded-2xl border bg-white px-4 text-left text-base text-slate-700 outline-none transition"
+          :class="isPeriodPickerOpen
+            ? 'border-sky-500 ring-2 ring-sky-100'
+            : 'border-slate-200 hover:border-slate-300'"
+          @click="isPeriodPickerOpen = !isPeriodPickerOpen"
         >
-          <option v-for="option in periodOptions" :key="option.value" :value="option.value">
-            {{ option.label }}
-          </option>
-        </select>
+          <span>{{ selectedPeriodInputLabel }}</span>
+          <AppIcon name="calendar" class="h-5 w-5 shrink-0 text-slate-500" />
+        </button>
+
+        <div
+          v-if="isPeriodPickerOpen"
+          role="dialog"
+          aria-label="Pilih periode"
+          class="absolute right-0 top-full z-30 mt-2 w-full min-w-[320px] rounded-2xl border border-slate-200 bg-white p-4 shadow-xl shadow-slate-900/10 sm:w-[420px]"
+        >
+          <div class="mb-5 flex items-center justify-between px-1">
+            <button
+              type="button"
+              aria-label="Tahun sebelumnya"
+              class="flex h-8 w-8 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100"
+              @click="changeCalendarYear(-1)"
+            >
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="m15 18-6-6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+
+            <span class="text-base font-semibold text-slate-700">{{ calendarYear }}</span>
+
+            <button
+              type="button"
+              aria-label="Tahun berikutnya"
+              class="flex h-8 w-8 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100"
+              @click="changeCalendarYear(1)"
+            >
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="m9 18 6-6-6-6" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-4 gap-x-2 gap-y-3">
+            <button
+              v-for="month in months"
+              :key="month.value"
+              type="button"
+              class="flex h-12 items-center justify-center rounded-lg text-base transition"
+              :class="isSelectedMonth(month.value)
+                ? 'bg-sky-100 font-semibold text-sky-700'
+                : 'text-slate-600 hover:bg-slate-100'"
+              @click="selectMonth(month.value)"
+            >
+              {{ month.label }}
+            </button>
+          </div>
+
+          <div class="mt-4 border-t border-slate-100 pt-4">
+            <button
+              type="button"
+              class="h-[54px] w-full rounded-xl bg-blue-50 text-base font-medium text-sky-600 transition hover:bg-blue-100"
+              @click="selectAllPeriods"
+            >
+              Semua Periode
+            </button>
+          </div>
+        </div>
       </div>
     </section>
 
