@@ -28,6 +28,11 @@ const primaryItems = computed<NavigationItem[]>(() => [
     icon: authStore.isAdmin ? 'file-edit' : 'file',
     routeName: authStore.isAdmin ? 'article-management' : 'articles',
   },
+  {
+    label: 'Download',
+    icon: 'download',
+    routeName: 'download',
+  },
 ])
 
 const adminItems: NavigationItem[] = [

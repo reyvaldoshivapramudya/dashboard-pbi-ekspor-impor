@@ -2,6 +2,7 @@ import ArticleManagementPage from '@/features/article-management/presentation/pa
 import ArticlesPage from '@/features/articles/presentation/pages/ArticlesPage.vue'
 import CrawlingPage from '@/features/crawling/presentation/pages/CrawlingPage.vue'
 import DashboardPage from '@/features/dashboard/presentation/pages/DashboardPage.vue'
+import DownloadPage from '@/features/downloads/presentation/pages/DownloadPage.vue'
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '../stores/auth.store'
 import AppLayout from '../layouts/AppLayout.vue'
@@ -36,6 +37,15 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: 'Artikel Berita',
           description: 'Cari, filter, dan telusuri berita ekspor impor',
+        },
+      },
+      {
+        path: 'download',
+        name: 'download',
+        component: DownloadPage,
+        meta: {
+          title: 'Download',
+          description: 'Unduh hasil pengolahan berita ekspor impor dalam format Excel per periode.',
         },
       },
       {
