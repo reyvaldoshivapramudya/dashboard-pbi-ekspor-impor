@@ -47,7 +47,7 @@ const accentClasses = computed(() => {
           {{ title }}
         </p>
 
-        <p class="mt-3 break-words text-3xl font-bold tracking-tight text-slate-900">
+        <p class="mt-3 wrap-break-word text-3xl font-bold tracking-tight text-slate-900">
           {{ value }}
         </p>
       </div>
