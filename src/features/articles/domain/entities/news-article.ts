@@ -19,4 +19,5 @@ export interface NewsArticle {
   url: string
   sentiment: SentimentLabel
   sentimentScore: number
+  mainPoints?: string[]
 }

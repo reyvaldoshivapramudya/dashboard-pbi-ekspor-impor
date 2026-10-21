@@ -36,7 +36,7 @@ const routes: RouteRecordRaw[] = [
         component: ArticlesPage,
         meta: {
           title: 'Artikel Berita',
-          description: 'Cari, filter, dan telusuri berita ekspor impor',
+          description: 'Cari, filter, dan telusuri data artikel berita ekspor impor',
         },
       },
       {

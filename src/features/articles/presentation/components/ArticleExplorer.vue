@@ -18,9 +18,18 @@ import type { SearchArticleFilters } from '@/features/articles/domain/use-cases/
 const props = withDefaults(
   defineProps<{
     canManage?: boolean
+    /** Batasi daftar pada komoditas tertentu (dipakai pada pop-up daftar komoditas). */
+    commodity?: string
+    /** Langsung buka formulir tambah artikel saat komponen ditampilkan. */
+    autoCreate?: boolean
+    /** Tampilkan hanya satu search bar tanpa panel filter lengkap. */
+    compactSearch?: boolean
   }>(),
   {
     canManage: false,
+    commodity: '',
+    autoCreate: false,
+    compactSearch: false,
   },
 )
 
@@ -78,6 +87,7 @@ const appliedFilters = ref<SearchArticleFilters>({
   mediaName: 'all',
   category: 'all',
   query: '',
+  commodity: props.commodity,
 })
 
 const rowsPerPage = ref(20)
@@ -98,7 +108,7 @@ function emptyForm(): ArticleFormState {
     searchKeywords: '',
     title: '',
     mediaName: 'Antara',
-    commodities: '',
+    commodities: props.commodity,
     commodityScope: 'specific',
     relatedCountries: '',
     summary: '',
@@ -279,6 +289,7 @@ function handleSearch(): void {
     mediaName: 'all',
     category: 'all',
     query: queryInput.value.trim(),
+    commodity: props.commodity,
   }
 
   currentPage.value = 1
@@ -449,6 +460,10 @@ onMounted(async () => {
   } finally {
     isLoading.value = false
   }
+
+  if (props.autoCreate) {
+    openCreateForm()
+  }
 })
 
 onBeforeUnmount(() => {
@@ -478,8 +493,9 @@ onBeforeUnmount(() => {
       <p>{{ errorMessage }}</p>
     </div>
 
-    <!-- Search panel -->
+    <!-- Panel filter lengkap: dipakai pada halaman Manajemen Artikel Berita -->
     <section
+      v-if="!props.compactSearch"
       class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/30 sm:p-6"
     >
       <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -644,6 +660,54 @@ onBeforeUnmount(() => {
       </form>
     </section>
 
+    <!-- Satu search bar: dipakai pada pop-up Daftar dan Kelola Artikel -->
+    <section
+      v-if="props.compactSearch"
+      class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/30 sm:p-5"
+    >
+      <form class="flex flex-col gap-3 sm:flex-row sm:items-end" @submit.prevent="handleSearch">
+        <div class="flex-1">
+          <label for="article-query" class="mb-2 block text-xs font-medium text-slate-600">
+            Cari artikel
+          </label>
+
+          <div class="relative">
+            <AppIcon
+              name="search"
+              :size="16"
+              class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+            />
+
+            <input
+              id="article-query"
+              v-model="queryInput"
+              type="search"
+              placeholder="Contoh: kebijakan, logistik, beras..."
+              class="h-11 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-sm outline-none focus:border-bps-blue focus:ring-2 focus:ring-bps-blue/15"
+            />
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+            @click="resetFilters"
+          >
+            Reset
+          </button>
+
+          <button
+            type="submit"
+            class="inline-flex items-center justify-center gap-2 rounded-xl border border-bps-blue px-5 py-2.5 text-sm font-semibold text-bps-blue transition hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-bps-blue/30"
+          >
+            <AppIcon name="search" class="h-4 w-4" />
+            Cari
+          </button>
+        </div>
+      </form>
+    </section>
+
     <!-- Result table -->
     <section
       class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-200/30"
@@ -653,18 +717,12 @@ onBeforeUnmount(() => {
       >
         <div>
           <h2 class="text-base font-semibold text-slate-900">
-            {{ props.canManage ? 'Daftar dan Kelola Artikel' : 'Daftar Artikel Berita' }}
+            {{ props.canManage ? 'Daftar dan Kelola Artikel' : 'Daftar Artikel' }}
+            <span v-if="props.commodity" class="text-bps-blue">&mdash; {{ props.commodity }}</span>
           </h2>
           <p class="mt-1 text-xs text-slate-500">
             {{ formatNumber(filteredArticles.length) }} artikel ditemukan
           </p>
-        </div>
-
-        <div
-          class="inline-flex w-fit items-center gap-2 rounded-full bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700"
-        >
-          <AppIcon name="database" class="h-4 w-4" />
-          Data simulasi
         </div>
       </div>
 
@@ -700,7 +758,7 @@ onBeforeUnmount(() => {
             <tr
               v-for="article in paginatedArticles"
               :key="article.id"
-              class="align-top transition hover:bg-slate-50/70"
+              class="align-top transition hover:bg-slate-100"
             >
               <td class="whitespace-nowrap px-4 py-4 text-slate-600">
                 {{ formatDate(article.publishedAt) }}

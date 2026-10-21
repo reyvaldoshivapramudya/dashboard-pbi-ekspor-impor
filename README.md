@@ -1,54 +1,333 @@
-# dashboard-ekspor-impor
+# PBI Ekspor Impor — Monitoring Ekspor & Impor
 
-This template should help get you started developing with Vue 3 in Vite.
+Dashboard admin berbasis Vue 3 + Vite untuk memantau **fenomena berita ekspor dan impor
+Indonesia**. Aplikasi ini menggantikan halaman pengelolaan artikel lama dengan tampilan
+**Daftar Komoditas** yang seluruh datanya bersumber dari workbook hasil scraping
+`HasilScrapingFenomena.xlsx`.
 
-## Recommended IDE Setup
+---
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## Daftar Isi
 
-## Recommended Browser Setup
+- [Tech Stack](#tech-stack)
+- [Fitur Utama](#fitur-utama)
+- [Sumber Data Excel](#sumber-data-excel)
+- [Role Pengguna](#role-pengguna)
+- [Halaman Manajemen Artikel Berita (Admin)](#halaman-manajemen-artikel-berita-admin)
+- [Halaman Artikel Berita (User)](#halaman-artikel-berita-user)
+- [Struktur Proyek](#struktur-proyek)
+- [Menjalankan Aplikasi](#menjalankan-aplikasi)
+- [Skrip NPM](#skrip-npm)
+- [Catatan Pengembangan](#catatan-pengembangan)
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+---
 
-## Type Support for `.vue` Imports in TS
+## Tech Stack
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+| Kategori      | Teknologi                                        |
+| ------------- | ------------------------------------------------ |
+| Framework     | Vue 3.5 (`<script setup>` + TypeScript)          |
+| Build tool    | Vite 8                                           |
+| Styling       | Tailwind CSS 4 (`@tailwindcss/vite`)             |
+| State         | Pinia 4                                          |
+| Routing       | Vue Router 5                                     |
+| Ikon          | `@lucide/vue` (dibungkus `AppIcon.vue`)          |
+| Chart         | Chart.js 4 + `vue-chartjs`                       |
+| Test          | Vitest 4 + `@vue/test-utils` (environment jsdom) |
+| Lint & format | ESLint + oxlint + Prettier                       |
 
-## Customize configuration
+Persyaratan Node.js: `^22.18.0 || >=24.12.0`.
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+---
 
-## Project Setup
+## Fitur Utama
+
+1. **Dashboard** — ringkasan statistik (total artikel, media terpantau, komoditas spesifik,
+   sentimen positif) plus grafik Top 5 Komoditas, distribusi sentimen, artikel per media, dan
+   distribusi kategori fenomena. Dapat difilter per periode (bulan/tahun).
+2. **Daftar Komoditas (Excel-driven)** — tabel komoditas pada halaman Manajemen Artikel Berita
+   dan halaman Artikel Berita. Setiap baris dapat diklik untuk membuka pop-up daftar artikel
+   yang otomatis difilter berdasarkan komoditas tersebut.
+3. **Pencarian & filter artikel** — panel filter lengkap (periode + nama komoditas) di halaman
+   dan **satu search bar** di dalam pop-up.
+4. **CRUD artikel (Admin)** — tambah, ubah, dan hapus artikel melalui formulir di dalam pop-up.
+5. **Crawling berita (Admin)** — simulasi pengambilan berita per periode dan portal, dengan
+   riwayat crawling serta deduplikasi berdasarkan URL.
+6. **Download Excel** — ekspor artikel per periode ke berkas `.xlsx` (13 kolom, sudah diformat
+   lebar kolomnya).
+7. **Simulasi role** — pengalih role Admin/User pada header untuk menguji kedua tampilan.
+
+---
+
+## Sumber Data Excel
+
+Workbook acuan: **`HasilScrapingFenomena.xlsx`**.
+
+Workbook ini memiliki lebih dari dua sheet, yaitu `Ringkasan`, `Ringkasan Komoditas`,
+`Hasil Scraping`, `Rekap Proses`, `Validasi Sentimen`, dan `Metodologi`. Aplikasi hanya memakai
+dua sheet berikut:
+
+| Sheet                 | Dipakai untuk                                                                                                                       | Hasil                              |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| `Ringkasan Komoditas` | Angka ringkasan per komoditas dan poin ringkasannya                                                                                 | `commodity-overview.datasource.ts` |
+| `Hasil Scraping`      | Detail artikel: tanggal, kategori fenomena, judul, media, komoditas, negara terkait, ringkasan, sentimen, skor sentimen, dan tautan | `articles.mock.ts`                 |
+
+Proses konversi sudah dilakukan sekali di luar aplikasi, sehingga **tidak ada parser Excel pada
+runtime**. Kedua berkas di atas adalah hasil generate yang menjadi sumber kebenaran data.
+
+Catatan penting:
+
+- Nilai **Poin Pendukung** dan **Rentang Tanggal** tidak dapat diturunkan dari sheet
+  `Hasil Scraping`, sehingga tetap disimpan pada entitas `CommodityOverview` sebagai data Excel
+  asli — namun **tidak lagi ditampilkan** pada tabel komoditas.
+- Baris lanjutan seperti `Lintas Komoditas - Kebijakan dan Regulasi Perdagangan (lanjutan 2)`
+  sudah digabungkan ke baris induknya saat konversi.
+- Komoditas **lintas komoditas** (mis. `Lintas Komoditas - Logistik dan Pelabuhan`) diperlakukan
+  sebagai baris tersendiri; artikel dengan banyak komoditas muncul di lebih dari satu baris
+  komoditas, dan artikel tanpa komoditas tidak dimasukkan ke komoditas mana pun.
+- Bila admin menambah artikel dengan komoditas yang belum ada di Excel, baris komoditas baru
+  dihitung dari artikel tersebut sebagai **fallback**, dan **tidak pernah menimpa** angka Excel.
+
+Data komoditas yang tersedia saat ini (24 baris): Beras, Furnitur, Kereta Api, Minyak dan Gas,
+Kendaraan Bermotor, Sayuran dan Buah, Tekstil dan Produk Tekstil, Besi / Baja, Elektronik,
+Emas / Logam Mulia, Gula, Jagung, Kayu dan Produk Kayu, Makanan dan Minuman Olahan, Pakaian
+Bekas, Perikanan, Pertambangan (Umum), Sawit / CPO, serta enam kelompok
+`Lintas Komoditas - ...`.
+
+Penyimpanan artikel yang dapat diubah (create/update/delete) menggunakan `localStorage` dengan
+kunci `eksim-insight:articles:v1`; bila kosong, dataset awal dari `articles.mock.ts` digunakan.
+
+---
+
+## Role Pengguna
+
+Role disimpan pada `auth.store.ts` (Pinia) dan **default-nya `admin`**. Pengalih role
+("Simulasi role") tersedia di header `AppLayout.vue`.
+
+| Role    | Menu sidebar                                                       | Halaman artikel                                 | CRUD  |
+| ------- | ------------------------------------------------------------------ | ----------------------------------------------- | ----- |
+| `admin` | Dashboard, **Manajemen Artikel Berita**, Download, Crawling Berita | `CommodityOverviewTable` (`can-manage="true"`)  | Ya    |
+| `user`  | Dashboard, **Artikel Berita**, Download                            | `CommodityOverviewTable` (`can-manage="false"`) | Tidak |
+
+Guard router (`src/app/router/index.ts`):
+
+- Route dengan `meta.requiresAdmin` (`crawling`, `article-management`) dialihkan ke `dashboard`
+  bila role bukan admin.
+- Route `articles` dialihkan ke `article-management` bila role admin, sehingga tidak ada halaman
+  duplikat yang bisa dibuka bersamaan.
+
+Kedua halaman artikel **memakai satu komponen yang sama** (`CommodityOverviewTable`) dan hanya
+berbeda pada prop `canManage`. Prop ini diteruskan ke `ArticleExplorer`, yang menyembunyikan
+seluruh elemen pengelolaan (tombol _Tambah Artikel_, kolom _Aksi_, dan modal formulir) saat
+`canManage` bernilai `false`. Hasilnya, tampilan User identik dengan Admin kecuali fitur CRUD.
+
+---
+
+## Halaman Manajemen Artikel Berita (Admin)
+
+Halaman ini berisi dua bagian utama.
+
+### 1. Panel "Filter dan pencarian"
+
+- Deskripsi: _Cari berdasarkan nama komoditas atau periode._
+- **Periode** — pemilih bulan/tahun berbentuk dialog (`Semua Periode` atau label bulan-tahun
+  tertentu).
+- **Nama komoditas** — input teks untuk menyaring daftar komoditas (mis. `beras`, `furnitur`,
+  `kereta api`).
+- **Baris per halaman** — 20 / 50 / 100, dengan tombol `Reset Filter` dan `Cari Komoditas`.
+- Tombol **Tambah Artikel** — hanya tampil untuk Admin. Tombol ini membuka pop-up yang sama
+  dalam mode formulir artikel baru tanpa filter komoditas, sehingga artikel baru dapat dibuat
+  untuk komoditas apa pun. Pada halaman Artikel Berita (User) tombol ini tidak ada.
+
+### 2. Tabel "Daftar Komoditas"
+
+Kolom, sesuai urutan tampil:
+
+| Kolom             | Keterangan                                                                                       |
+| ----------------- | ------------------------------------------------------------------------------------------------ |
+| Komoditas         | Nama komoditas beserta ikon                                                                      |
+| Jumlah Berita     | Jumlah artikel komoditas tersebut                                                                |
+| Positif           | Jumlah artikel bersentimen positif (badge hijau)                                                 |
+| Negatif           | Jumlah artikel bersentimen negatif (badge oranye)                                                |
+| Jumlah Poin Utama | Jumlah poin utama hasil ekstraksi                                                                |
+| Poin Ringkasan    | **Seluruh** poin ringkasan (tanpa pemotongan `+N poin lainnya`) lengkap dengan media dan tanggal |
+
+Kolom **Jumlah Poin Pendukung** dan **Rentang Tanggal** dihilangkan dari tabel.
+
+Setiap baris bersifat interaktif (`role="button"`, dapat difokus dan diaktifkan dengan
+`Enter`/`Space`), memiliki efek hover, dan membuka pop-up. Label aksesibilitas baris berbeda
+sesuai role (`Kelola artikel komoditas …` vs `Lihat artikel komoditas …`).
+
+### 3. Pop-up "Daftar dan Kelola Artikel"
+
+- Berbentuk persegi panjang, di-teleport ke `body`, dengan tinggi `94vh`, lebar maksimum
+  `1700px`, dan overlay gelap berblur. Dapat ditutup lewat tombol silang, klik area overlay,
+  atau tombol `Escape`.
+- Header menampilkan eyebrow `DAFTAR DAN KELOLA ARTIKEL` (Admin) atau `DAFTAR ARTIKEL` (User)
+  serta judul `Komoditas <nama>` (atau `Semua Komoditas` saat menambah artikel).
+- Di dalamnya dirender `ArticleExplorer` dengan `compact-search`, `commodity`, dan
+  `auto-create`, sehingga artikel otomatis difilter ke komoditas yang dipilih. Contoh: klik
+  baris **Beras** hanya menampilkan artikel dengan komoditas Beras.
+- `popupKey` memaksa komponen di-_remount_ saat mode berubah (daftar ↔ formulir). Setiap kali
+  pop-up ditutup, ringkasan komoditas dimuat ulang agar jumlah artikel tetap konsisten.
+- Kolom tabel artikel di dalam pop-up: Tanggal, Kategori, Kata Kunci, Judul Berita, Media,
+  Komoditas, Negara Terkait, Ringkasan, Tautan, Sentimen, Skor, dan **Aksi** (khusus Admin,
+  berisi tombol edit dan hapus).
+- Bagian pencarian di pop-up **hanya berupa satu search bar** dengan tombol `Reset` dan `Cari`;
+  panel filter lengkap tidak dirender pada mode ini. Formulir tambah/ubah artikel juga muncul di
+  dalam pop-up ini.
+
+---
+
+## Halaman Artikel Berita (User)
+
+Halaman ini merender komponen yang sama dengan Admin memakai `can-manage="false"`:
+
+- Panel "Filter dan pencarian" tanpa tombol Tambah Artikel.
+- Tabel "Daftar Komoditas" dengan kolom dan urutan yang identik.
+- Pop-up `DAFTAR ARTIKEL` dengan 11 kolom artikel (tanpa kolom `Aksi`), satu search bar, dan
+  tanpa modal formulir.
+- Teks bantuan berubah menjadi _Klik baris untuk membuka daftar artikel._
+
+Deskripsi route: _Cari, filter, dan telusuri data artikel berita ekspor impor_ (tanpa kata
+"kelola").
+
+---
+
+## Struktur Proyek
+
+Arsitektur mengikuti pola **feature-based + clean architecture** ringan: setiap fitur dipisah
+menjadi lapisan `domain` (entity, repository interface, use case), `data` (datasource,
+implementasi repository), dan `presentation` (komponen, halaman).
+
+```text
+src/
+├── app/
+│   ├── container.ts              # Dependency injection manual (repository + use case)
+│   ├── layouts/AppLayout.vue     # Sidebar, header, pengalih role
+│   ├── router/index.ts           # Definisi route + guard role
+│   └── stores/auth.store.ts      # Role admin/user
+├── assets/main.css               # Tailwind + token warna BPS
+├── features/
+│   ├── article-management/
+│   │   └── presentation/
+│   │       ├── components/CommodityOverviewTable.vue        # Halaman bersama Admin & User
+│   │       └── pages/ArticleManagementPage.vue              # can-manage = true
+│   ├── articles/
+│   │   ├── data/
+│   │   │   ├── datasources/articles.mock.ts                 # Sheet "Hasil Scraping"
+│   │   │   ├── datasources/commodity-overview.datasource.ts # Sheet "Ringkasan Komoditas"
+│   │   │   └── repositories/…                               # Implementasi repository
+│   │   ├── domain/
+│   │   │   ├── entities/news-article.ts, commodity-overview.ts
+│   │   │   ├── repositories/…
+│   │   │   └── use-cases/…                                  # search, create, update, delete,
+│   │   │                                                    # get-commodity-overview
+│   │   └── presentation/
+│   │       ├── components/ArticleExplorer.vue               # Tabel artikel + CRUD opsional
+│   │       └── pages/ArticlesPage.vue                       # can-manage = false
+│   ├── crawling/                 # Simulasi crawling + riwayat
+│   ├── dashboard/                # Statistik & grafik (StatCard, BaseBarChart, dll.)
+│   └── downloads/                # DownloadPage.vue
+└── shared/
+    ├── components/AppIcon.vue    # Pemetaan nama ikon → Lucide
+    └── utils/xlsx-export.ts      # Helper ekspor .xlsx
+```
+
+Use case `GetCommodityOverview` menggabungkan baris Excel dengan baris turunan dari artikel yang
+komoditasnya belum ada di Excel, lalu mengurutkannya berdasarkan nama komoditas.
+
+---
+
+## Menjalankan Aplikasi
 
 ```sh
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+### Compile dan hot-reload untuk pengembangan
 
 ```sh
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+Vite berjalan di `http://localhost:5173`. Bila port tersebut terpakai, jalankan dengan port
+eksplisit:
+
+```sh
+npm run dev -- --port 5174 --strictPort
+```
+
+### Type-check dan build untuk produksi
 
 ```sh
 npm run build
 ```
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+Perintah ini menjalankan `vue-tsc --build` (type-check) dan `vite build` secara paralel.
+
+### Pratinjau hasil build
+
+```sh
+npm run preview
+```
+
+### Menjalankan unit test dengan [Vitest](https://vitest.dev/)
 
 ```sh
 npm run test:unit
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+### Lint dengan [ESLint](https://eslint.org/) dan [oxlint](https://oxc.rs/docs/guide/usage/linter)
 
 ```sh
 npm run lint
 ```
+
+### Format dengan [Prettier](https://prettier.io/)
+
+```sh
+npm run format
+```
+
+---
+
+## Skrip NPM
+
+| Skrip                | Perintah                                   |
+| -------------------- | ------------------------------------------ |
+| `npm run dev`        | Menjalankan dev server Vite                |
+| `npm run build`      | `run-p type-check build-only`              |
+| `npm run build-only` | `vite build` saja                          |
+| `npm run preview`    | Pratinjau hasil build                      |
+| `npm run type-check` | `vue-tsc --build`                          |
+| `npm run test:unit`  | `vitest`                                   |
+| `npm run lint`       | `run-s lint:oxlint lint:eslint`            |
+| `npm run format`     | `prettier --write --experimental-cli src/` |
+
+---
+
+## Catatan Pengembangan
+
+- **Type support untuk import `.vue`** — TypeScript tidak menangani tipe untuk berkas `.vue`
+  secara bawaan, sehingga `tsc` digantikan `vue-tsc` dan editor memerlukan ekstensi
+  [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (Vetur
+  dinonaktifkan).
+- **`withDefaults` adalah compiler macro** — jangan mengimpornya dari `vue`; mengimpornya akan
+  memunculkan peringatan bahwa macro tersebut tidak perlu diimpor lagi.
+- **Urutan kolom tabel** — saat mengubah urutan kolom, sel `<th>` dan `<td>` pasangannya harus
+  dipindahkan bersamaan agar header dan isi tabel tidak bergeser diam-diam.
+- **Lint yang sudah ada sebelumnya** — `npm run lint` masih melaporkan satu error yang tidak
+  berkaitan dengan perubahan ini:
+  `src/shared/utils/xlsx-export.ts:25:16 error eslint(no-control-regex)`.
+
+### Recommended IDE & browser setup
+
+- [VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar).
+- [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
+  untuk Chromium, atau [versi Firefox](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/).
+  Aktifkan _Custom Object Formatter_ di DevTools agar tampilan objek lebih mudah dibaca.
+
+### Konfigurasi
+
+Lihat [Vite Configuration Reference](https://vite.dev/config/).

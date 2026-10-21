@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import ArticleExplorer from '@/features/articles/presentation/components/ArticleExplorer.vue'
+import CommodityOverviewTable from '../components/CommodityOverviewTable.vue'
 </script>
 
 <template>
-  <ArticleExplorer :can-manage="true" />
+  <CommodityOverviewTable :can-manage="true" />
 </template>

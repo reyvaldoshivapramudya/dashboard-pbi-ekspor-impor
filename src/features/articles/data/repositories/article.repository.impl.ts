@@ -14,6 +14,7 @@ function cloneArticles(articles: NewsArticle[]): NewsArticle[] {
     searchKeywords: [...article.searchKeywords],
     commodities: [...article.commodities],
     relatedCountries: [...article.relatedCountries],
+    mainPoints: article.mainPoints ? [...article.mainPoints] : undefined,
   }))
 }
 
@@ -79,6 +80,7 @@ export class ArticleRepositoryImpl implements ArticleRepository {
       searchKeywords: [...input.searchKeywords],
       commodities: [...input.commodities],
       relatedCountries: [...input.relatedCountries],
+      mainPoints: input.mainPoints ? [...input.mainPoints] : undefined,
     }
 
     this.writeArticles([article, ...articles])
@@ -99,6 +101,7 @@ export class ArticleRepositoryImpl implements ArticleRepository {
       searchKeywords: [...updatedArticle.searchKeywords],
       commodities: [...updatedArticle.commodities],
       relatedCountries: [...updatedArticle.relatedCountries],
+      mainPoints: updatedArticle.mainPoints ? [...updatedArticle.mainPoints] : undefined,
     }
 
     this.writeArticles(articles)
