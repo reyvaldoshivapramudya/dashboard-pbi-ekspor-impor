@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 
 import AppIcon from '@/shared/components/AppIcon.vue'
@@ -78,6 +78,37 @@ function handleRoleChange(event: Event) {
     void router.push({ name: 'article-management' })
   }
 }
+
+// Logic jam real-time
+const currentTime = ref(new Date())
+
+let clockInterval: ReturnType<typeof setInterval> | undefined
+
+const timeLabel = computed(() => {
+  const time = new Intl.DateTimeFormat('id-ID', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hourCycle: 'h23',
+    timeZone: 'Asia/Jakarta',
+  })
+    .format(currentTime.value)
+    .replace(/:/g, '.')
+
+  return `${time} WIB (GMT+7)`
+})
+
+onMounted(() => {
+  clockInterval = setInterval(() => {
+    currentTime.value = new Date()
+  }, 1000)
+})
+
+onUnmounted(() => {
+  if (clockInterval !== undefined) {
+    clearInterval(clockInterval)
+  }
+})
 </script>
 
 <template>
@@ -122,10 +153,8 @@ function handleRoleChange(event: Event) {
       </div>
 
       <!-- Navigation -->
-      <nav aria-label="Navigasi utama" class="flex-1 space-y-7 overflow-y-auto px-4 py-6">
+      <nav aria-label="Navigasi utama" class="flex-1 space-y-1 overflow-y-auto px-4 py-6">
         <section>
-          <p class="mb-3 px-3 text-[10px] font-bold tracking-[0.16em] text-slate-400">MENU UTAMA</p>
-
           <div class="space-y-1.5">
             <RouterLink
               v-for="item in primaryItems"
@@ -151,10 +180,6 @@ function handleRoleChange(event: Event) {
         </section>
 
         <section v-if="visibleAdminItems.length > 0">
-          <p class="mb-3 px-3 text-[10px] font-bold tracking-[0.16em] text-slate-400">
-            OPERASIONAL
-          </p>
-
           <div class="space-y-1.5">
             <RouterLink
               v-for="item in visibleAdminItems"
@@ -225,7 +250,13 @@ function handleRoleChange(event: Event) {
               <p class="text-xs font-medium capitalize text-slate-700">
                 {{ dateLabel }}
               </p>
-              <p class="mt-1 text-[11px] text-slate-400">Ruang kerja prototipe</p>
+
+              <p
+                class="mt-1 text-[11px] font-semibold tabular-nums text-slate-500"
+                aria-label="Waktu saat ini dalam zona WIB"
+              >
+                {{ timeLabel }}
+              </p>
             </div>
 
             <div class="hidden h-9 w-px bg-slate-200 xl:block" aria-hidden="true" />

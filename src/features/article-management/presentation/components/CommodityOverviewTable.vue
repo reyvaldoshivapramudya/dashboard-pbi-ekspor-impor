@@ -485,12 +485,6 @@ onBeforeUnmount(() => {
             >
               <td class="px-4 py-4">
                 <div class="flex items-center gap-2">
-                  <span
-                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-bps-blue"
-                  >
-                    <AppIcon name="package" class="h-4 w-4" />
-                  </span>
-
                   <span class="font-semibold leading-5 text-slate-800">
                     {{ row.commodity }}
                   </span>
