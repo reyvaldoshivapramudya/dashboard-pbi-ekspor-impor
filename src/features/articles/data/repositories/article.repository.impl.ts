@@ -45,7 +45,32 @@ export class ArticleRepositoryImpl implements ArticleRepository {
       const parsed: unknown = JSON.parse(stored)
 
       if (Array.isArray(parsed)) {
-        this.memoryArticles = parsed as NewsArticle[]
+        const storedArticles = parsed as NewsArticle[]
+        const hasLegacySimulationData = storedArticles.some(
+          (article) =>
+            article &&
+            typeof article.title === 'string' &&
+            /^Simulasi\s*:/i.test(article.title.trim()),
+        )
+
+        if (hasLegacySimulationData) {
+          // Sinkronkan data seed yang usang dari localStorage dengan MOCK_ARTICLES terbaru.
+          // Artikel buatan admin (ID di luar daftar seed) tetap dipertahankan.
+          const seedIds = new Set(MOCK_ARTICLES.map((article) => article.id))
+          const customArticles = storedArticles.filter(
+            (article) =>
+              article &&
+              typeof article.id === 'string' &&
+              !seedIds.has(article.id) &&
+              !(typeof article.title === 'string' && /^Simulasi\s*:/i.test(article.title.trim())),
+          )
+          const refreshedArticles = [...MOCK_ARTICLES, ...customArticles]
+
+          this.writeArticles(refreshedArticles)
+          return cloneArticles(this.memoryArticles)
+        }
+
+        this.memoryArticles = storedArticles
         return cloneArticles(this.memoryArticles)
       }
     } catch (error) {

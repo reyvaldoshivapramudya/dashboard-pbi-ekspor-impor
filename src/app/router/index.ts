@@ -26,8 +26,8 @@ const routes: RouteRecordRaw[] = [
         name: 'dashboard',
         component: DashboardPage,
         meta: {
-          title: 'Dashboard',
-          description: 'Pantau fenomena berita ekspor dan impor',
+          title: 'RITME Ekspor Impor',
+          description: 'Rekap informasi dan tren media ekspor impor',
         },
       },
       {

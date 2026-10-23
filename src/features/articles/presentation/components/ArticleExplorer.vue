@@ -734,8 +734,45 @@ onBeforeUnmount(() => {
         Memuat artikel...
       </div>
 
-      <div v-else class="overflow-x-auto">
-        <table class="w-full min-w-[1650px] border-collapse text-left text-sm">
+      <div
+        v-else
+        :class="props.compactSearch ? 'overflow-x-hidden' : 'overflow-x-auto'"
+      >
+        <table
+          :class="[
+            'border-collapse text-left text-sm',
+            props.compactSearch
+              ? 'compact-article-table w-full min-w-0 table-fixed'
+              : 'w-full min-w-[1650px]',
+          ]"
+        >
+          <colgroup v-if="props.compactSearch && props.canManage">
+            <col style="width: 7%" />
+            <col style="width: 7%" />
+            <col style="width: 8%" />
+            <col style="width: 17%" />
+            <col style="width: 8%" />
+            <col style="width: 8%" />
+            <col style="width: 8%" />
+            <col style="width: 15%" />
+            <col style="width: 6%" />
+            <col style="width: 6%" />
+            <col style="width: 4%" />
+            <col style="width: 6%" />
+          </colgroup>
+          <colgroup v-else-if="props.compactSearch">
+            <col style="width: 7%" />
+            <col style="width: 7%" />
+            <col style="width: 8%" />
+            <col style="width: 19%" />
+            <col style="width: 8%" />
+            <col style="width: 8%" />
+            <col style="width: 8%" />
+            <col style="width: 17%" />
+            <col style="width: 6%" />
+            <col style="width: 7%" />
+            <col style="width: 5%" />
+          </colgroup>
           <thead class="bg-slate-50 text-xs font-semibold text-slate-500">
             <tr>
               <th class="whitespace-nowrap px-4 py-4">Tanggal</th>
@@ -786,11 +823,11 @@ onBeforeUnmount(() => {
                 <p class="mt-1 text-[11px] text-slate-400">ID: {{ article.id }}</p>
               </td>
 
-              <td class="whitespace-nowrap px-4 py-4 text-slate-600">
+              <td class="min-w-0 break-words whitespace-normal px-4 py-4 text-slate-600">
                 {{ article.mediaName }}
               </td>
 
-              <td class="px-4 py-4 text-xs leading-5 text-slate-600">
+              <td class="min-w-0 break-words whitespace-normal px-4 py-4 text-xs leading-5 text-slate-600">
                 <template v-if="article.commodityScope === 'cross_commodity'">
                   <p>Lintas Komoditas</p>
                 </template>
@@ -1228,3 +1265,51 @@ onBeforeUnmount(() => {
     </Teleport>
   </div>
 </template>
+
+
+<style scoped>
+/* Pop-up daftar artikel: pertahankan seluruh kolom dalam lebar modal. */
+.compact-article-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.compact-article-table th,
+.compact-article-table td {
+  min-width: 0 !important;
+  max-width: none;
+  padding: 0.7rem 0.45rem;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  vertical-align: top;
+}
+
+.compact-article-table th {
+  white-space: normal !important;
+  line-height: 1.35;
+}
+
+.compact-article-table td {
+  line-height: 1.45;
+}
+
+/* Media and Komoditas must wrap inside their own fixed-width columns. */
+.compact-article-table td:nth-child(5),
+.compact-article-table td:nth-child(6) {
+  white-space: normal !important;
+  overflow-wrap: anywhere;
+}
+
+.compact-article-table a {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 1280px) {
+  .compact-article-table th,
+  .compact-article-table td {
+    padding: 0.55rem 0.35rem;
+    font-size: 0.7rem;
+  }
+}
+</style>

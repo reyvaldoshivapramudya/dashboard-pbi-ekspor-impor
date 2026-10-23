@@ -5,6 +5,8 @@ import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 import AppIcon from '@/shared/components/AppIcon.vue'
 import { useAuthStore, type UserRole } from '@/app/stores/auth.store'
 
+import logoBps from '@/assets/images/bps-logo.png'
+
 interface NavigationItem {
   label: string
   icon: string
@@ -112,7 +114,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#f7f9fc] text-slate-800">
+  <div class="min-h-screen bg-[#f1f6ff] text-slate-800">
     <!-- Mobile overlay -->
     <button
       v-if="isMobileSidebarOpen"
@@ -125,35 +127,43 @@ onUnmounted(() => {
     <!-- Sidebar -->
     <aside
       :class="[
-        'fixed inset-y-0 left-0 z-50 flex w-68 flex-col',
-        'border-r border-slate-200 bg-white',
+        'fixed inset-y-0 left-0 z-50 flex w-60 flex-col',
+        'border-r border-blue-950/40 bg-gradient-to-b from-[#07336f] via-[#052b61] to-[#061f4d] text-white shadow-xl shadow-blue-950/10',
         'transition-transform duration-200',
         isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
       ]"
     >
-      <!-- Brand -->
-      <div class="flex h-20 shrink-0 items-center gap-3 border-b border-slate-100 px-5">
-        <div class="min-w-0">
-          <p class="text-lg font-bold tracking-tight text-slate-900">
-            PBI <span class="text-bps-blue">Ekspor Impor</span>
-          </p>
-          <p class="mt-0.5 text-[10px] font-semibold tracking-[0.16em] text-slate-400">
-            NEWS INTELLIGENCE
-          </p>
+      <!-- Identitas BPS RI dan RITME -->
+      <div class="shrink-0 px-5 pb-4 pt-5">
+        <div class="flex items-center gap-3 border-b border-white/20 px-1 pb-5">
+          <div class="relative flex h-10 w-10 shrink-0 items-center justify-center">
+            <img :src="logoBps" alt="Logo BPS" class="h-10 w-auto object-contain" />
+          </div>
+          <span class="text-xl font-extrabold tracking-tight text-white">BPS RI</span>
+          <button
+            type="button"
+            aria-label="Tutup sidebar"
+            class="ml-auto rounded-lg p-2 text-white/70 hover:bg-white/10 lg:hidden"
+            @click="closeMobileSidebar"
+          >
+            <AppIcon name="x" />
+          </button>
         </div>
 
-        <button
-          type="button"
-          aria-label="Tutup sidebar"
-          class="ml-auto rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:hidden"
-          @click="closeMobileSidebar"
-        >
-          <AppIcon name="x" />
-        </button>
+        <div class="px-1 pt-5">
+          <div class="flex items-center gap-3">
+            <div class="min-w-0">
+              <p class="text-[25px] font-extrabold leading-7 tracking-tight text-white">RITME</p>
+            </div>
+          </div>
+          <p class="mt-2 text-sm leading-5 text-blue-100">
+            Rekap informasi dan tren media ekspor impor
+          </p>
+        </div>
       </div>
 
       <!-- Navigation -->
-      <nav aria-label="Navigasi utama" class="flex-1 space-y-1 overflow-y-auto px-4 py-6">
+      <nav aria-label="Navigasi utama" class="flex-1 space-y-1 overflow-y-auto px-3 py-3">
         <section>
           <div class="space-y-1.5">
             <RouterLink
@@ -165,8 +175,8 @@ onUnmounted(() => {
                 'flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium',
                 'transition-colors duration-150',
                 route.name === item.routeName
-                  ? 'bg-bps-blue/10 text-bps-blue ring-1 ring-inset ring-bps-blue/15'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-bps-blue',
+                  ? 'bg-[#2996f3] text-white shadow-sm shadow-blue-950/20'
+                  : 'text-blue-50 hover:bg-white/10 hover:text-white',
               ]"
               @click="closeMobileSidebar"
             >
@@ -190,8 +200,8 @@ onUnmounted(() => {
                 'flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium',
                 'transition-colors duration-150',
                 route.name === item.routeName
-                  ? 'bg-bps-blue/10 text-bps-blue ring-1 ring-inset ring-bps-blue/15'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-bps-blue',
+                  ? 'bg-[#2996f3] text-white shadow-sm shadow-blue-950/20'
+                  : 'text-blue-50 hover:bg-white/10 hover:text-white',
               ]"
               @click="closeMobileSidebar"
             >
@@ -206,14 +216,13 @@ onUnmounted(() => {
       </nav>
 
       <!-- Prototype status -->
-      <div class="shrink-0 border-t border-slate-100 p-4">
-        <div class="rounded-xl border border-blue-100 bg-blue-50/70 p-3">
+      <div class="shrink-0 border-t border-white/15 p-3">
+        <div class="rounded-xl border border-white/15 bg-white/[0.06] p-3">
           <div class="flex items-center gap-2">
-            <span class="h-2 w-2 rounded-full bg-bps-orange" aria-hidden="true" />
-            <p class="text-xs font-semibold text-slate-800">Mode Prototipe</p>
+            <span class="h-2 w-2 rounded-full bg-amber-400" aria-hidden="true" />
+            <p class="text-xs font-semibold text-white">Mode Prototipe</p>
           </div>
-
-          <p class="mt-2 text-xs leading-relaxed text-slate-500">
+          <p class="mt-2 text-xs leading-relaxed text-blue-100/80">
             Data simulasi. Belum terhubung ke layanan crawling aktif.
           </p>
         </div>
@@ -221,10 +230,16 @@ onUnmounted(() => {
     </aside>
 
     <!-- Main content -->
-    <div class="min-h-screen lg:pl-68">
+    <div class="min-h-screen lg:pl-60">
       <!-- Topbar -->
-      <header class="sticky top-0 z-30 border-b border-slate-200/80 bg-white/95 backdrop-blur">
-        <div class="flex min-h-20 items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+      <header class="sticky top-0 z-30 border-b border-blue-100 bg-white/95 backdrop-blur">
+        <div
+          :class="
+            route.name === 'dashboard'
+              ? 'flex min-h-16 items-center justify-between gap-3 px-4 sm:px-6 lg:px-6'
+              : 'flex min-h-20 items-center justify-between gap-3 px-4 sm:px-6 lg:px-6'
+          "
+        >
           <div class="flex min-w-0 items-center gap-3">
             <button
               type="button"
@@ -235,7 +250,13 @@ onUnmounted(() => {
               <AppIcon name="menu" class="h-5 w-5" />
             </button>
 
-            <div class="min-w-0">
+            <div v-if="route.name === 'dashboard'" class="min-w-0 py-5">
+              <p class="truncate text-sm font-semibold text-slate-800 sm:text-base">Dashboard</p>
+              <p class="mt-1 hidden text-xs text-slate-500 sm:block">
+                Portal analisis fenomena berita nasional
+              </p>
+            </div>
+            <div v-else class="min-w-0">
               <p class="truncate text-sm font-semibold text-slate-800 sm:text-base">
                 Monitoring Ekspor & Impor
               </p>
@@ -297,8 +318,17 @@ onUnmounted(() => {
       </header>
 
       <!-- Page heading -->
-      <main class="px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-        <div class="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <main
+        :class="
+          route.name === 'dashboard'
+            ? 'px-3 py-2 sm:px-4 sm:py-2 lg:px-5'
+            : 'px-4 py-6 sm:px-6 sm:py-8 lg:px-8'
+        "
+      >
+        <div
+          v-if="route.name !== 'dashboard'"
+          class="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
+        >
           <div class="min-w-0">
             <h1 class="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
               {{ pageTitle }}
@@ -314,7 +344,7 @@ onUnmounted(() => {
       </main>
 
       <!-- Footer -->
-      <footer class="px-4 pb-6 sm:px-6 lg:px-8">
+      <footer v-if="route.name !== 'dashboard'" class="px-4 pb-6 sm:px-6 lg:px-8">
         <div
           class="flex flex-col gap-2 border-t border-slate-200 pt-4 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between"
         >
