@@ -140,6 +140,9 @@ seluruh elemen pengelolaan (tombol _Tambah Artikel_, kolom _Aksi_, dan modal for
 - Sidebar menggunakan warna solid, bukan gradasi. Lebarnya menyesuaikan viewport pada mobile,
   sementara menu navigasi, label fitur, dan panel status dapat membungkus secara aman pada layar
   yang lebih sempit.
+- Seluruh antarmuka menggunakan font stack yang konsisten berbasis Inter/system UI, dengan skala
+  ukuran standar, line-height yang seragam, dan spacing tipografi yang dikontrol oleh layout.
+  Standardisasi ini diterapkan pada header, sidebar, dashboard, tabel, form, dan halaman crawling.
 
 ---
 

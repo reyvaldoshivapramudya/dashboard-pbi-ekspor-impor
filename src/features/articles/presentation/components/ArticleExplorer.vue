@@ -743,7 +743,7 @@ onBeforeUnmount(() => {
           >
             <div class="flex items-start justify-between gap-3">
               <div class="min-w-0">
-                <p class="text-[11px] font-medium text-slate-500">
+                <p class="text-xs font-medium text-slate-500">
                   {{ formatDate(article.publishedAt) }} &middot;
                   {{ categoryLabel(article.category) }}
                 </p>
@@ -820,7 +820,7 @@ onBeforeUnmount(() => {
               <div class="flex items-center gap-2">
                 <span
                   :class="[
-                    'inline-flex rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 ring-inset',
+                    'inline-flex rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset',
                     sentimentClasses(article.sentiment),
                   ]"
                 >
@@ -936,7 +936,7 @@ onBeforeUnmount(() => {
                 <p class="max-w-sm font-semibold leading-5 text-slate-800">
                   {{ article.title }}
                 </p>
-                <p class="mt-1 text-[11px] text-slate-400">ID: {{ article.id }}</p>
+                <p class="mt-1 text-xs text-slate-400">ID: {{ article.id }}</p>
               </td>
 
               <td class="min-w-0 break-words whitespace-normal px-4 py-4 text-slate-600">
@@ -1162,7 +1162,7 @@ onBeforeUnmount(() => {
                     class="h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-bps-blue focus:ring-2 focus:ring-bps-blue/15"
                   />
 
-                  <p class="mt-1.5 text-[11px] text-slate-400">
+                  <p class="mt-1.5 text-xs text-slate-400">
                     Periode akan ditentukan otomatis berdasarkan tanggal.
                   </p>
                 </div>

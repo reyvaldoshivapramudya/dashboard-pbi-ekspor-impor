@@ -274,7 +274,7 @@ onMounted(() => {
 
           <div>
             <span
-              class="inline-flex rounded-full bg-orange-50 px-2.5 py-1 text-[11px] font-semibold text-orange-700"
+              class="inline-flex rounded-full bg-orange-50 px-2.5 py-1 text-xs font-semibold text-orange-700"
             >
               Pengingat periode
             </span>
@@ -405,10 +405,7 @@ onMounted(() => {
 
       <!-- Periode Target -->
       <div class="relative w-full max-w-md">
-        <label
-          for="crawl-period"
-          class="mb-2 block text-sm font-medium text-slate-600"
-        >
+        <label for="crawl-period" class="mb-2 block text-sm font-medium text-slate-600">
           Periode target
         </label>
 
@@ -672,7 +669,7 @@ onMounted(() => {
             >
               <td class="whitespace-nowrap px-5 py-4 text-xs text-slate-600">
                 {{ formatDateTime(run.startedAt) }}
-                <p class="mt-1 text-[10px] text-slate-400">ID: {{ run.id.slice(0, 8) }}</p>
+                <p class="mt-1 text-xs text-slate-400">ID: {{ run.id.slice(0, 8) }}</p>
               </td>
 
               <td class="whitespace-nowrap px-5 py-4 font-medium text-slate-700">
@@ -684,7 +681,7 @@ onMounted(() => {
                   <span
                     v-for="media in run.mediaNames"
                     :key="media"
-                    class="rounded-md bg-slate-100 px-2 py-1 text-[11px] text-slate-600"
+                    class="rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-600"
                   >
                     {{ media }}
                   </span>
@@ -724,7 +721,7 @@ onMounted(() => {
 
                 <p
                   v-if="run.status !== 'running'"
-                  class="mt-2 max-w-48 text-[11px] leading-relaxed text-slate-400"
+                  class="mt-2 max-w-48 text-xs leading-relaxed text-slate-400"
                 >
                   {{ run.message }}
                 </p>

@@ -329,7 +329,10 @@ const periodHighlights = computed(() => {
       tone: 'blue',
       text: leadingCategory
         ? `Kategori fenomena terbanyak adalah ${leadingCategory.label} (${formatPercentage(leadingCategory.value, current.totalArticles)}), dengan ${formatNumber(leadingCategory.value)} artikel. ` +
-          `Kategori lain: ${current.categoryDistribution.filter((item) => item.label !== leadingCategory.label).map((item) => `${item.label} ${formatPercentage(item.value, current.totalArticles)}`).join(', ')}.`
+          `Kategori lain: ${current.categoryDistribution
+            .filter((item) => item.label !== leadingCategory.label)
+            .map((item) => `${item.label} ${formatPercentage(item.value, current.totalArticles)}`)
+            .join(', ')}.`
         : 'Kategori fenomena belum memiliki data pada periode terpilih.',
     },
   ]
@@ -387,15 +390,17 @@ const commodityScopeData = computed(() => {
   <div class="dashboard-page flex flex-col gap-2">
     <!-- Filter periode ringkas seperti referensi dashboard -->
     <section
-      class="flex flex-col gap-2 rounded-xl border border-blue-100 bg-white/90 p-2 shadow-sm shadow-blue-950/[0.03] xl:flex-row xl:items-center xl:gap-3 sm:px-3 sm:py-2"
-    >
+  class="flex min-h-[90px] flex-col gap-2 rounded-xl border border-blue-100 bg-white/90 p-2 shadow-sm shadow-blue-950/[0.03] xl:flex-row xl:items-center xl:gap-3 sm:px-3 sm:py-2"
+>
       <div class="flex min-w-0 items-center gap-3 xl:min-w-[280px] xl:flex-1">
-        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-sky-50 text-sky-500">
+        <div
+          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-sky-50 text-sky-500"
+        >
           <AppIcon name="calendar" class="h-5 w-5" />
         </div>
         <div class="min-w-0">
-          <h2 class="text-[13px] font-bold text-slate-900">Periode Analisis</h2>
-          <p class="mt-0.5 text-[11px] text-slate-500">Pilih periode untuk memperbarui statistik.</p>
+          <h2 class="text-sm font-bold text-slate-900">Periode Analisis</h2>
+          <p class="mt-0.5 text-xs text-slate-500">Pilih periode untuk memperbarui statistik.</p>
         </div>
       </div>
 
@@ -406,9 +411,11 @@ const commodityScopeData = computed(() => {
           :aria-expanded="isPeriodPickerOpen"
           aria-haspopup="dialog"
           class="flex h-9 w-full items-center justify-between rounded-lg border bg-white px-3 text-left text-sm font-medium text-slate-800 outline-none transition"
-          :class="isPeriodPickerOpen
-            ? 'border-sky-500 ring-2 ring-sky-100'
-            : 'border-slate-200 hover:border-slate-300'"
+          :class="
+            isPeriodPickerOpen
+              ? 'border-sky-500 ring-2 ring-sky-100'
+              : 'border-slate-200 hover:border-slate-300'
+          "
           @click="isPeriodPickerOpen = !isPeriodPickerOpen"
         >
           <span class="flex min-w-0 items-center gap-2 truncate">
@@ -450,9 +457,11 @@ const commodityScopeData = computed(() => {
               :key="month.value"
               type="button"
               class="flex h-10 items-center justify-center rounded-lg text-sm transition"
-              :class="isSelectedMonth(month.value)
-                ? 'bg-sky-100 font-semibold text-sky-700'
-                : 'text-slate-600 hover:bg-slate-100'"
+              :class="
+                isSelectedMonth(month.value)
+                  ? 'bg-sky-100 font-semibold text-sky-700'
+                  : 'text-slate-600 hover:bg-slate-100'
+              "
               @click="selectMonth(month.value)"
             >
               {{ month.label }}
@@ -471,9 +480,13 @@ const commodityScopeData = computed(() => {
         </div>
       </div>
 
-      <div class="flex items-center gap-2 rounded-lg bg-sky-50 px-2.5 py-1.5 xl:ml-auto xl:max-w-[310px]">
+      <div
+        class="flex items-center gap-2 rounded-lg bg-sky-50 px-2.5 py-1.5 xl:ml-auto xl:max-w-[310px]"
+      >
         <AppIcon name="info" class="h-4 w-4 shrink-0 text-sky-600" />
-        <p class="text-[11px] leading-relaxed text-sky-800">Sumber: dataset simulasi hasil scraping berita online.</p>
+        <p class="text-xs leading-relaxed text-sky-800">
+          Sumber: dataset simulasi hasil scraping berita online.
+        </p>
       </div>
     </section>
 
@@ -543,14 +556,14 @@ const commodityScopeData = computed(() => {
       </section>
 
       <!-- Baris utama: top komoditas dan diagram donat sentimen -->
-      <section class="grid grid-cols-1 gap-2 xl:grid-cols-2">
+      <section class="grid grid-cols-1 gap-2 xl:grid-cols-2 -mt-1">
         <DashboardChartCard
           title="Top 5 Komoditas"
           description="Komoditas spesifik dengan jumlah artikel terbanyak pada periode terpilih."
           icon="package"
           :chart-data="topCommoditiesData"
           :chart-options="horizontalChartOptions"
-          :chart-height="150"
+          :chart-height="180"
         />
 
         <DashboardDoughnutCard
@@ -571,7 +584,7 @@ const commodityScopeData = computed(() => {
           icon="database"
           :chart-data="mediaData"
           :chart-options="horizontalChartOptions"
-          :chart-height="128"
+          :chart-height="180"
           class="h-full"
         />
 
@@ -581,7 +594,7 @@ const commodityScopeData = computed(() => {
           icon="file"
           :chart-data="categoryData"
           :chart-options="verticalChartOptions"
-          :chart-height="128"
+          :chart-height="180"
           class="h-full"
         />
 
@@ -591,13 +604,17 @@ const commodityScopeData = computed(() => {
           icon="package"
           :chart-data="commodityScopeData"
           :chart-options="verticalChartOptions"
-          :chart-height="118"
+          :chart-height="180"
           class="h-full"
         />
 
-        <section class="flex min-w-0 flex-col overflow-hidden rounded-xl border border-blue-100 bg-white shadow-sm shadow-blue-950/[0.04]">
+        <section
+          class="flex min-w-0 flex-col overflow-hidden rounded-xl border border-blue-100 bg-white shadow-sm shadow-blue-950/[0.04]"
+        >
           <div class="flex items-center gap-2 border-b border-blue-100 bg-sky-50/80 px-3 py-2">
-            <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-sky-500 shadow-sm shadow-sky-950/[0.04]">
+            <div
+              class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-sky-500 shadow-sm shadow-sky-950/[0.04]"
+            >
               <AppIcon name="activity" class="h-4 w-4" />
             </div>
             <h2 class="text-sm font-bold leading-5 text-slate-900">Sorotan Periode</h2>
@@ -608,13 +625,18 @@ const commodityScopeData = computed(() => {
               <div
                 :class="[
                   'flex h-7 w-7 shrink-0 items-center justify-center rounded-lg',
-                  item.tone === 'green' ? 'bg-emerald-50 text-emerald-600' :
-                  item.tone === 'orange' ? 'bg-orange-50 text-orange-500' : 'bg-sky-50 text-sky-500',
+                  item.tone === 'green'
+                    ? 'bg-emerald-50 text-emerald-600'
+                    : item.tone === 'orange'
+                      ? 'bg-orange-50 text-orange-500'
+                      : 'bg-sky-50 text-sky-500',
                 ]"
               >
                 <AppIcon :name="item.icon" class="h-4 w-4" />
               </div>
-              <p class="min-w-0 self-center text-[11px] leading-[1.35] text-slate-700">{{ item.text }}</p>
+              <p class="min-w-0 self-center text-xs leading-[1.35] text-slate-700">
+                {{ item.text }}
+              </p>
             </div>
           </div>
         </section>
@@ -622,21 +644,25 @@ const commodityScopeData = computed(() => {
 
       <div class="flex items-start gap-2 rounded-lg border border-blue-100 bg-white/80 px-3 py-1.5">
         <AppIcon name="info" class="mt-0.5 h-3.5 w-3.5 shrink-0 text-sky-600" />
-        <p class="text-[11px] leading-relaxed text-slate-500">
-          Data dan hasil klasifikasi pada prototipe ini bersifat simulasi. Sentimen, kategori, dan komoditas belum dihasilkan dari proses scraping maupun analisis otomatis.
+        <p class="text-xs leading-relaxed text-slate-500">
+          Data dan hasil klasifikasi pada prototipe ini bersifat simulasi. Sentimen, kategori, dan
+          komoditas belum dihasilkan dari proses scraping maupun analisis otomatis.
         </p>
       </div>
     </template>
   </div>
 </template>
 
-
 <style scoped>
 /* Desktop dashboard is designed to fit one screen on common laptop/monitor heights. */
 @media (min-width: 1280px) and (min-height: 760px) {
-  .dashboard-page { gap: 0.45rem; }
+  .dashboard-page {
+    gap: 0.45rem;
+  }
 }
 @media (min-width: 1280px) and (max-height: 850px) {
-  .dashboard-page { gap: 0.35rem; }
+  .dashboard-page {
+    gap: 0.35rem;
+  }
 }
 </style>
