@@ -133,6 +133,8 @@ seluruh elemen pengelolaan (tombol _Tambah Artikel_, kolom _Aksi_, dan modal for
   menggeser tabel yang terlalu lebar.
 - Pop-up artikel menampilkan kartu detail pada layar kecil dan menengah. Pada layar desktop,
   tabel artikel lengkap tetap digunakan untuk perbandingan antar kolom.
+- Kolom **Tanggal** pada tabel detail artikel dapat diklik untuk mengurutkan artikel secara
+  descending (terbaru ke terlama) atau ascending (terlama ke terbaru).
 - Dialog dan formulir mengikuti tinggi viewport dinamis, sehingga tetap dapat di-scroll pada
   layar pendek atau browser mobile.
 - Sidebar menggunakan logo BPS tanpa latar tambahan, dengan branding **RITME** berwarna putih

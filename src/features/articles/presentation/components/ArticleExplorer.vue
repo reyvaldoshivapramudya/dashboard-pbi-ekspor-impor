@@ -100,6 +100,10 @@ const feedbackMessage = ref('')
 const isFormOpen = ref(false)
 const editingArticleId = ref<string | null>(null)
 const isSaving = ref(false)
+const explorerRoot = ref<HTMLElement | null>(null)
+const detailScrollContainer = ref<HTMLElement | null>(null)
+const showBackToTop = ref(false)
+const articleSortDirection = ref<'asc' | 'desc'>('desc')
 
 function emptyForm(): ArticleFormState {
   return {
@@ -128,10 +132,20 @@ const totalPages = computed(() =>
   Math.max(1, Math.ceil(filteredArticles.value.length / rowsPerPage.value)),
 )
 
+const sortedArticles = computed(() =>
+  [...filteredArticles.value].sort((a, b) => {
+    const difference = a.publishedAt.localeCompare(b.publishedAt)
+
+    return articleSortDirection.value === 'asc'
+      ? difference || a.title.localeCompare(b.title, 'id')
+      : difference * -1 || b.title.localeCompare(a.title, 'id')
+  }),
+)
+
 const paginatedArticles = computed(() => {
   const start = (currentPage.value - 1) * rowsPerPage.value
 
-  return filteredArticles.value.slice(start, start + rowsPerPage.value)
+  return sortedArticles.value.slice(start, start + rowsPerPage.value)
 })
 
 const showingFrom = computed(() =>
@@ -150,6 +164,11 @@ const formTitle = computed(() =>
 
 function formatNumber(value: number): string {
   return new Intl.NumberFormat('id-ID').format(value)
+}
+
+function toggleArticleSort(): void {
+  articleSortDirection.value = articleSortDirection.value === 'desc' ? 'asc' : 'desc'
+  currentPage.value = 1
 }
 
 function formatPeriod(period: string): string {
@@ -192,6 +211,21 @@ function handlePeriodPickerKeydown(event: KeyboardEvent): void {
   if (event.key === 'Escape') {
     periodPickerOpen.value = false
   }
+}
+
+function handleDetailScroll(): void {
+  const scrollTop = detailScrollContainer.value?.scrollTop ?? window.scrollY
+
+  if (scrollTop > 360) showBackToTop.value = true
+}
+
+function scrollToTop(): void {
+  if (detailScrollContainer.value) {
+    detailScrollContainer.value.scrollTo({ top: 0, behavior: 'smooth' })
+    return
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 function formatDate(dateString: string): string {
@@ -448,6 +482,10 @@ async function handleDelete(article: NewsArticle): Promise<void> {
 onMounted(async () => {
   document.addEventListener('pointerdown', handlePeriodPickerOutsideClick)
   document.addEventListener('keydown', handlePeriodPickerKeydown)
+  detailScrollContainer.value = explorerRoot.value?.closest<HTMLElement>('.overflow-y-auto') ?? null
+  const scrollTarget = detailScrollContainer.value ?? window
+  scrollTarget.addEventListener('scroll', handleDetailScroll, { passive: true })
+  handleDetailScroll()
 
   isLoading.value = true
 
@@ -469,11 +507,13 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', handlePeriodPickerOutsideClick)
   document.removeEventListener('keydown', handlePeriodPickerKeydown)
+  const scrollTarget = detailScrollContainer.value ?? window
+  scrollTarget.removeEventListener('scroll', handleDetailScroll)
 })
 </script>
 
 <template>
-  <div class="space-y-5">
+  <div ref="explorerRoot" class="space-y-5">
     <!-- Feedback -->
     <div
       v-if="feedbackMessage"
@@ -891,7 +931,20 @@ onBeforeUnmount(() => {
           </colgroup>
           <thead class="bg-slate-50 text-xs font-semibold text-slate-500">
             <tr>
-              <th class="whitespace-nowrap px-4 py-4">Tanggal</th>
+              <th class="whitespace-nowrap px-4 py-4">
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-1.5 font-semibold transition hover:text-bps-blue"
+                  :aria-label="`Urutkan tanggal ${articleSortDirection === 'desc' ? 'descending, terbaru ke terlama' : 'ascending, terlama ke terbaru'}`"
+                  @click.stop="toggleArticleSort"
+                >
+                  Tanggal
+                  <AppIcon
+                    :name="articleSortDirection === 'desc' ? 'arrow-down' : 'arrow-up'"
+                    class="h-3.5 w-3.5"
+                  />
+                </button>
+              </th>
               <th class="whitespace-nowrap px-4 py-4">Kategori</th>
               <th class="px-4 py-4">Kata Kunci</th>
               <th class="min-w-64 px-4 py-4">Judul Berita</th>
@@ -1081,6 +1134,19 @@ onBeforeUnmount(() => {
         </div>
       </div>
     </section>
+
+    <Transition name="back-to-top" appear>
+      <button
+        v-if="props.compactSearch && showBackToTop"
+        type="button"
+        aria-label="Kembali ke atas"
+        title="Kembali ke atas"
+        class="back-to-top-button article-detail-back-to-top fixed bottom-5 right-4 z-40 flex h-11 w-11 items-center justify-center rounded-full bg-bps-blue text-white shadow-lg shadow-slate-900/20 focus:outline-none focus:ring-2 focus:ring-bps-blue/30 sm:bottom-7 sm:right-7"
+        @click="scrollToTop"
+      >
+        <AppIcon name="arrow-up" class="h-5 w-5" />
+      </button>
+    </Transition>
 
     <!-- Create / edit dialog -->
     <Teleport to="body">

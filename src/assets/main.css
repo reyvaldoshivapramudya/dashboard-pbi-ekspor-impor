@@ -57,6 +57,59 @@ textarea {
   letter-spacing: inherit;
 }
 
+.back-to-top-button {
+  animation: back-to-top-glow 2.4s ease-in-out infinite;
+  transition:
+    transform 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+@keyframes back-to-top-glow {
+  0%,
+  100% {
+    box-shadow: 0 8px 18px rgb(15 23 42 / 16%);
+  }
+
+  50% {
+    box-shadow:
+      0 12px 24px rgb(15 23 42 / 22%),
+      0 0 0 5px rgb(22 136 199 / 10%);
+  }
+}
+
+.back-to-top-button:hover {
+  animation-play-state: paused;
+  transform: translateY(-4px) scale(1.05);
+  box-shadow:
+    0 12px 24px rgb(15 23 42 / 18%),
+    0 0 0 4px rgb(22 136 199 / 12%);
+}
+
+.back-to-top-button:active {
+  transform: translateY(-1px) scale(0.96);
+}
+
+.back-to-top-enter-active,
+.back-to-top-leave-active {
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease;
+}
+
+.back-to-top-enter-from,
+.back-to-top-leave-to {
+  opacity: 0;
+  transform: translateY(14px) scale(0.75);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .back-to-top-button {
+    animation: none;
+    transition: none;
+  }
+}
+
 h1,
 h2,
 h3,

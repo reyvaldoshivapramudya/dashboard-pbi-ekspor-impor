@@ -4,6 +4,8 @@ import type { Component } from 'vue'
 
 import {
   Activity,
+  ArrowDown,
+  ArrowUp,
   BarChart3,
   Bell,
   CalendarDays,
@@ -52,6 +54,8 @@ const props = withDefaults(
 
 const icons: Record<string, Component> = {
   activity: Activity,
+  'arrow-down': ArrowDown,
+  'arrow-up': ArrowUp,
   'bar-chart': BarChart3,
   bell: Bell,
   calendar: CalendarDays,
