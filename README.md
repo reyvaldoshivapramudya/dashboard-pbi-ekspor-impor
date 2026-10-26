@@ -174,6 +174,26 @@ Metadata sumber dan tanggal berita ditampilkan sebagai badge biru soft, bukan se
 baru. Warna status hijau dan orange tetap dipertahankan karena memiliki makna informasi yang
 berbeda dari warna utama.
 
+### Dark mode
+
+Dark mode dapat dipilih melalui kontrol tema pada sidebar. Paletnya menggunakan latar netral
+gelap dan solid agar teks tidak menyatu dengan latar biru:
+
+| Elemen | Warna dark mode | Keterangan |
+| --- | --- | --- |
+| Latar halaman | `#0B0B0B` | Latar utama yang hampir hitam |
+| Latar card dan panel | `#1B1B1B` hingga `#202020` | Permukaan solid dengan pemisahan jelas |
+| Sidebar | `#111111` | Latar sidebar netral |
+| Teks utama dan sekunder | `#F8FAFC` / `#F1F5F9` | Kontras tinggi terhadap permukaan gelap |
+| Placeholder | `#E5E7EB` | Tetap terbaca pada input dark mode |
+| Border dan grid grafik | `#666666` / `#737373` | Garis pemisah dan grid lebih terlihat |
+| Batang dan irisan grafik | Biru, hijau, dan orange terang | Mempertahankan perbedaan visual antar data |
+| Menu aktif | `#1E3A8A` | State aktif sidebar yang tegas |
+
+Teks label sumbu, deskripsi kartu, tooltip, placeholder, dan banner sumber menggunakan warna
+terang. Tombol mode terang aktif menggunakan latar putih dengan ikon biru agar tetap terlihat saat
+kursor dipindahkan maupun saat memperoleh fokus keyboard.
+
 ---
 
 ## Halaman Manajemen Artikel Berita (Admin)

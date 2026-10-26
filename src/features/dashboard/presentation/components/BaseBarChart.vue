@@ -25,7 +25,8 @@ const valueLabelsPlugin: Plugin<'bar'> = {
     const context = chart.ctx
 
     context.save()
-    context.fillStyle = '#10194f'
+    context.fillStyle =
+      document.documentElement.dataset.theme === 'dark' ? '#f8fafc' : '#10194f'
     context.font = '600 11px Inter, Arial, sans-serif'
 
     metadata.data.forEach((element, index) => {

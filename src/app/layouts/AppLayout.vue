@@ -267,9 +267,9 @@ onUnmounted(() => {
         <div class="mt-2 flex h-9 items-center rounded-lg bg-white/10 p-1">
           <button
             type="button"
-            class="flex flex-1 items-center justify-center rounded-md py-1.5 text-white/70 transition hover:bg-white/10 hover:text-white"
+            class="theme-light-toggle flex flex-1 items-center justify-center rounded-md py-1.5 text-white/70 transition hover:bg-white/10 hover:text-white"
             :class="{
-              'bg-[#dbeafe] text-bps-blue shadow-sm hover:bg-[#dbeafe] hover:text-bps-blue': !isDarkMode,
+              'bg-white text-bps-blue shadow-sm hover:bg-white hover:text-bps-blue': !isDarkMode,
             }"
             aria-label="Gunakan mode terang"
             :aria-pressed="!isDarkMode"

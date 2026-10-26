@@ -15,16 +15,16 @@ import DashboardChartCard from '../components/DashboardChartCard.vue'
 import DashboardDoughnutCard from '../components/DashboardDoughnutCard.vue'
 
 const COLORS = {
-  blue: '#1688c7',
-  blueDark: '#11699b',
-  blueLight: '#48a8dc',
-  green: '#48b817',
-  greenLight: '#70c947',
-  orange: '#ff9800',
-  orangeLight: '#ffb547',
-  text: '#475569',
-  muted: '#94a3b8',
-  grid: '#eaf0f6',
+  blue: '#60a5fa',
+  blueDark: '#93c5fd',
+  blueLight: '#38bdf8',
+  green: '#4ade80',
+  greenLight: '#86efac',
+  orange: '#fb923c',
+  orangeLight: '#fdba74',
+  text: '#f8fafc',
+  muted: '#f8fafc',
+  grid: '#737373',
 } as const
 
 const selectedPeriod = ref('all')
@@ -181,7 +181,7 @@ const horizontalChartOptions: ChartOptions<'bar'> = {
     },
     tooltip: {
       enabled: true,
-      backgroundColor: '#17324d',
+      backgroundColor: '#111111',
       padding: 12,
       displayColors: false,
     },
@@ -239,7 +239,7 @@ const verticalChartOptions: ChartOptions<'bar'> = {
     },
     tooltip: {
       enabled: true,
-      backgroundColor: '#17324d',
+      backgroundColor: '#111111',
       padding: 12,
       displayColors: false,
     },
@@ -323,7 +323,7 @@ const sentimentChartOptions: ChartOptions<'doughnut'> = {
     legend: { display: false },
     tooltip: {
       enabled: true,
-      backgroundColor: '#17324d',
+      backgroundColor: '#111111',
       padding: 12,
       displayColors: true,
     },
