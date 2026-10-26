@@ -18,39 +18,47 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const isMobileSidebarOpen = ref(false)
+const isDarkMode = ref(false)
 
-const primaryItems = computed<NavigationItem[]>(() => [
-  {
-    label: 'Dashboard',
-    icon: 'bar-chart',
-    routeName: 'dashboard',
-  },
-  {
+const navigationItems = computed<NavigationItem[]>(() => {
+  const items: NavigationItem[] = [
+    {
+      label: 'Dashboard',
+      icon: 'bar-chart',
+      routeName: 'dashboard',
+    },
+  ]
+
+  if (authStore.isAdmin) {
+    items.push({
+      label: 'Crawling Berita',
+      icon: 'globe',
+      routeName: 'crawling',
+    })
+  }
+
+  items.push({
     label: authStore.isAdmin ? 'Manajemen Artikel Berita' : 'Artikel Berita',
     icon: authStore.isAdmin ? 'file-edit' : 'file',
     routeName: authStore.isAdmin ? 'article-management' : 'articles',
-  },
-  {
+  })
+
+  if (authStore.isAdmin) {
+    items.push({
+      label: 'Riwayat Perubahan',
+      icon: 'history',
+      routeName: 'article-changes',
+    })
+  }
+
+  items.push({
     label: 'Download',
     icon: 'download',
     routeName: 'download',
-  },
-])
+  })
 
-const adminItems: NavigationItem[] = [
-  {
-    label: 'Crawling Berita',
-    icon: 'globe',
-    routeName: 'crawling',
-  },
-  {
-    label: 'Riwayat Perubahan',
-    icon: 'history',
-    routeName: 'article-changes',
-  },
-]
-
-const visibleAdminItems = computed(() => (authStore.isAdmin ? adminItems : []))
+  return items
+})
 
 const dateLabel = new Intl.DateTimeFormat('id-ID', {
   weekday: 'long',
@@ -61,6 +69,16 @@ const dateLabel = new Intl.DateTimeFormat('id-ID', {
 
 function closeMobileSidebar() {
   isMobileSidebarOpen.value = false
+}
+
+function setTheme(dark: boolean): void {
+  isDarkMode.value = dark
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light'
+  window.localStorage.setItem('eksim-insight:theme', dark ? 'dark' : 'light')
+}
+
+function toggleTheme(): void {
+  setTheme(!isDarkMode.value)
 }
 
 function handleRoleChange(event: Event) {
@@ -100,6 +118,8 @@ const timeLabel = computed(() => {
 })
 
 onMounted(() => {
+  const savedTheme = window.localStorage.getItem('eksim-insight:theme')
+  setTheme(savedTheme === 'dark')
   clockInterval = setInterval(() => {
     currentTime.value = new Date()
   }, 1000)
@@ -168,32 +188,7 @@ onUnmounted(() => {
         <section>
           <div class="space-y-1.5">
             <RouterLink
-              v-for="item in primaryItems"
-              :key="item.routeName"
-              :to="{ name: item.routeName }"
-              :aria-current="route.name === item.routeName ? 'page' : undefined"
-              :class="[
-                'flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium',
-                'transition-colors duration-150',
-                route.name === item.routeName
-                  ? 'bg-sidebar-active text-white shadow-sm'
-                  : 'text-white/75 hover:bg-white/10 hover:text-white',
-              ]"
-              @click="closeMobileSidebar"
-            >
-              <AppIcon :name="item.icon" class="h-5 w-5 shrink-0" />
-
-              <span class="min-w-0 flex-1 break-words leading-5">
-                {{ item.label }}
-              </span>
-            </RouterLink>
-          </div>
-        </section>
-
-        <section v-if="visibleAdminItems.length > 0">
-          <div class="space-y-1.5">
-            <RouterLink
-              v-for="item in visibleAdminItems"
+              v-for="item in navigationItems"
               :key="item.routeName"
               :to="{ name: item.routeName }"
               :aria-current="route.name === item.routeName ? 'page' : undefined"
@@ -216,7 +211,7 @@ onUnmounted(() => {
         </section>
       </nav>
 
-      <!-- Informasi waktu dan role -->
+      <!-- Informasi profil, waktu, dan role -->
       <div class="shrink-0 px-3 py-3 sm:px-4">
         <div
           class="rounded-xl border border-white/15 bg-white/10 p-3 shadow-sm backdrop-blur-sm"
@@ -245,28 +240,55 @@ onUnmounted(() => {
             </div>
           </div>
 
-          <div class="mt-4 border-t border-white/15 pt-4">
-            <p class="text-xs font-medium text-white/65">Hari ini</p>
-            <p class="mt-1 text-sm font-medium capitalize leading-5 text-white">
+          <div class="mt-3">
+            <p class="text-[11px] font-medium text-white/65">Hari ini</p>
+            <p class="mt-0.5 text-xs font-medium capitalize leading-5 text-white">
               {{ dateLabel }}
             </p>
           </div>
 
-          <div class="mt-4 border-t border-white/15 pt-4">
-            <label for="role-switcher" class="mb-1.5 block text-xs font-medium text-white/65">
+          <div class="mt-3">
+            <label for="role-switcher" class="mb-1 block text-[11px] font-medium text-white/65">
               Simulasi role
             </label>
 
             <select
               id="role-switcher"
               :value="authStore.role"
-              class="h-9 w-full rounded-lg border border-white/25 bg-white px-3 text-sm font-semibold text-slate-700 outline-none transition hover:border-white focus:border-white focus:ring-2 focus:ring-white/25"
+              class="h-8 w-full rounded-lg border border-white/25 bg-white px-3 text-xs font-semibold text-slate-700 outline-none transition hover:border-white focus:border-white focus:ring-2 focus:ring-white/25"
               @change="handleRoleChange"
             >
               <option value="admin">Admin</option>
               <option value="user">User</option>
             </select>
           </div>
+        </div>
+
+        <div class="mt-2 flex h-9 items-center rounded-lg bg-white/10 p-1">
+          <button
+            type="button"
+            class="flex flex-1 items-center justify-center rounded-md py-1.5 text-white/70 transition hover:bg-white/10 hover:text-white"
+            :class="{
+              'bg-[#dbeafe] text-bps-blue shadow-sm hover:bg-[#dbeafe] hover:text-bps-blue': !isDarkMode,
+            }"
+            aria-label="Gunakan mode terang"
+            :aria-pressed="!isDarkMode"
+            @click="setTheme(false)"
+          >
+            <AppIcon name="sun" :size="15" />
+          </button>
+          <button
+            type="button"
+            class="flex flex-1 items-center justify-center rounded-md py-1.5 text-white/70 transition hover:bg-white/10 hover:text-white"
+            :class="{
+              'bg-slate-800 text-slate-100 shadow-sm hover:bg-slate-800 hover:text-slate-100': isDarkMode,
+            }"
+            aria-label="Gunakan mode gelap"
+            :aria-pressed="isDarkMode"
+            @click="setTheme(true)"
+          >
+            <AppIcon name="moon" :size="15" />
+          </button>
         </div>
       </div>
 

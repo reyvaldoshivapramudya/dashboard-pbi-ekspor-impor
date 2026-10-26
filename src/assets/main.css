@@ -45,6 +45,98 @@ body {
   letter-spacing: -0.01em;
 }
 
+html[data-theme='dark'] body {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+html[data-theme='dark'] .bg-slate-50 {
+  background-color: #0f172a !important;
+}
+
+html[data-theme='dark'] .bg-slate-50\/50,
+html[data-theme='dark'] .bg-slate-50\/60,
+html[data-theme='dark'] .bg-slate-50\/70,
+html[data-theme='dark'] .bg-slate-100 {
+  background-color: #1e293b !important;
+}
+
+html[data-theme='dark'] .bg-white {
+  background-color: #172033 !important;
+}
+
+html[data-theme='dark'] .bg-white\/10 {
+  background-color: rgb(255 255 255 / 10%) !important;
+}
+
+html[data-theme='dark'] .bg-blue-50,
+html[data-theme='dark'] .bg-blue-50\/60,
+html[data-theme='dark'] .bg-bps-blue\/10 {
+  background-color: #123b59 !important;
+}
+
+html[data-theme='dark'] .bg-emerald-50,
+html[data-theme='dark'] .bg-emerald-50\/70,
+html[data-theme='dark'] .bg-orange-50,
+html[data-theme='dark'] .bg-amber-50,
+html[data-theme='dark'] .bg-rose-50 {
+  background-color: #2a2730 !important;
+}
+
+html[data-theme='dark'] .text-slate-900,
+html[data-theme='dark'] .text-slate-800 {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme='dark'] .text-slate-700,
+html[data-theme='dark'] .text-slate-600 {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme='dark'] .text-slate-500,
+html[data-theme='dark'] .text-slate-400 {
+  color: #94a3b8 !important;
+}
+
+html[data-theme='dark'] .border-slate-200,
+html[data-theme='dark'] .border-slate-100,
+html[data-theme='dark'] .border-slate-300 {
+  border-color: #334155 !important;
+}
+
+html[data-theme='dark'] input,
+html[data-theme='dark'] select,
+html[data-theme='dark'] textarea {
+  background-color: #172033 !important;
+  border-color: #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+html[data-theme='dark'] select option {
+  background-color: #172033 !important;
+  color: #e2e8f0 !important;
+}
+
+html[data-theme='dark'] input::placeholder,
+html[data-theme='dark'] textarea::placeholder {
+  color: #64748b !important;
+}
+
+html[data-theme='dark'] .hover\:bg-slate-50:hover,
+html[data-theme='dark'] .hover\:bg-slate-100:hover {
+  background-color: #243248 !important;
+}
+
+html[data-theme='dark'] .divide-slate-100 > :not(:last-child) {
+  border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .border-white\/15,
+html[data-theme='dark'] .border-white\/20,
+html[data-theme='dark'] .border-white\/25 {
+  border-color: rgb(255 255 255 / 16%) !important;
+}
+
 button:not(:disabled),
 select:not(:disabled) {
   cursor: pointer;
