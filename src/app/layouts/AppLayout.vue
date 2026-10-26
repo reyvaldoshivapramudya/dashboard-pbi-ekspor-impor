@@ -127,27 +127,27 @@ onUnmounted(() => {
     <!-- Sidebar -->
     <aside
       :class="[
-        'fixed inset-y-0 left-0 z-50 flex w-60 flex-col',
-        'border-r border-blue-950/40 bg-gradient-to-b from-[#07336f] via-[#052b61] to-[#061f4d] text-white shadow-xl shadow-blue-950/10',
+        'fixed inset-y-0 left-0 z-50 flex w-[min(88vw,20rem)] flex-col lg:w-60',
+        'border-r border-white/10 bg-[#052b61] text-white shadow-xl shadow-blue-950/20',
         'transition-transform duration-200',
         isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
       ]"
     >
       <!-- Identitas BPS dan RITME -->
-      <div class="shrink-0 px-5 pb-4 pt-5">
-        <div class="flex items-center gap-3 border-b border-white/20 px-1 pb-5">
-          <div class="flex h-12 w-14 shrink-0 items-center justify-start">
-            <img :src="logoBps" alt="Logo BPS" class="h-auto w-14 object-contain" />
+      <div class="shrink-0 px-4 pb-4 pt-4 sm:px-5 sm:pt-5">
+        <div class="flex items-center gap-3 border-b border-white/20 px-1 pb-4 sm:pb-5">
+          <div class="flex h-12 w-12 shrink-0 items-center justify-center sm:w-14">
+            <img :src="logoBps" alt="Logo BPS" class="h-auto max-h-12 w-full object-contain" />
           </div>
 
-          <div class="flex min-w-0 flex-1 flex-col justify-center">
+          <div class="min-w-0 flex-1">
             <p
-              class="bg-gradient-to-r from-white via-blue-100 to-cyan-300 bg-clip-text text-[25px] font-black leading-none tracking-[0.14em] text-transparent"
+              class="truncate text-[clamp(1.35rem,5vw,1.6rem)] font-black leading-none tracking-[0.12em] text-white"
             >
               RITME
             </p>
             <p
-              class="mt-0.5 text-[9px] font-semibold uppercase leading-3 tracking-[0.1em] text-blue-100/80"
+              class="mt-1 break-words text-[9px] font-semibold uppercase leading-3 tracking-[0.08em] text-white/75"
             >
               Rekap Informasi &amp; Tren Media
             </p>
@@ -156,7 +156,7 @@ onUnmounted(() => {
           <button
             type="button"
             aria-label="Tutup sidebar"
-            class="rounded-lg p-2 text-white/70 hover:bg-white/10 lg:hidden"
+            class="shrink-0 rounded-lg p-2 text-white/75 hover:bg-white/10 lg:hidden"
             @click="closeMobileSidebar"
           >
             <AppIcon name="x" />
@@ -165,7 +165,7 @@ onUnmounted(() => {
       </div>
 
       <!-- Navigation -->
-      <nav aria-label="Navigasi utama" class="flex-1 space-y-1 overflow-y-auto px-3 py-3">
+      <nav aria-label="Navigasi utama" class="flex-1 space-y-1 overflow-y-auto px-3 py-3 sm:px-4">
         <section>
           <div class="space-y-1.5">
             <RouterLink
@@ -174,17 +174,17 @@ onUnmounted(() => {
               :to="{ name: item.routeName }"
               :aria-current="route.name === item.routeName ? 'page' : undefined"
               :class="[
-                'flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium',
+                'flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium',
                 'transition-colors duration-150',
                 route.name === item.routeName
                   ? 'bg-[#2996f3] text-white shadow-sm shadow-blue-950/20'
-                  : 'text-blue-50 hover:bg-white/10 hover:text-white',
+                  : 'text-white/80 hover:bg-white/10 hover:text-white',
               ]"
               @click="closeMobileSidebar"
             >
               <AppIcon :name="item.icon" class="h-5 w-5 shrink-0" />
 
-              <span class="min-w-0 flex-1 leading-5">
+              <span class="min-w-0 flex-1 break-words leading-5">
                 {{ item.label }}
               </span>
             </RouterLink>
@@ -199,17 +199,17 @@ onUnmounted(() => {
               :to="{ name: item.routeName }"
               :aria-current="route.name === item.routeName ? 'page' : undefined"
               :class="[
-                'flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium',
+                'flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium',
                 'transition-colors duration-150',
                 route.name === item.routeName
                   ? 'bg-[#2996f3] text-white shadow-sm shadow-blue-950/20'
-                  : 'text-blue-50 hover:bg-white/10 hover:text-white',
+                  : 'text-white/80 hover:bg-white/10 hover:text-white',
               ]"
               @click="closeMobileSidebar"
             >
               <AppIcon :name="item.icon" class="h-5 w-5 shrink-0" />
 
-              <span class="min-w-0 flex-1 leading-5">
+              <span class="min-w-0 flex-1 break-words leading-5">
                 {{ item.label }}
               </span>
             </RouterLink>
@@ -218,13 +218,13 @@ onUnmounted(() => {
       </nav>
 
       <!-- Prototype status -->
-      <div class="shrink-0 border-t border-white/15 p-3">
-        <div class="rounded-xl border border-white/15 bg-white/[0.06] p-3">
+      <div class="shrink-0 border-t border-white/15 p-3 sm:p-4">
+        <div class="rounded-xl border border-white/15 bg-white/5 p-3">
           <div class="flex items-center gap-2">
             <span class="h-2 w-2 rounded-full bg-amber-400" aria-hidden="true" />
             <p class="text-xs font-semibold text-white">Mode Prototipe</p>
           </div>
-          <p class="mt-2 text-xs leading-relaxed text-blue-100/80">
+          <p class="mt-2 text-xs leading-relaxed text-white/70">
             Data simulasi. Belum terhubung ke layanan crawling aktif.
           </p>
         </div>

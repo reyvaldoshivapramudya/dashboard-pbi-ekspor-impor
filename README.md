@@ -135,8 +135,11 @@ seluruh elemen pengelolaan (tombol _Tambah Artikel_, kolom _Aksi_, dan modal for
   tabel artikel lengkap tetap digunakan untuk perbandingan antar kolom.
 - Dialog dan formulir mengikuti tinggi viewport dinamis, sehingga tetap dapat di-scroll pada
   layar pendek atau browser mobile.
-- Sidebar menggunakan logo BPS tanpa latar tambahan, dengan branding **RITME** dan subjudul
-  **Rekap Informasi & Tren Media** di sampingnya.
+- Sidebar menggunakan logo BPS tanpa latar tambahan, dengan branding **RITME** berwarna putih
+  solid dan subjudul **Rekap Informasi & Tren Media** di sampingnya.
+- Sidebar menggunakan warna solid, bukan gradasi. Lebarnya menyesuaikan viewport pada mobile,
+  sementara menu navigasi, label fitur, dan panel status dapat membungkus secara aman pada layar
+  yang lebih sempit.
 
 ---
 
