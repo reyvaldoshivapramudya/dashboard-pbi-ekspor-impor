@@ -11,6 +11,8 @@ import { GetCommodityOverview } from '@/features/articles/domain/use-cases/get-c
 import { CrawlRepositoryImpl } from '@/features/crawling/data/repositories/crawl.repository.impl'
 import { GetCrawlHistory } from '@/features/crawling/domain/use-cases/get-crawl-history'
 import { RunCrawlSimulation } from '@/features/crawling/domain/use-cases/run-crawl-simulation'
+import { ArticleChangeRepositoryImpl } from '@/features/articles/data/repositories/article-change.repository.impl'
+import { GetArticleChanges } from '@/features/articles/domain/use-cases/get-article-changes'
 
 export const articleRepository = new ArticleRepositoryImpl()
 export const commodityOverviewRepository = new CommodityOverviewRepositoryImpl()
@@ -18,6 +20,8 @@ export const searchArticles = new SearchArticles(articleRepository)
 export const createArticle = new CreateArticle(articleRepository)
 export const updateArticle = new UpdateArticle(articleRepository)
 export const deleteArticle = new DeleteArticle(articleRepository)
+export const articleChangeRepository = new ArticleChangeRepositoryImpl()
+export const getArticleChanges = new GetArticleChanges(articleChangeRepository)
 export const getCommodityOverview = new GetCommodityOverview(
   commodityOverviewRepository,
   articleRepository,

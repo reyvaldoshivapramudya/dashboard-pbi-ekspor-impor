@@ -6,6 +6,7 @@ import DownloadPage from '@/features/downloads/presentation/pages/DownloadPage.v
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '../stores/auth.store'
 import AppLayout from '../layouts/AppLayout.vue'
+import ArticleChangesPage from '@/features/articles/presentation/pages/ArticleChangesPage.vue'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -53,8 +54,14 @@ const routes: RouteRecordRaw[] = [
         name: 'crawling',
         component: CrawlingPage,
         meta: {
-          title: 'Crawling berita',
-          description: 'Kelola pengambilan data berita.',
+          requiresAdmin: true,
+        },
+      },
+      {
+        path: 'article-changes',
+        name: 'article-changes',
+        component: ArticleChangesPage,
+        meta: {
           requiresAdmin: true,
         },
       },

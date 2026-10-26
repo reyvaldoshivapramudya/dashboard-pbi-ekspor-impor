@@ -236,7 +236,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="space-y-5">
+  <div class="space-y-6">
     <div
       v-if="errorMessage"
       role="alert"
@@ -255,7 +255,7 @@ onBeforeUnmount(() => {
       <p>{{ downloadMessage }}</p>
     </div>
 
-    <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/30 sm:p-6">
+    <section class="rounded-xl border border-slate-200 bg-white p-6 sm:p-7">
       <div class="flex items-start gap-3">
         <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-bps-blue/10 text-bps-blue">
           <AppIcon name="download" :size="21" />
@@ -269,7 +269,7 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div class="mt-7 grid grid-cols-1 gap-5 sm:grid-cols-2">
         <div ref="periodPickerRoot" class="relative">
           <label for="download-period-trigger" class="mb-2 block text-xs font-medium text-slate-600">
             Periode data
@@ -396,17 +396,17 @@ onBeforeUnmount(() => {
     </section>
 
     <section class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-      <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/30">
+      <div class="rounded-xl border border-slate-200 bg-white p-5">
         <p class="text-xs font-medium text-slate-500">Sumber berita</p>
         <p class="mt-2 text-2xl font-bold tracking-tight text-slate-900">{{ isLoading ? '—' : formatNumber(mediaCount) }}</p>
         <p class="mt-1 text-xs text-slate-500">Media berbeda pada periode terpilih</p>
       </div>
-      <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/30">
+      <div class="rounded-xl border border-slate-200 bg-white p-5">
         <p class="text-xs font-medium text-slate-500">Sentimen positif</p>
         <p class="mt-2 text-2xl font-bold tracking-tight text-emerald-700">{{ isLoading ? '—' : formatNumber(positiveCount) }}</p>
         <p class="mt-1 text-xs text-slate-500">Artikel dengan label positif</p>
       </div>
-      <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/30">
+      <div class="rounded-xl border border-slate-200 bg-white p-5">
         <p class="text-xs font-medium text-slate-500">Sentimen negatif</p>
         <p class="mt-2 text-2xl font-bold tracking-tight text-rose-700">{{ isLoading ? '—' : formatNumber(negativeCount) }}</p>
         <p class="mt-1 text-xs text-slate-500">Artikel dengan label negatif</p>

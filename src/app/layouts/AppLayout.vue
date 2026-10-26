@@ -43,15 +43,14 @@ const adminItems: NavigationItem[] = [
     icon: 'globe',
     routeName: 'crawling',
   },
+  {
+    label: 'Riwayat Perubahan',
+    icon: 'history',
+    routeName: 'article-changes',
+  },
 ]
 
 const visibleAdminItems = computed(() => (authStore.isAdmin ? adminItems : []))
-
-const pageTitle = computed(() => String(route.meta.title ?? 'Dashboard'))
-
-const pageDescription = computed(() =>
-  String(route.meta.description ?? 'Pantau fenomena berita ekspor dan impor.'),
-)
 
 const dateLabel = new Intl.DateTimeFormat('id-ID', {
   weekday: 'long',
@@ -114,7 +113,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#f1f6ff] text-slate-800">
+  <div class="min-h-screen bg-slate-50 text-slate-800">
     <!-- Mobile overlay -->
     <button
       v-if="isMobileSidebarOpen"
@@ -128,26 +127,26 @@ onUnmounted(() => {
     <aside
       :class="[
         'fixed inset-y-0 left-0 z-50 flex w-[min(88vw,20rem)] flex-col lg:w-60',
-        'border-r border-white/10 bg-[#052b61] text-white shadow-xl shadow-blue-950/20',
+        'border-r border-sidebar-navy bg-sidebar-navy text-white shadow-none',
         'transition-transform duration-200',
         isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
       ]"
     >
       <!-- Identitas BPS dan RITME -->
-      <div class="shrink-0 px-4 pb-4 pt-4 sm:px-5 sm:pt-5">
-        <div class="flex items-center gap-3 border-b border-white/20 px-1 pb-4 sm:pb-5">
-          <div class="flex h-12 w-12 shrink-0 items-center justify-center sm:w-14">
-            <img :src="logoBps" alt="Logo BPS" class="h-auto max-h-12 w-full object-contain" />
+      <div class="shrink-0 px-4 pb-4 pt-5 sm:px-5 sm:pt-6">
+        <div class="flex items-center gap-3 border-b border-white/20 px-1 pb-5">
+          <div class="sidebar-brand-logo flex h-14 w-14 shrink-0 items-center justify-center">
+            <img :src="logoBps" alt="Logo BPS" class="h-auto max-h-14 w-full object-contain" />
           </div>
 
-          <div class="min-w-0 flex-1">
+          <div class="sidebar-brand-copy min-w-0 flex-1">
             <p
-              class="truncate text-[clamp(1.35rem,5vw,1.6rem)] font-black leading-none tracking-[0.12em] text-white"
+              class="truncate text-2xl font-extrabold leading-none tracking-[0.08em] text-white"
             >
               RITME
             </p>
             <p
-              class="mt-1 break-words text-[10px] font-semibold uppercase leading-3 tracking-[0.08em] text-white/75"
+              class="mt-1 break-words text-[11px] font-medium leading-4 text-white/75"
             >
               Rekap Informasi &amp; Tren Media
             </p>
@@ -177,8 +176,8 @@ onUnmounted(() => {
                 'flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium',
                 'transition-colors duration-150',
                 route.name === item.routeName
-                  ? 'bg-[#2996f3] text-white shadow-sm shadow-blue-950/20'
-                  : 'text-white/80 hover:bg-white/10 hover:text-white',
+                  ? 'bg-sidebar-active text-white shadow-sm'
+                  : 'text-white/75 hover:bg-white/10 hover:text-white',
               ]"
               @click="closeMobileSidebar"
             >
@@ -202,8 +201,8 @@ onUnmounted(() => {
                 'flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium',
                 'transition-colors duration-150',
                 route.name === item.routeName
-                  ? 'bg-[#2996f3] text-white shadow-sm shadow-blue-950/20'
-                  : 'text-white/80 hover:bg-white/10 hover:text-white',
+                  ? 'bg-sidebar-active text-white shadow-sm'
+                  : 'text-white/75 hover:bg-white/10 hover:text-white',
               ]"
               @click="closeMobileSidebar"
             >
@@ -217,9 +216,65 @@ onUnmounted(() => {
         </section>
       </nav>
 
+      <!-- Informasi waktu dan role -->
+      <div class="shrink-0 px-3 py-3 sm:px-4">
+        <div
+          class="rounded-xl border border-white/15 bg-white/10 p-3 shadow-sm backdrop-blur-sm"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              :class="[
+                'flex h-9 w-9 shrink-0 items-center justify-center rounded-full',
+                'text-xs font-bold',
+                authStore.isAdmin
+                  ? 'bg-white text-bps-blue-dark'
+                  : 'bg-emerald-50 text-emerald-700',
+              ]"
+              :title="authStore.isAdmin ? 'Administrator' : 'User'"
+            >
+              {{ authStore.isAdmin ? 'AD' : 'US' }}
+            </div>
+
+            <div class="min-w-0">
+              <p class="truncate text-sm font-semibold text-white">
+                {{ authStore.isAdmin ? 'Admin' : 'User' }}
+              </p>
+              <p class="mt-1 text-xs font-medium tabular-nums text-white/70">
+                {{ timeLabel }}
+              </p>
+            </div>
+          </div>
+
+          <div class="mt-4 border-t border-white/15 pt-4">
+            <p class="text-xs font-medium text-white/65">Hari ini</p>
+            <p class="mt-1 text-sm font-medium capitalize leading-5 text-white">
+              {{ dateLabel }}
+            </p>
+          </div>
+
+          <div class="mt-4 border-t border-white/15 pt-4">
+            <label for="role-switcher" class="mb-1.5 block text-xs font-medium text-white/65">
+              Simulasi role
+            </label>
+
+            <select
+              id="role-switcher"
+              :value="authStore.role"
+              class="h-9 w-full rounded-lg border border-white/25 bg-white px-3 text-sm font-semibold text-slate-700 outline-none transition hover:border-white focus:border-white focus:ring-2 focus:ring-white/25"
+              @change="handleRoleChange"
+            >
+              <option value="admin">Admin</option>
+              <option value="user">User</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
       <!-- Prototype status -->
-      <div class="shrink-0 border-t border-white/15 p-3 sm:p-4">
-        <div class="rounded-xl border border-white/15 bg-white/5 p-3">
+      <div class="shrink-0 border-t border-white/20 p-3 sm:p-4">
+        <div
+          class="rounded-xl border border-white/15 bg-white/10 p-3 shadow-sm backdrop-blur-sm"
+        >
           <div class="flex items-center gap-2">
             <span class="h-2 w-2 rounded-full bg-amber-400" aria-hidden="true" />
             <p class="text-xs font-semibold text-white">Mode Prototipe</p>
@@ -233,90 +288,19 @@ onUnmounted(() => {
 
     <!-- Main content -->
     <div class="min-h-screen lg:pl-60">
-      <!-- Topbar -->
-      <header class="sticky top-0 z-30 border-b border-blue-100 bg-white/95 backdrop-blur">
-        <div
-          :class="
-            route.name === 'dashboard'
-              ? 'flex min-h-16 items-center justify-between gap-3 px-4 sm:px-6 lg:px-6'
-              : 'flex min-h-20 items-center justify-between gap-3 px-4 sm:px-6 lg:px-6'
-          "
-        >
-          <div class="flex min-w-0 items-center gap-3">
-            <button
-              type="button"
-              aria-label="Buka navigasi"
-              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:border-bps-blue/40 hover:text-bps-blue lg:hidden"
-              @click="isMobileSidebarOpen = true"
-            >
-              <AppIcon name="menu" class="h-5 w-5" />
-            </button>
-
-            <div class="min-w-0 py-3 sm:py-4">
-              <p class="truncate text-sm font-semibold text-slate-800 sm:text-base">
-                {{ pageTitle }}
-              </p>
-              <p class="mt-1 line-clamp-2 text-xs leading-4 text-slate-500">
-                {{ pageDescription }}
-              </p>
-            </div>
-          </div>
-
-          <div class="flex shrink-0 items-center gap-3 sm:gap-4">
-            <div class="hidden text-right xl:block">
-              <p class="text-xs font-medium capitalize text-slate-700">
-                {{ dateLabel }}
-              </p>
-
-              <p
-                class="mt-1 text-xs font-semibold tabular-nums text-slate-500"
-                aria-label="Waktu saat ini dalam zona WIB"
-              >
-                {{ timeLabel }}
-              </p>
-            </div>
-
-            <div class="hidden h-9 w-px bg-slate-200 xl:block" aria-hidden="true" />
-
-            <div>
-              <label
-                for="role-switcher"
-                class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500"
-              >
-                Simulasi role
-              </label>
-
-              <select
-                id="role-switcher"
-                :value="authStore.role"
-                class="h-9 max-w-32 rounded-lg border border-slate-200 bg-white px-2 text-sm font-medium text-slate-700 outline-none transition focus:border-bps-blue focus:ring-2 focus:ring-bps-blue/15 sm:px-3"
-                @change="handleRoleChange"
-              >
-                <option value="admin">Admin</option>
-                <option value="user">User</option>
-              </select>
-            </div>
-
-            <div
-              :class="[
-                'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
-                'text-xs font-bold ring-2 ring-white',
-                authStore.isAdmin
-                  ? 'bg-bps-blue/10 text-bps-blue'
-                  : 'bg-emerald-50 text-emerald-700',
-              ]"
-              :title="authStore.isAdmin ? 'Administrator' : 'User'"
-            >
-              {{ authStore.isAdmin ? 'AD' : 'US' }}
-            </div>
-          </div>
-        </div>
-      </header>
+      <button
+        type="button"
+        aria-label="Buka navigasi"
+        class="fixed right-4 top-4 z-30 flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm hover:border-bps-blue/40 hover:text-bps-blue lg:hidden"
+        @click="isMobileSidebarOpen = true"
+      >
+        <AppIcon name="menu" class="h-5 w-5" />
+      </button>
 
       <main
         :class="
           route.name === 'dashboard'
-            ? 'px-3 py-2 sm:px-4 sm:py-2 lg:px-5'
+            ? 'px-4 py-5 sm:px-8 sm:py-6 lg:px-10'
             : 'px-4 py-6 sm:px-6 sm:py-8 lg:px-8'
         "
       >
@@ -335,3 +319,33 @@ onUnmounted(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.sidebar-brand-logo,
+.sidebar-brand-copy {
+  animation: sidebar-brand-enter 420ms ease-out both;
+}
+
+.sidebar-brand-copy {
+  animation-delay: 80ms;
+}
+
+@keyframes sidebar-brand-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-brand-logo,
+  .sidebar-brand-copy {
+    animation: none;
+  }
+}
+</style>

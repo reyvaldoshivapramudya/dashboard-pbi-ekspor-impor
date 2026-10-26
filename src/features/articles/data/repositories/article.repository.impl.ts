@@ -1,4 +1,5 @@
 import type { NewsArticle } from '@/features/articles/domain/entities/news-article'
+import type { ArticleChange, ArticleChangeAction } from '@/features/articles/domain/entities/article-change'
 import type {
   ArticleRepository,
   NewArticleInput,
@@ -7,6 +8,7 @@ import type {
 import { MOCK_ARTICLES } from '../datasources/articles.mock'
 
 const STORAGE_KEY = 'eksim-insight:articles:v1'
+const ARTICLE_CHANGES_STORAGE_KEY = 'eksim-insight:article-changes:v1'
 
 function cloneArticles(articles: NewsArticle[]): NewsArticle[] {
   return articles.map((article) => ({
@@ -24,6 +26,33 @@ function createArticleId(): string {
   }
 
   return `ART-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+}
+
+function recordChange(
+  action: ArticleChangeAction,
+  article: Pick<NewsArticle, 'id' | 'title'>,
+): void {
+  if (typeof window === 'undefined') return
+
+  try {
+    const stored = window.localStorage.getItem(ARTICLE_CHANGES_STORAGE_KEY)
+    const parsed: unknown = stored === null ? [] : JSON.parse(stored)
+    const changes = Array.isArray(parsed) ? (parsed as ArticleChange[]) : []
+    const change: ArticleChange = {
+      id: createArticleId(),
+      articleId: article.id,
+      action,
+      articleTitle: article.title,
+      changedAt: new Date().toISOString(),
+    }
+
+    window.localStorage.setItem(
+      ARTICLE_CHANGES_STORAGE_KEY,
+      JSON.stringify([change, ...changes].slice(0, 100)),
+    )
+  } catch (error) {
+    console.warn('Riwayat perubahan artikel tidak dapat disimpan.', error)
+  }
 }
 
 export class ArticleRepositoryImpl implements ArticleRepository {
@@ -109,6 +138,7 @@ export class ArticleRepositoryImpl implements ArticleRepository {
     }
 
     this.writeArticles([article, ...articles])
+    recordChange('created', article)
 
     return article
   }
@@ -130,6 +160,7 @@ export class ArticleRepositoryImpl implements ArticleRepository {
     }
 
     this.writeArticles(articles)
+    recordChange('updated', updatedArticle)
 
     return updatedArticle
   }
@@ -143,5 +174,7 @@ export class ArticleRepositoryImpl implements ArticleRepository {
     }
 
     this.writeArticles(remainingArticles)
+    const deletedArticle = articles.find((article) => article.id === id)
+    if (deletedArticle) recordChange('deleted', deletedArticle)
   }
 }

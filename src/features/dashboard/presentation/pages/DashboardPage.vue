@@ -161,6 +161,17 @@ const horizontalChartOptions: ChartOptions<'bar'> = {
   responsive: true,
   maintainAspectRatio: false,
   indexAxis: 'y',
+  animation: {
+    duration: 900,
+    easing: 'easeOutQuart',
+  },
+  animations: {
+    x: {
+      duration: 900,
+      easing: 'easeOutQuart',
+      from: (context) => context.chart.scales.x?.getPixelForValue(0) ?? 0,
+    },
+  },
   // Keep count labels visible even when a bar is close to the right edge.
   layout: { padding: { right: 24 } },
 
@@ -208,6 +219,17 @@ const horizontalChartOptions: ChartOptions<'bar'> = {
 const verticalChartOptions: ChartOptions<'bar'> = {
   responsive: true,
   maintainAspectRatio: false,
+  animation: {
+    duration: 900,
+    easing: 'easeOutQuart',
+  },
+  animations: {
+    y: {
+      duration: 900,
+      easing: 'easeOutQuart',
+      from: (context) => context.chart.scales.y?.getPixelForValue(0) ?? 0,
+    },
+  },
   // Reserve a little room above the bars for their numeric labels.
   layout: { padding: { top: 14 } },
 
@@ -279,6 +301,24 @@ const sentimentChartOptions: ChartOptions<'doughnut'> = {
   responsive: true,
   maintainAspectRatio: false,
   cutout: '62%',
+  animation: {
+    duration: 1000,
+    easing: 'easeOutQuart',
+    animateRotate: true,
+    animateScale: true,
+  },
+  animations: {
+    circumference: {
+      duration: 1000,
+      easing: 'easeOutQuart',
+      from: 0,
+    },
+    rotation: {
+      duration: 1000,
+      easing: 'easeOutQuart',
+      from: -90,
+    },
+  },
   plugins: {
     legend: { display: false },
     tooltip: {
@@ -387,10 +427,10 @@ const commodityScopeData = computed(() => {
 </script>
 
 <template>
-  <div class="dashboard-page flex flex-col gap-2">
+  <div class="dashboard-page flex flex-col gap-5">
     <!-- Filter periode ringkas seperti referensi dashboard -->
     <section
-  class="flex min-h-[90px] flex-col gap-2 rounded-xl border border-blue-100 bg-white/90 p-2 shadow-sm shadow-blue-950/[0.03] xl:flex-row xl:items-center xl:gap-3 sm:px-3 sm:py-2"
+  class="flex min-h-[90px] flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 xl:flex-row xl:items-center xl:gap-5 sm:px-5 sm:py-4"
 >
       <div class="flex min-w-0 items-center gap-3 xl:min-w-[280px] xl:flex-1">
         <div
@@ -520,7 +560,7 @@ const commodityScopeData = computed(() => {
 
     <template v-else-if="summary">
       <!-- Empat kartu metrik utama -->
-      <section class="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
+      <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           title="Total Artikel"
           :value="formatNumber(summary.totalArticles)"
@@ -556,7 +596,7 @@ const commodityScopeData = computed(() => {
       </section>
 
       <!-- Baris utama: top komoditas dan diagram donat sentimen -->
-      <section class="grid grid-cols-1 gap-2 xl:grid-cols-2 -mt-1">
+      <section class="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <DashboardChartCard
           title="Top 5 Komoditas"
           description="Komoditas spesifik dengan jumlah artikel terbanyak pada periode terpilih."
@@ -577,7 +617,7 @@ const commodityScopeData = computed(() => {
       </section>
 
       <!-- Baris ringkasan bawah: media, fenomena, klasifikasi, dan sorotan -->
-      <section class="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-[1.18fr_1fr_1fr_1.12fr]">
+      <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-[1.18fr_1fr_1fr_1.12fr]">
         <DashboardChartCard
           title="Artikel per Media"
           description="Jumlah artikel dari masing-masing portal berita."
@@ -609,9 +649,9 @@ const commodityScopeData = computed(() => {
         />
 
         <section
-          class="flex min-w-0 flex-col overflow-hidden rounded-xl border border-blue-100 bg-white shadow-sm shadow-blue-950/[0.04]"
+          class="flex min-w-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white"
         >
-          <div class="flex items-center gap-2 border-b border-blue-100 bg-blue-50/80 px-3 py-2">
+          <div class="flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-4 py-3">
             <div
               class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-bps-blue shadow-sm shadow-blue-950/[0.04]"
             >
@@ -642,7 +682,7 @@ const commodityScopeData = computed(() => {
         </section>
       </section>
 
-      <div class="flex items-start gap-2 rounded-lg border border-blue-100 bg-white/80 px-3 py-1.5">
+      <div class="flex items-start gap-2 rounded-lg border border-slate-200 bg-white px-4 py-3">
         <AppIcon name="info" class="mt-0.5 h-3.5 w-3.5 shrink-0 text-bps-blue" />
         <p class="text-xs leading-relaxed text-slate-500">
           Data dan hasil klasifikasi pada prototipe ini bersifat simulasi. Sentimen, kategori, dan

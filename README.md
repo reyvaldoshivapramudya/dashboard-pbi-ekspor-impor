@@ -16,6 +16,7 @@ Indonesia**. Aplikasi ini menggantikan halaman pengelolaan artikel lama dengan t
 - [Responsivitas dan Branding](#responsivitas-dan-branding)
 - [Palet Warna](#palet-warna)
 - [Halaman Manajemen Artikel Berita (Admin)](#halaman-manajemen-artikel-berita-admin)
+- [Riwayat Perubahan (Admin)](#riwayat-perubahan-admin)
 - [Halaman Artikel Berita (User)](#halaman-artikel-berita-user)
 - [Struktur Proyek](#struktur-proyek)
 - [Menjalankan Aplikasi](#menjalankan-aplikasi)
@@ -57,8 +58,10 @@ Persyaratan Node.js: `^22.18.0 || >=24.12.0`.
    riwayat crawling serta deduplikasi berdasarkan URL.
 6. **Download Excel** — ekspor artikel per periode ke berkas `.xlsx` (13 kolom, sudah diformat
    lebar kolomnya).
-7. **Simulasi role** — pengalih role Admin/User pada header untuk menguji kedua tampilan.
-8. **Tampilan responsif** — kartu digunakan pada perangkat ponsel dan tablet, sedangkan tabel
+7. **Riwayat Perubahan (Admin)** — pencatatan aktivitas tambah, ubah, dan hapus artikel dengan
+   filter jenis aksi serta periode bulan/tahun.
+8. **Simulasi role** — pengalih role Admin/User pada header untuk menguji kedua tampilan.
+9. **Tampilan responsif** — kartu digunakan pada perangkat ponsel dan tablet, sedangkan tabel
    lengkap digunakan pada layar desktop yang lebih lebar.
 
 ---
@@ -110,12 +113,13 @@ Role disimpan pada `auth.store.ts` (Pinia) dan **default-nya `admin`**. Pengalih
 
 | Role    | Menu sidebar                                                       | Halaman artikel                                 | CRUD  |
 | ------- | ------------------------------------------------------------------ | ----------------------------------------------- | ----- |
-| `admin` | Dashboard, **Manajemen Artikel Berita**, Download, Crawling Berita | `CommodityOverviewTable` (`can-manage="true"`)  | Ya    |
+| `admin` | Dashboard, **Manajemen Artikel Berita**, Download, Crawling Berita, **Riwayat Perubahan** | `CommodityOverviewTable` (`can-manage="true"`)  | Ya    |
 | `user`  | Dashboard, **Artikel Berita**, Download                            | `CommodityOverviewTable` (`can-manage="false"`) | Tidak |
 
 Guard router (`src/app/router/index.ts`):
 
-- Route dengan `meta.requiresAdmin` (`crawling`, `article-management`) dialihkan ke `dashboard`
+- Route dengan `meta.requiresAdmin` (`crawling`, `article-management`, `article-changes`) dialihkan ke
+  `dashboard`
   bila role bukan admin.
 - Route `articles` dialihkan ke `article-management` bila role admin, sehingga tidak ada halaman
   duplikat yang bisa dibuka bersamaan.
@@ -155,7 +159,7 @@ Token warna utama tersedia di `src/assets/main.css`.
 | Peran | Warna | Penggunaan |
 | --- | --- | --- |
 | Primary BPS | `#1688C7` (`bps-blue`) | Tombol utama, link, ikon aktif, dan aksen navigasi |
-| Primary gelap | `#11699B` (`bps-blue-dark`) | Teks atau state hover pada aksen biru |
+| Primary gelap | `#006B9C` (`bps-blue-dark`) | Teks atau state hover pada aksen biru |
 | Biru soft | `blue-50` / `blue-100` | Background badge, panel informasi, dan state aktif yang ringan |
 | Netral | `slate-*`, putih | Background halaman, card, tabel, teks, dan border |
 | Status positif | `emerald-*` | Sentimen atau indikator berhasil |
@@ -223,6 +227,30 @@ sesuai role (`Kelola artikel komoditas …` vs `Lihat artikel komoditas …`).
 
 ---
 
+## Riwayat Perubahan (Admin)
+
+Menu **Riwayat Perubahan** hanya tersedia untuk role Admin dan mencatat seluruh aktivitas CRUD
+artikel yang dilakukan melalui aplikasi:
+
+- **Ditambahkan** — artikel baru berhasil dibuat.
+- **Diubah** — data artikel berhasil diperbarui.
+- **Dihapus** — artikel berhasil dihapus.
+
+Setiap catatan menyimpan ID artikel, judul artikel, jenis aksi, dan waktu perubahan. Riwayat
+disimpan secara lokal pada browser dengan kunci `eksim-insight:article-changes:v1` dan dibatasi
+hingga 100 aktivitas terbaru.
+
+Halaman ini menyediakan dua filter yang dapat digunakan bersamaan:
+
+- **Jenis perubahan** — Semua, Ditambahkan, Diubah, atau Dihapus.
+- **Periode** — pemilih bulan/tahun dengan dialog kalender yang tampilannya konsisten dengan filter
+  periode pada halaman Manajemen Artikel Berita, termasuk navigasi tahun dan opsi `Semua Periode`.
+
+Route `/article-changes` dilindungi dengan `meta.requiresAdmin`, sehingga User tidak dapat
+membuka halaman ini maupun melihat menunya.
+
+---
+
 ## Halaman Artikel Berita (User)
 
 Halaman ini merender komponen yang sama dengan Admin memakai `can-manage="false"`:
@@ -264,12 +292,14 @@ src/
 │   │   │   └── repositories/…                               # Implementasi repository
 │   │   ├── domain/
 │   │   │   ├── entities/news-article.ts, commodity-overview.ts
+│   │   │   ├── entities/article-change.ts                 # Entitas riwayat perubahan artikel
 │   │   │   ├── repositories/…
 │   │   │   └── use-cases/…                                  # search, create, update, delete,
 │   │   │                                                    # get-commodity-overview
 │   │   └── presentation/
 │   │       ├── components/ArticleExplorer.vue               # Tabel artikel + CRUD opsional
-│   │       └── pages/ArticlesPage.vue                       # can-manage = false
+│   │       ├── pages/ArticlesPage.vue                       # can-manage = false
+│   │       └── pages/ArticleChangesPage.vue                 # Riwayat perubahan Admin
 │   ├── crawling/                 # Simulasi crawling + riwayat
 │   ├── dashboard/                # Statistik & grafik (StatCard, BaseBarChart, dll.)
 │   └── downloads/                # DownloadPage.vue

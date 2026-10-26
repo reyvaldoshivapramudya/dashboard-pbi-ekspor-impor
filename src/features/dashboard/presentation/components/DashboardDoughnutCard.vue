@@ -21,7 +21,7 @@ defineProps<{
 
 <template>
   <section
-    class="min-w-0 rounded-xl border border-blue-100 bg-white p-3 shadow-sm shadow-blue-950/[0.04]"
+    class="dashboard-doughnut-card min-w-0 rounded-xl border border-slate-200 bg-white p-4"
   >
     <div class="mb-2 flex items-start gap-2">
       <div
@@ -43,7 +43,7 @@ defineProps<{
         </svg>
       </div>
       <div class="min-w-0">
-        <h2 class="text-sm font-bold leading-4 text-slate-900">{{ title }}</h2>
+        <h2 class="text-sm font-semibold leading-4 text-slate-900">{{ title }}</h2>
         <p class="mt-0.5 text-xs leading-tight text-slate-500">{{ description }}</p>
       </div>
     </div>
@@ -83,3 +83,27 @@ defineProps<{
     </div>
   </section>
 </template>
+
+<style scoped>
+.dashboard-doughnut-card {
+  animation: dashboard-card-enter 560ms ease-out 100ms both;
+}
+
+@keyframes dashboard-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-doughnut-card {
+    animation: none;
+  }
+}
+</style>

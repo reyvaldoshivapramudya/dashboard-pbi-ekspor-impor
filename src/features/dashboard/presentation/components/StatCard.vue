@@ -39,9 +39,9 @@ const accentClasses = computed(() => {
 </script>
 
 <template>
- <article
-  class="relative h-[95px] overflow-hidden rounded-xl border border-blue-100 bg-white p-3 shadow-sm shadow-blue-950/[0.04] transition duration-200 hover:-translate-y-0.5 hover:shadow-md"
->
+  <article
+    class="relative overflow-hidden rounded-xl border border-slate-200 bg-white p-4 transition duration-200 hover:border-blue-200"
+  >
     <div class="flex min-w-0 items-center gap-4">
       <div
         :class="[
@@ -53,13 +53,13 @@ const accentClasses = computed(() => {
       </div>
 
       <div class="min-w-0 flex-1">
-        <p class="text-xs font-semibold leading-4 text-slate-800">
+        <p class="text-xs font-semibold leading-4 text-slate-500">
           {{ title }}
         </p>
 
         <div class="mt-0.5 flex min-w-0 items-center justify-between gap-2">
           <p
-            class="wrap-break-word text-2xl font-extrabold leading-none tracking-tight text-[#11194e]"
+            class="wrap-break-word text-2xl font-bold leading-none tracking-tight text-slate-900"
           >
             {{ value }}
           </p>
@@ -78,8 +78,6 @@ const accentClasses = computed(() => {
       </div>
     </div>
 
-    <div
-      :class="['absolute inset-x-0 bottom-0 h-[3px]', accentClasses.indicator]"
-    ></div>
+    <div :class="['absolute inset-x-0 bottom-0 h-0.5', accentClasses.indicator]"></div>
   </article>
 </template>

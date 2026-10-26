@@ -561,7 +561,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div ref="explorerRoot" class="space-y-5">
+  <div ref="explorerRoot" class="space-y-6">
     <!-- Feedback -->
     <div
       v-if="feedbackMessage"
@@ -584,7 +584,7 @@ onBeforeUnmount(() => {
     <!-- Panel filter lengkap: dipakai pada halaman Manajemen Artikel Berita -->
     <section
       v-if="!props.compactSearch"
-      class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/30 sm:p-6"
+      class="rounded-xl border border-slate-200 bg-white p-6 sm:p-7"
     >
       <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -753,7 +753,7 @@ onBeforeUnmount(() => {
     <!-- Satu search bar: dipakai pada pop-up Daftar dan Kelola Artikel -->
     <section
       v-if="props.compactSearch"
-      class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/30 sm:p-5"
+      class="rounded-xl border border-slate-200 bg-white p-5 sm:p-6"
     >
       <form class="flex flex-col gap-3 sm:flex-row sm:items-end" @submit.prevent="handleSearch">
         <div class="flex-1">
@@ -802,7 +802,7 @@ onBeforeUnmount(() => {
 
     <!-- Result table -->
     <section
-      class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-200/30"
+      class="overflow-hidden rounded-xl border border-slate-200 bg-white"
     >
       <div
         class="flex flex-col gap-2 border-b border-slate-100 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6"
@@ -869,7 +869,7 @@ onBeforeUnmount(() => {
           <article
             v-for="article in paginatedArticles"
             :key="article.id"
-            class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+            class="rounded-lg border border-slate-200 bg-white p-4"
           >
             <div class="flex items-start justify-between gap-3">
               <div class="min-w-0">
@@ -1249,7 +1249,7 @@ onBeforeUnmount(() => {
           role="dialog"
           aria-modal="true"
           aria-labelledby="article-form-title"
-          class="max-h-[calc(100dvh-1.5rem)] w-full max-w-4xl overflow-y-auto rounded-2xl bg-white shadow-2xl shadow-slate-900/20 sm:max-h-[94vh]"
+          class="max-h-[calc(100dvh-1.5rem)] w-full max-w-4xl overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-xl shadow-slate-900/15 sm:max-h-[94vh]"
         >
           <div
             class="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-slate-100 bg-white px-5 py-4 sm:px-7"

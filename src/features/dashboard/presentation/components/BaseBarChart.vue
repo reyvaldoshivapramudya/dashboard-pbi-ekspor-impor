@@ -55,5 +55,10 @@ defineProps<{
 </script>
 
 <template>
-  <Bar :data="chartData" :options="chartOptions" :plugins="[valueLabelsPlugin]" />
+  <Bar
+    :key="JSON.stringify(chartData.datasets)"
+    :data="chartData"
+    :options="chartOptions"
+    :plugins="[valueLabelsPlugin]"
+  />
 </template>

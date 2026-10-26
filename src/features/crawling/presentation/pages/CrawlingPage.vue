@@ -262,7 +262,7 @@ onMounted(() => {
     <!-- Current-period reminder -->
     <section
       v-if="!currentPeriodHasSuccessfulRun"
-      class="overflow-hidden rounded-2xl border border-orange-200 bg-white shadow-sm"
+      class="overflow-hidden rounded-xl border border-orange-200 bg-white"
     >
       <div class="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
         <div class="flex items-start gap-3">
@@ -343,7 +343,7 @@ onMounted(() => {
 
     <!-- Run summary -->
     <section class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-      <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <article class="rounded-xl border border-slate-200 bg-white p-5">
         <div class="flex items-center justify-between gap-3">
           <p class="text-sm font-medium text-slate-500">Total Eksekusi Berhasil</p>
           <AppIcon name="circle-check" class="h-5 w-5 text-bps-green" />
@@ -356,7 +356,7 @@ onMounted(() => {
         <p class="mt-2 text-xs text-slate-500">Berdasarkan riwayat simulasi.</p>
       </article>
 
-      <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <article class="rounded-xl border border-slate-200 bg-white p-5">
         <div class="flex items-center justify-between gap-3">
           <p class="text-sm font-medium text-slate-500">Portal Berita Tersedia</p>
           <AppIcon name="globe" class="h-5 w-5 text-bps-blue" />
@@ -369,7 +369,7 @@ onMounted(() => {
         <p class="mt-2 text-xs text-slate-500">Portal yang dapat dipilih pada prototipe.</p>
       </article>
 
-      <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <article class="rounded-xl border border-slate-200 bg-white p-5">
         <div class="flex items-center justify-between gap-3">
           <p class="text-sm font-medium text-slate-500">Artikel Ditambahkan</p>
           <AppIcon name="file-plus" class="h-5 w-5 text-bps-orange" />
@@ -386,7 +386,7 @@ onMounted(() => {
     </section>
 
     <!-- Crawling configuration -->
-    <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <section class="rounded-xl border border-slate-200 bg-white p-6 sm:p-7">
       <div class="mb-6 flex items-start gap-3">
         <div
           class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-bps-blue"
@@ -415,7 +415,7 @@ onMounted(() => {
           type="button"
           :disabled="isRunning"
           @click.stop="togglePeriodPicker"
-          class="flex h-[60px] w-full items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 text-left text-xl text-slate-700 shadow-sm outline-none transition hover:border-blue-300 focus:border-bps-blue focus:ring-2 focus:ring-bps-blue/20 disabled:cursor-not-allowed disabled:bg-slate-50"
+          class="flex h-11 w-full items-center justify-between rounded-lg border border-slate-200 bg-white px-3 text-left text-sm font-medium text-slate-700 outline-none transition hover:border-blue-300 focus:border-bps-blue focus:ring-2 focus:ring-bps-blue/20 disabled:cursor-not-allowed disabled:bg-slate-50"
           :class="{
             'border-bps-blue ring-2 ring-bps-blue/20': isPeriodPickerOpen,
           }"

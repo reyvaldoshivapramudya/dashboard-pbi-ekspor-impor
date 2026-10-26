@@ -278,10 +278,10 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="space-y-5">
+  <div class="space-y-6">
     <!-- Panel filter dan pencarian untuk halaman Manajemen Artikel Berita -->
     <section
-      class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/30 sm:p-6"
+      class="rounded-xl border border-slate-200 bg-white p-6 sm:p-7"
     >
       <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -450,7 +450,7 @@ onBeforeUnmount(() => {
 
     <!-- Komoditas table -->
     <section
-      class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-200/30"
+      class="overflow-hidden rounded-xl border border-slate-200 bg-white"
     >
       <div
         class="flex flex-col gap-2 border-b border-slate-100 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6"
@@ -505,7 +505,7 @@ onBeforeUnmount(() => {
           <article
             v-for="row in paginatedRows"
             :key="row.commodity"
-            class="cursor-pointer rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+            class="cursor-pointer rounded-lg border border-slate-200 bg-white p-4"
             tabindex="0"
             role="button"
             :aria-label="
@@ -780,7 +780,7 @@ onBeforeUnmount(() => {
           role="dialog"
           aria-modal="true"
           aria-labelledby="commodity-popup-title"
-          class="flex h-[94dvh] max-h-[calc(100dvh-1.5rem)] w-full max-w-[1700px] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl shadow-slate-900/20 sm:h-[94vh] sm:max-h-none"
+          class="flex h-[94dvh] max-h-[calc(100dvh-1.5rem)] w-full max-w-[1700px] flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl shadow-slate-900/15 sm:h-[94vh] sm:max-h-none"
         >
           <div
             class="flex shrink-0 items-center justify-between gap-4 border-b border-slate-100 bg-white px-5 py-4 sm:px-7"
