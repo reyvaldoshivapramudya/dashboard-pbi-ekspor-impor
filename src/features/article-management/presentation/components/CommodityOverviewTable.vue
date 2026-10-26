@@ -560,8 +560,10 @@ onBeforeUnmount(() => {
                   class="text-xs leading-5 text-slate-600"
                 >
                   &bull; {{ point.text }}
-                  <span class="text-slate-400">
-                    [{{ point.mediaName }} &middot; {{ formatDate(point.publishedAt) }}]
+                  <span
+                    class="ml-1 inline-flex rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700 ring-1 ring-inset ring-blue-100"
+                  >
+                    {{ point.mediaName }} &middot; {{ formatDate(point.publishedAt) }}
                   </span>
                 </li>
               </ul>
@@ -672,8 +674,10 @@ onBeforeUnmount(() => {
                       class="text-xs leading-5 text-slate-600"
                     >
                       &bull; {{ point.text }}
-                      <span class="text-slate-400">
-                        [{{ point.mediaName }} &middot; {{ formatDate(point.publishedAt) }}]
+                      <span
+                        class="ml-1 inline-flex rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700 ring-1 ring-inset ring-blue-100"
+                      >
+                        {{ point.mediaName }} &middot; {{ formatDate(point.publishedAt) }}
                       </span>
                     </li>
                   </ul>

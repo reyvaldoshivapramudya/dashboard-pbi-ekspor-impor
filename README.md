@@ -14,6 +14,7 @@ Indonesia**. Aplikasi ini menggantikan halaman pengelolaan artikel lama dengan t
 - [Sumber Data Excel](#sumber-data-excel)
 - [Role Pengguna](#role-pengguna)
 - [Responsivitas dan Branding](#responsivitas-dan-branding)
+- [Palet Warna](#palet-warna)
 - [Halaman Manajemen Artikel Berita (Admin)](#halaman-manajemen-artikel-berita-admin)
 - [Halaman Artikel Berita (User)](#halaman-artikel-berita-user)
 - [Struktur Proyek](#struktur-proyek)
@@ -145,6 +146,24 @@ seluruh elemen pengelolaan (tombol _Tambah Artikel_, kolom _Aksi_, dan modal for
 - Seluruh antarmuka menggunakan font stack yang konsisten berbasis Inter/system UI, dengan skala
   ukuran standar, line-height yang seragam, dan spacing tipografi yang dikontrol oleh layout.
   Standardisasi ini diterapkan pada header, sidebar, dashboard, tabel, form, dan halaman crawling.
+
+## Palet Warna
+
+Antarmuka menggunakan palet yang ringkas agar dashboard tetap konsisten dan tidak terlalu ramai.
+Token warna utama tersedia di `src/assets/main.css`.
+
+| Peran | Warna | Penggunaan |
+| --- | --- | --- |
+| Primary BPS | `#1688C7` (`bps-blue`) | Tombol utama, link, ikon aktif, dan aksen navigasi |
+| Primary gelap | `#11699B` (`bps-blue-dark`) | Teks atau state hover pada aksen biru |
+| Biru soft | `blue-50` / `blue-100` | Background badge, panel informasi, dan state aktif yang ringan |
+| Netral | `slate-*`, putih | Background halaman, card, tabel, teks, dan border |
+| Status positif | `emerald-*` | Sentimen atau indikator berhasil |
+| Status perhatian | `orange-*` | Sentimen atau indikator perhatian |
+
+Metadata sumber dan tanggal berita ditampilkan sebagai badge biru soft, bukan sebagai warna aksen
+baru. Warna status hijau dan orange tetap dipertahankan karena memiliki makna informasi yang
+berbeda dari warna utama.
 
 ---
 

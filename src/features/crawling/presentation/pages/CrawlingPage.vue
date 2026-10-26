@@ -415,9 +415,9 @@ onMounted(() => {
           type="button"
           :disabled="isRunning"
           @click.stop="togglePeriodPicker"
-          class="flex h-[60px] w-full items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 text-left text-xl text-slate-700 shadow-sm outline-none transition hover:border-blue-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 disabled:cursor-not-allowed disabled:bg-slate-50"
+          class="flex h-[60px] w-full items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 text-left text-xl text-slate-700 shadow-sm outline-none transition hover:border-blue-300 focus:border-bps-blue focus:ring-2 focus:ring-bps-blue/20 disabled:cursor-not-allowed disabled:bg-slate-50"
           :class="{
-            'border-sky-500 ring-2 ring-sky-500/20': isPeriodPickerOpen,
+            'border-bps-blue ring-2 ring-bps-blue/20': isPeriodPickerOpen,
           }"
         >
           <span>{{ selectedPeriodLabel }}</span>
@@ -462,9 +462,9 @@ onMounted(() => {
               :key="month.value"
               type="button"
               @click="selectMonth(month.value)"
-              class="flex h-14 items-center justify-center rounded-xl text-base text-slate-600 transition hover:bg-blue-50 hover:text-sky-600"
+              class="flex h-14 items-center justify-center rounded-xl text-base text-slate-600 transition hover:bg-blue-50 hover:text-bps-blue"
               :class="{
-                'bg-blue-50 font-semibold text-sky-600':
+                'bg-blue-50 font-semibold text-bps-blue':
                   selectedPeriod === `${calendarYear}-${month.value}`,
               }"
             >
@@ -477,7 +477,7 @@ onMounted(() => {
             <button
               type="button"
               @click="closePeriodPicker"
-              class="flex h-[54px] w-full items-center justify-center rounded-xl bg-blue-50 text-base font-medium text-sky-600 transition hover:bg-blue-100"
+              class="flex h-[54px] w-full items-center justify-center rounded-xl bg-blue-50 text-base font-medium text-bps-blue transition hover:bg-blue-100"
             >
               Tutup
             </button>

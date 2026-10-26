@@ -25,7 +25,7 @@ defineProps<{
   >
     <div class="mb-2 flex items-start gap-2">
       <div
-        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-sky-50 text-sky-500"
+        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-bps-blue"
       >
         <svg
           viewBox="0 0 24 24"

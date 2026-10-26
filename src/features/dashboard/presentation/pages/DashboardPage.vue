@@ -394,7 +394,7 @@ const commodityScopeData = computed(() => {
 >
       <div class="flex min-w-0 items-center gap-3 xl:min-w-[280px] xl:flex-1">
         <div
-          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-sky-50 text-sky-500"
+          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-bps-blue"
         >
           <AppIcon name="calendar" class="h-5 w-5" />
         </div>
@@ -413,7 +413,7 @@ const commodityScopeData = computed(() => {
           class="flex h-9 w-full items-center justify-between rounded-lg border bg-white px-3 text-left text-sm font-medium text-slate-800 outline-none transition"
           :class="
             isPeriodPickerOpen
-              ? 'border-sky-500 ring-2 ring-sky-100'
+              ? 'border-bps-blue ring-2 ring-blue-100'
               : 'border-slate-200 hover:border-slate-300'
           "
           @click="isPeriodPickerOpen = !isPeriodPickerOpen"
@@ -459,7 +459,7 @@ const commodityScopeData = computed(() => {
               class="flex h-10 items-center justify-center rounded-lg text-sm transition"
               :class="
                 isSelectedMonth(month.value)
-                  ? 'bg-sky-100 font-semibold text-sky-700'
+                  ? 'bg-blue-100 font-semibold text-bps-blue-dark'
                   : 'text-slate-600 hover:bg-slate-100'
               "
               @click="selectMonth(month.value)"
@@ -471,7 +471,7 @@ const commodityScopeData = computed(() => {
           <div class="mt-3 border-t border-slate-100 pt-3">
             <button
               type="button"
-              class="h-10 w-full rounded-lg bg-blue-50 text-sm font-semibold text-sky-700 transition hover:bg-blue-100"
+              class="h-10 w-full rounded-lg bg-blue-50 text-sm font-semibold text-bps-blue-dark transition hover:bg-blue-100"
               @click="selectAllPeriods"
             >
               Semua Periode
@@ -481,10 +481,10 @@ const commodityScopeData = computed(() => {
       </div>
 
       <div
-        class="flex items-center gap-2 rounded-lg bg-sky-50 px-2.5 py-1.5 xl:ml-auto xl:max-w-[310px]"
+        class="flex items-center gap-2 rounded-lg bg-blue-50 px-2.5 py-1.5 xl:ml-auto xl:max-w-[310px]"
       >
-        <AppIcon name="info" class="h-4 w-4 shrink-0 text-sky-600" />
-        <p class="text-xs leading-relaxed text-sky-800">
+        <AppIcon name="info" class="h-4 w-4 shrink-0 text-bps-blue" />
+        <p class="text-xs leading-relaxed text-bps-blue-dark">
           Sumber: dataset simulasi hasil scraping berita online.
         </p>
       </div>
@@ -611,9 +611,9 @@ const commodityScopeData = computed(() => {
         <section
           class="flex min-w-0 flex-col overflow-hidden rounded-xl border border-blue-100 bg-white shadow-sm shadow-blue-950/[0.04]"
         >
-          <div class="flex items-center gap-2 border-b border-blue-100 bg-sky-50/80 px-3 py-2">
+          <div class="flex items-center gap-2 border-b border-blue-100 bg-blue-50/80 px-3 py-2">
             <div
-              class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-sky-500 shadow-sm shadow-sky-950/[0.04]"
+              class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-bps-blue shadow-sm shadow-blue-950/[0.04]"
             >
               <AppIcon name="activity" class="h-4 w-4" />
             </div>
@@ -629,7 +629,7 @@ const commodityScopeData = computed(() => {
                     ? 'bg-emerald-50 text-emerald-600'
                     : item.tone === 'orange'
                       ? 'bg-orange-50 text-orange-500'
-                      : 'bg-sky-50 text-sky-500',
+                      : 'bg-blue-50 text-bps-blue',
                 ]"
               >
                 <AppIcon :name="item.icon" class="h-4 w-4" />
@@ -643,7 +643,7 @@ const commodityScopeData = computed(() => {
       </section>
 
       <div class="flex items-start gap-2 rounded-lg border border-blue-100 bg-white/80 px-3 py-1.5">
-        <AppIcon name="info" class="mt-0.5 h-3.5 w-3.5 shrink-0 text-sky-600" />
+        <AppIcon name="info" class="mt-0.5 h-3.5 w-3.5 shrink-0 text-bps-blue" />
         <p class="text-xs leading-relaxed text-slate-500">
           Data dan hasil klasifikasi pada prototipe ini bersifat simulasi. Sentimen, kategori, dan
           komoditas belum dihasilkan dari proses scraping maupun analisis otomatis.
