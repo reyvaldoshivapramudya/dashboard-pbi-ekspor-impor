@@ -133,6 +133,8 @@ seluruh elemen pengelolaan (tombol _Tambah Artikel_, kolom _Aksi_, dan modal for
   menggeser tabel yang terlalu lebar.
 - Pop-up artikel menampilkan kartu detail pada layar kecil dan menengah. Pada layar desktop,
   tabel artikel lengkap tetap digunakan untuk perbandingan antar kolom.
+- Kolom **Tanggal** pada tabel detail artikel dapat diklik untuk mengurutkan artikel secara
+  descending (terbaru ke terlama) atau ascending (terlama ke terbaru).
 - Dialog dan formulir mengikuti tinggi viewport dinamis, sehingga tetap dapat di-scroll pada
   layar pendek atau browser mobile.
 - Sidebar menggunakan logo BPS tanpa latar tambahan, dengan branding **RITME** berwarna putih
@@ -140,6 +142,9 @@ seluruh elemen pengelolaan (tombol _Tambah Artikel_, kolom _Aksi_, dan modal for
 - Sidebar menggunakan warna solid, bukan gradasi. Lebarnya menyesuaikan viewport pada mobile,
   sementara menu navigasi, label fitur, dan panel status dapat membungkus secara aman pada layar
   yang lebih sempit.
+- Seluruh antarmuka menggunakan font stack yang konsisten berbasis Inter/system UI, dengan skala
+  ukuran standar, line-height yang seragam, dan spacing tipografi yang dikontrol oleh layout.
+  Standardisasi ini diterapkan pada header, sidebar, dashboard, tabel, form, dan halaman crawling.
 
 ---
 

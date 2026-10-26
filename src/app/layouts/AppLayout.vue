@@ -147,7 +147,7 @@ onUnmounted(() => {
               RITME
             </p>
             <p
-              class="mt-1 break-words text-[9px] font-semibold uppercase leading-3 tracking-[0.08em] text-white/75"
+              class="mt-1 break-words text-[10px] font-semibold uppercase leading-3 tracking-[0.08em] text-white/75"
             >
               Rekap Informasi &amp; Tren Media
             </p>
@@ -252,18 +252,12 @@ onUnmounted(() => {
               <AppIcon name="menu" class="h-5 w-5" />
             </button>
 
-            <div v-if="route.name === 'dashboard'" class="min-w-0 py-5">
-              <p class="truncate text-sm font-semibold text-slate-800 sm:text-base">Dashboard</p>
-              <p class="mt-1 hidden text-xs text-slate-500 sm:block">
-                Portal analisis fenomena berita nasional
-              </p>
-            </div>
-            <div v-else class="min-w-0">
+            <div class="min-w-0 py-3 sm:py-4">
               <p class="truncate text-sm font-semibold text-slate-800 sm:text-base">
-                Monitoring Ekspor & Impor
+                {{ pageTitle }}
               </p>
-              <p class="mt-1 hidden text-xs text-slate-500 sm:block">
-                Portal analisis fenomena berita nasional
+              <p class="mt-1 line-clamp-2 text-xs leading-4 text-slate-500">
+                {{ pageDescription }}
               </p>
             </div>
           </div>
@@ -275,7 +269,7 @@ onUnmounted(() => {
               </p>
 
               <p
-                class="mt-1 text-[11px] font-semibold tabular-nums text-slate-500"
+                class="mt-1 text-xs font-semibold tabular-nums text-slate-500"
                 aria-label="Waktu saat ini dalam zona WIB"
               >
                 {{ timeLabel }}
@@ -287,7 +281,7 @@ onUnmounted(() => {
             <div>
               <label
                 for="role-switcher"
-                class="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-slate-500"
+                class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500"
               >
                 Simulasi role
               </label>
@@ -319,7 +313,6 @@ onUnmounted(() => {
         </div>
       </header>
 
-      <!-- Page heading -->
       <main
         :class="
           route.name === 'dashboard'
@@ -327,21 +320,6 @@ onUnmounted(() => {
             : 'px-4 py-6 sm:px-6 sm:py-8 lg:px-8'
         "
       >
-        <div
-          v-if="route.name !== 'dashboard'"
-          class="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
-        >
-          <div class="min-w-0">
-            <h1 class="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-              {{ pageTitle }}
-            </h1>
-
-            <p class="mt-2 max-w-2xl text-sm leading-relaxed text-slate-500">
-              {{ pageDescription }}
-            </p>
-          </div>
-        </div>
-
         <RouterView />
       </main>
 

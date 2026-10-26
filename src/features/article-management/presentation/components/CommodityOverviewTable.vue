@@ -52,6 +52,8 @@ const appliedFilters = ref({ period: 'all', query: '' })
 
 const rowsPerPage = ref(20)
 const currentPage = ref(1)
+const sortDirection = ref<'asc' | 'desc'>('desc')
+const showBackToTop = ref(false)
 
 /** Periode yang tersedia diturunkan dari tanggal poin ringkasan pada sheet "Hasil Scraping". */
 const availablePeriods = computed(() => {
@@ -84,6 +86,16 @@ const filteredRows = computed(() => {
   })
 })
 
+const sortedRows = computed(() =>
+  [...filteredRows.value].sort((a, b) => {
+    const difference = a.articleCount - b.articleCount
+
+    return sortDirection.value === 'asc'
+      ? difference || a.commodity.localeCompare(b.commodity, 'id')
+      : difference * -1 || b.commodity.localeCompare(a.commodity, 'id')
+  }),
+)
+
 const totalPages = computed(() =>
   Math.max(1, Math.ceil(filteredRows.value.length / rowsPerPage.value)),
 )
@@ -91,7 +103,7 @@ const totalPages = computed(() =>
 const paginatedRows = computed(() => {
   const start = (currentPage.value - 1) * rowsPerPage.value
 
-  return filteredRows.value.slice(start, start + rowsPerPage.value)
+  return sortedRows.value.slice(start, start + rowsPerPage.value)
 })
 
 const showingFrom = computed(() =>
@@ -119,6 +131,19 @@ async function loadOverview(): Promise<void> {
 
 function formatNumber(value: number): string {
   return new Intl.NumberFormat('id-ID').format(value)
+}
+
+function toggleArticleSort(): void {
+  sortDirection.value = sortDirection.value === 'desc' ? 'asc' : 'desc'
+  currentPage.value = 1
+}
+
+function handleWindowScroll(): void {
+  if (window.scrollY > 360) showBackToTop.value = true
+}
+
+function scrollToTop(): void {
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 function formatPeriod(period: string): string {
@@ -239,12 +264,15 @@ function handleKeydown(event: KeyboardEvent): void {
 onMounted(async () => {
   document.addEventListener('keydown', handleKeydown)
   document.addEventListener('pointerdown', handlePeriodPickerOutsideClick)
+  window.addEventListener('scroll', handleWindowScroll, { passive: true })
+  handleWindowScroll()
   await loadOverview()
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('keydown', handleKeydown)
   document.removeEventListener('pointerdown', handlePeriodPickerOutsideClick)
+  window.removeEventListener('scroll', handleWindowScroll)
   document.body.style.overflow = ''
 })
 </script>
@@ -461,6 +489,19 @@ onBeforeUnmount(() => {
 
       <div v-else>
         <div class="space-y-3 p-3 lg:hidden">
+          <button
+            type="button"
+            class="ml-auto inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 shadow-sm transition hover:border-bps-blue/40 hover:text-bps-blue"
+            :aria-label="`Urutkan jumlah berita ${sortDirection === 'desc' ? 'terbanyak ke tersedikit' : 'tersedikit ke terbanyak'}`"
+            @click="toggleArticleSort"
+          >
+            Jumlah Berita: {{ sortDirection === 'desc' ? 'Terbanyak' : 'Tersedikit' }}
+            <AppIcon
+              :name="sortDirection === 'desc' ? 'arrow-down' : 'arrow-up'"
+              class="h-3.5 w-3.5"
+            />
+          </button>
+
           <article
             v-for="row in paginatedRows"
             :key="row.commodity"
@@ -554,7 +595,20 @@ onBeforeUnmount(() => {
             <thead class="bg-slate-50 text-xs font-semibold text-slate-500">
               <tr>
                 <th class="min-w-56 px-4 py-4">Komoditas</th>
-                <th class="whitespace-nowrap px-4 py-4">Jumlah Berita</th>
+                <th class="whitespace-nowrap px-4 py-4">
+                  <button
+                    type="button"
+                    class="inline-flex items-center gap-1.5 font-semibold transition hover:text-bps-blue"
+                    :aria-label="`Urutkan jumlah berita ${sortDirection === 'desc' ? 'terbanyak ke tersedikit' : 'tersedikit ke terbanyak'}`"
+                    @click.stop="toggleArticleSort"
+                  >
+                    Jumlah Berita
+                    <AppIcon
+                      :name="sortDirection === 'desc' ? 'arrow-down' : 'arrow-up'"
+                      class="h-3.5 w-3.5"
+                    />
+                  </button>
+                </th>
                 <th class="whitespace-nowrap px-4 py-4">Positif</th>
                 <th class="whitespace-nowrap px-4 py-4">Negatif</th>
                 <th class="whitespace-nowrap px-4 py-4">Jumlah Poin Utama</th>
@@ -697,6 +751,19 @@ onBeforeUnmount(() => {
         </div>
       </div>
     </section>
+
+    <Transition name="back-to-top">
+      <button
+        v-if="showBackToTop"
+        type="button"
+        aria-label="Kembali ke atas daftar komoditas"
+        title="Kembali ke atas"
+        class="back-to-top-button fixed bottom-5 right-4 z-40 flex h-11 w-11 items-center justify-center rounded-full bg-bps-blue text-white shadow-lg shadow-slate-900/20 focus:outline-none focus:ring-2 focus:ring-bps-blue/30 sm:bottom-7 sm:right-7"
+        @click="scrollToTop"
+      >
+        <AppIcon name="arrow-up" class="h-5 w-5" />
+      </button>
+    </Transition>
 
     <!-- Pop-up persegi panjang: Daftar dan Kelola Artikel -->
     <Teleport to="body">
