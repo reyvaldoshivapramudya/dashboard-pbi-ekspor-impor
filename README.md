@@ -13,6 +13,7 @@ Indonesia**. Aplikasi ini menggantikan halaman pengelolaan artikel lama dengan t
 - [Fitur Utama](#fitur-utama)
 - [Sumber Data Excel](#sumber-data-excel)
 - [Role Pengguna](#role-pengguna)
+- [Responsivitas dan Branding](#responsivitas-dan-branding)
 - [Halaman Manajemen Artikel Berita (Admin)](#halaman-manajemen-artikel-berita-admin)
 - [Halaman Artikel Berita (User)](#halaman-artikel-berita-user)
 - [Struktur Proyek](#struktur-proyek)
@@ -56,6 +57,8 @@ Persyaratan Node.js: `^22.18.0 || >=24.12.0`.
 6. **Download Excel** — ekspor artikel per periode ke berkas `.xlsx` (13 kolom, sudah diformat
    lebar kolomnya).
 7. **Simulasi role** — pengalih role Admin/User pada header untuk menguji kedua tampilan.
+8. **Tampilan responsif** — kartu digunakan pada perangkat ponsel dan tablet, sedangkan tabel
+   lengkap digunakan pada layar desktop yang lebih lebar.
 
 ---
 
@@ -120,6 +123,20 @@ Kedua halaman artikel **memakai satu komponen yang sama** (`CommodityOverviewTab
 berbeda pada prop `canManage`. Prop ini diteruskan ke `ArticleExplorer`, yang menyembunyikan
 seluruh elemen pengelolaan (tombol _Tambah Artikel_, kolom _Aksi_, dan modal formulir) saat
 `canManage` bernilai `false`. Hasilnya, tampilan User identik dengan Admin kecuali fitur CRUD.
+
+---
+
+## Responsivitas dan Branding
+
+- Halaman daftar komoditas menampilkan kartu pada perangkat ponsel dan tablet agar nama
+  komoditas, statistik, serta poin ringkasan tetap mudah dibaca tanpa memaksa pengguna
+  menggeser tabel yang terlalu lebar.
+- Pop-up artikel menampilkan kartu detail pada layar kecil dan menengah. Pada layar desktop,
+  tabel artikel lengkap tetap digunakan untuk perbandingan antar kolom.
+- Dialog dan formulir mengikuti tinggi viewport dinamis, sehingga tetap dapat di-scroll pada
+  layar pendek atau browser mobile.
+- Sidebar menggunakan logo BPS tanpa latar tambahan, dengan branding **RITME** dan subjudul
+  **Rekap Informasi & Tren Media** di sampingnya.
 
 ---
 

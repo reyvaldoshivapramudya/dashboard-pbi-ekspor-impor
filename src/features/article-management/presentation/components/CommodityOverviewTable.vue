@@ -274,7 +274,10 @@ onBeforeUnmount(() => {
 
       <form class="grid grid-cols-1 gap-4 sm:grid-cols-2" @submit.prevent="handleSearch">
         <div ref="periodPickerRoot" class="relative">
-          <label for="commodity-period-trigger" class="mb-2 block text-xs font-medium text-slate-600">
+          <label
+            for="commodity-period-trigger"
+            class="mb-2 block text-xs font-medium text-slate-600"
+          >
             Periode
           </label>
 
@@ -376,7 +379,9 @@ onBeforeUnmount(() => {
           </div>
         </div>
 
-        <div class="flex flex-col gap-3 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between">
+        <div
+          class="flex flex-col gap-3 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between"
+        >
           <div>
             <label for="commodity-rows" class="mr-3 text-xs font-medium text-slate-600">
               Baris per halaman
@@ -454,108 +459,203 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <div v-else class="overflow-x-auto">
-        <table class="w-full min-w-[1120px] border-collapse text-left text-sm">
-          <thead class="bg-slate-50 text-xs font-semibold text-slate-500">
-            <tr>
-              <th class="min-w-56 px-4 py-4">Komoditas</th>
-              <th class="whitespace-nowrap px-4 py-4">Jumlah Berita</th>
-              <th class="whitespace-nowrap px-4 py-4">Positif</th>
-              <th class="whitespace-nowrap px-4 py-4">Negatif</th>
-              <th class="whitespace-nowrap px-4 py-4">Jumlah Poin Utama</th>
-              <th class="min-w-96 px-4 py-4">Poin Ringkasan</th>
-            </tr>
-          </thead>
+      <div v-else>
+        <div class="space-y-3 p-3 lg:hidden">
+          <article
+            v-for="row in paginatedRows"
+            :key="row.commodity"
+            class="cursor-pointer rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+            tabindex="0"
+            role="button"
+            :aria-label="
+              props.canManage
+                ? `Kelola artikel komoditas ${row.commodity}`
+                : `Lihat artikel komoditas ${row.commodity}`
+            "
+            @click="openPopup(row.commodity)"
+            @keydown.enter="openPopup(row.commodity)"
+            @keydown.space.prevent="openPopup(row.commodity)"
+          >
+            <div class="flex items-start justify-between gap-3">
+              <h3 class="min-w-0 break-words font-semibold leading-5 text-slate-800">
+                {{ row.commodity }}
+              </h3>
+              <AppIcon name="chevron-right" class="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
+            </div>
 
-          <tbody class="divide-y divide-slate-100">
-            <tr
-              v-for="row in paginatedRows"
-              :key="row.commodity"
-              class="cursor-pointer align-top transition hover:bg-slate-100"
-              tabindex="0"
-              role="button"
-              :aria-label="
-                props.canManage
-                  ? `Kelola artikel komoditas ${row.commodity}`
-                  : `Lihat artikel komoditas ${row.commodity}`
-              "
-              @click="openPopup(row.commodity)"
-              @keydown.enter="openPopup(row.commodity)"
-              @keydown.space.prevent="openPopup(row.commodity)"
-            >
-              <td class="px-4 py-4">
-                <div class="flex items-center gap-2">
-                  <span class="font-semibold leading-5 text-slate-800">
-                    {{ row.commodity }}
-                  </span>
-                </div>
-              </td>
-
-              <td class="whitespace-nowrap px-4 py-4 font-semibold tabular-nums text-slate-700">
-                {{ formatNumber(row.articleCount) }}
-              </td>
-
-              <td class="px-4 py-4">
-                <span
-                  class="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-200"
-                >
+            <dl class="mt-4 grid grid-cols-2 gap-3 text-xs sm:grid-cols-4">
+              <div>
+                <dt class="text-slate-400">Berita</dt>
+                <dd class="mt-1 font-semibold tabular-nums text-slate-700">
+                  {{ formatNumber(row.articleCount) }}
+                </dd>
+              </div>
+              <div>
+                <dt class="text-slate-400">Poin utama</dt>
+                <dd class="mt-1 font-semibold tabular-nums text-slate-700">
+                  {{ formatNumber(row.mainPointCount) }}
+                </dd>
+              </div>
+              <div>
+                <dt class="text-slate-400">Positif</dt>
+                <dd class="mt-1 font-semibold tabular-nums text-emerald-700">
                   {{ formatNumber(row.positiveCount) }}
-                </span>
-              </td>
-
-              <td class="px-4 py-4">
-                <span
-                  class="inline-flex rounded-full bg-orange-50 px-2.5 py-1 text-xs font-medium text-orange-700 ring-1 ring-inset ring-orange-200"
-                >
+                </dd>
+              </div>
+              <div>
+                <dt class="text-slate-400">Negatif</dt>
+                <dd class="mt-1 font-semibold tabular-nums text-orange-700">
                   {{ formatNumber(row.negativeCount) }}
-                </span>
-              </td>
+                </dd>
+              </div>
+            </dl>
 
-              <td class="whitespace-nowrap px-4 py-4 font-semibold tabular-nums text-slate-700">
-                {{ formatNumber(row.mainPointCount) }}
-              </td>
-
-              <td class="px-4 py-4">
-                <ul v-if="row.points.length > 0" class="space-y-2">
-                  <li
-                    v-for="(point, index) in row.points"
-                    :key="index"
-                    class="text-xs leading-5 text-slate-600"
-                  >
-                    &bull; {{ point.text }}
-                    <span class="text-slate-400">
-                      [{{ point.mediaName }} &middot; {{ formatDate(point.publishedAt) }}]
-                    </span>
-                  </li>
-                </ul>
-
-                <span v-else class="text-xs text-slate-400">&mdash;</span>
-              </td>
-            </tr>
-
-            <tr v-if="filteredRows.length === 0">
-              <td colspan="6" class="px-6 py-16 text-center">
-                <div
-                  class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400"
+            <div class="mt-4 border-t border-slate-100 pt-3">
+              <p class="text-xs font-medium text-slate-400">Poin ringkasan</p>
+              <ul v-if="row.points.length > 0" class="mt-2 space-y-2">
+                <li
+                  v-for="(point, index) in row.points"
+                  :key="index"
+                  class="text-xs leading-5 text-slate-600"
                 >
-                  <AppIcon name="search" class="h-5 w-5" />
-                </div>
+                  &bull; {{ point.text }}
+                  <span class="text-slate-400">
+                    [{{ point.mediaName }} &middot; {{ formatDate(point.publishedAt) }}]
+                  </span>
+                </li>
+              </ul>
+              <span v-else class="mt-2 block text-xs text-slate-400">&mdash;</span>
+            </div>
+          </article>
 
-                <p class="mt-4 text-sm font-semibold text-slate-800">
-                  {{ rows.length === 0 ? 'Data komoditas belum tersedia.' : 'Komoditas tidak ditemukan' }}
-                </p>
+          <div v-if="filteredRows.length === 0" class="px-3 py-12 text-center">
+            <div
+              class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400"
+            >
+              <AppIcon name="search" class="h-5 w-5" />
+            </div>
+            <p class="mt-4 text-sm font-semibold text-slate-800">
+              {{
+                rows.length === 0 ? 'Data komoditas belum tersedia.' : 'Komoditas tidak ditemukan'
+              }}
+            </p>
+            <p class="mt-1 text-xs text-slate-500">
+              {{
+                rows.length === 0
+                  ? 'Sheet "Ringkasan Komoditas" pada HasilScrapingFenomena.xlsx tidak memuat data.'
+                  : 'Coba ubah kata kunci pencarian komoditas.'
+              }}
+            </p>
+          </div>
+        </div>
 
-                <p class="mt-1 text-xs text-slate-500">
-                  {{
-                    rows.length === 0
-                      ? 'Sheet "Ringkasan Komoditas" pada HasilScrapingFenomena.xlsx tidak memuat data.'
-                      : 'Coba ubah kata kunci pencarian komoditas.'
-                  }}
-                </p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="hidden overflow-x-auto lg:block">
+          <table class="w-full min-w-[1120px] border-collapse text-left text-sm">
+            <thead class="bg-slate-50 text-xs font-semibold text-slate-500">
+              <tr>
+                <th class="min-w-56 px-4 py-4">Komoditas</th>
+                <th class="whitespace-nowrap px-4 py-4">Jumlah Berita</th>
+                <th class="whitespace-nowrap px-4 py-4">Positif</th>
+                <th class="whitespace-nowrap px-4 py-4">Negatif</th>
+                <th class="whitespace-nowrap px-4 py-4">Jumlah Poin Utama</th>
+                <th class="min-w-96 px-4 py-4">Poin Ringkasan</th>
+              </tr>
+            </thead>
+
+            <tbody class="divide-y divide-slate-100">
+              <tr
+                v-for="row in paginatedRows"
+                :key="row.commodity"
+                class="cursor-pointer align-top transition hover:bg-slate-100"
+                tabindex="0"
+                role="button"
+                :aria-label="
+                  props.canManage
+                    ? `Kelola artikel komoditas ${row.commodity}`
+                    : `Lihat artikel komoditas ${row.commodity}`
+                "
+                @click="openPopup(row.commodity)"
+                @keydown.enter="openPopup(row.commodity)"
+                @keydown.space.prevent="openPopup(row.commodity)"
+              >
+                <td class="px-4 py-4">
+                  <div class="flex items-center gap-2">
+                    <span class="font-semibold leading-5 text-slate-800">
+                      {{ row.commodity }}
+                    </span>
+                  </div>
+                </td>
+
+                <td class="whitespace-nowrap px-4 py-4 font-semibold tabular-nums text-slate-700">
+                  {{ formatNumber(row.articleCount) }}
+                </td>
+
+                <td class="px-4 py-4">
+                  <span
+                    class="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-200"
+                  >
+                    {{ formatNumber(row.positiveCount) }}
+                  </span>
+                </td>
+
+                <td class="px-4 py-4">
+                  <span
+                    class="inline-flex rounded-full bg-orange-50 px-2.5 py-1 text-xs font-medium text-orange-700 ring-1 ring-inset ring-orange-200"
+                  >
+                    {{ formatNumber(row.negativeCount) }}
+                  </span>
+                </td>
+
+                <td class="whitespace-nowrap px-4 py-4 font-semibold tabular-nums text-slate-700">
+                  {{ formatNumber(row.mainPointCount) }}
+                </td>
+
+                <td class="px-4 py-4">
+                  <ul v-if="row.points.length > 0" class="space-y-2">
+                    <li
+                      v-for="(point, index) in row.points"
+                      :key="index"
+                      class="text-xs leading-5 text-slate-600"
+                    >
+                      &bull; {{ point.text }}
+                      <span class="text-slate-400">
+                        [{{ point.mediaName }} &middot; {{ formatDate(point.publishedAt) }}]
+                      </span>
+                    </li>
+                  </ul>
+
+                  <span v-else class="text-xs text-slate-400">&mdash;</span>
+                </td>
+              </tr>
+
+              <tr v-if="filteredRows.length === 0">
+                <td colspan="6" class="px-6 py-16 text-center">
+                  <div
+                    class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400"
+                  >
+                    <AppIcon name="search" class="h-5 w-5" />
+                  </div>
+
+                  <p class="mt-4 text-sm font-semibold text-slate-800">
+                    {{
+                      rows.length === 0
+                        ? 'Data komoditas belum tersedia.'
+                        : 'Komoditas tidak ditemukan'
+                    }}
+                  </p>
+
+                  <p class="mt-1 text-xs text-slate-500">
+                    {{
+                      rows.length === 0
+                        ? 'Sheet "Ringkasan Komoditas" pada HasilScrapingFenomena.xlsx tidak memuat data.'
+                        : 'Coba ubah kata kunci pencarian komoditas.'
+                    }}
+                  </p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <!-- Footer -->
@@ -609,7 +709,7 @@ onBeforeUnmount(() => {
           role="dialog"
           aria-modal="true"
           aria-labelledby="commodity-popup-title"
-          class="flex h-[94vh] w-full max-w-[1700px] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl shadow-slate-900/20"
+          class="flex h-[94dvh] max-h-[calc(100dvh-1.5rem)] w-full max-w-[1700px] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl shadow-slate-900/20 sm:h-[94vh] sm:max-h-none"
         >
           <div
             class="flex shrink-0 items-center justify-between gap-4 border-b border-slate-100 bg-white px-5 py-4 sm:px-7"

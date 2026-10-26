@@ -734,15 +734,131 @@ onBeforeUnmount(() => {
         Memuat artikel...
       </div>
 
-      <div
-        v-else
-        :class="props.compactSearch ? 'overflow-x-hidden' : 'overflow-x-auto'"
-      >
+      <div v-else :class="props.compactSearch ? 'overflow-x-hidden' : 'overflow-x-auto'">
+        <div v-if="props.compactSearch" class="space-y-3 p-3 xl:hidden">
+          <article
+            v-for="article in paginatedArticles"
+            :key="article.id"
+            class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+          >
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p class="text-[11px] font-medium text-slate-500">
+                  {{ formatDate(article.publishedAt) }} &middot;
+                  {{ categoryLabel(article.category) }}
+                </p>
+                <h3 class="mt-1 break-words text-sm font-semibold leading-5 text-slate-900">
+                  {{ article.title }}
+                </h3>
+              </div>
+
+              <div v-if="props.canManage" class="flex shrink-0 items-center gap-1">
+                <button
+                  type="button"
+                  :aria-label="`Edit ${article.title}`"
+                  title="Edit artikel"
+                  class="flex h-9 w-9 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-bps-blue transition hover:bg-blue-100"
+                  @click="openEditForm(article)"
+                >
+                  <AppIcon name="pencil" class="h-4 w-4" />
+                </button>
+
+                <button
+                  type="button"
+                  :aria-label="`Hapus ${article.title}`"
+                  title="Hapus artikel"
+                  class="flex h-9 w-9 items-center justify-center rounded-lg border border-orange-100 bg-orange-50 text-orange-700 transition hover:bg-orange-100"
+                  @click="handleDelete(article)"
+                >
+                  <AppIcon name="trash" class="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+
+            <dl class="mt-4 grid grid-cols-1 gap-3 text-xs sm:grid-cols-2">
+              <div>
+                <dt class="font-medium text-slate-400">Media</dt>
+                <dd class="mt-1 break-words text-slate-700">{{ article.mediaName }}</dd>
+              </div>
+
+              <div>
+                <dt class="font-medium text-slate-400">Komoditas</dt>
+                <dd class="mt-1 break-words text-slate-700">
+                  {{
+                    article.commodityScope === 'cross_commodity'
+                      ? 'Lintas Komoditas'
+                      : article.commodities.join(', ') || '—'
+                  }}
+                </dd>
+              </div>
+
+              <div>
+                <dt class="font-medium text-slate-400">Kata kunci</dt>
+                <dd class="mt-1 break-words text-slate-700">
+                  {{ article.searchKeywords.join(', ') || '—' }}
+                </dd>
+              </div>
+
+              <div>
+                <dt class="font-medium text-slate-400">Negara terkait</dt>
+                <dd class="mt-1 break-words text-slate-700">
+                  {{ article.relatedCountries.join(', ') || '—' }}
+                </dd>
+              </div>
+
+              <div class="sm:col-span-2">
+                <dt class="font-medium text-slate-400">Ringkasan</dt>
+                <dd class="mt-1 break-words leading-5 text-slate-700">
+                  {{ article.summary || '—' }}
+                </dd>
+              </div>
+            </dl>
+
+            <div
+              class="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-3"
+            >
+              <div class="flex items-center gap-2">
+                <span
+                  :class="[
+                    'inline-flex rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 ring-inset',
+                    sentimentClasses(article.sentiment),
+                  ]"
+                >
+                  {{ sentimentLabel(article.sentiment) }}
+                </span>
+                <span class="text-xs font-semibold tabular-nums text-slate-600">
+                  Skor {{ article.sentimentScore.toFixed(2) }}
+                </span>
+              </div>
+
+              <a
+                :href="article.url"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex max-w-full items-center gap-1.5 text-xs font-medium text-bps-blue hover:text-bps-blue-dark hover:underline"
+              >
+                <span class="truncate">Buka berita</span>
+                <AppIcon name="external-link" class="h-3 w-3 shrink-0" />
+              </a>
+            </div>
+          </article>
+
+          <div v-if="paginatedArticles.length === 0" class="px-3 py-12 text-center">
+            <div
+              class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400"
+            >
+              <AppIcon name="search" class="h-5 w-5" />
+            </div>
+            <p class="mt-4 text-sm font-semibold text-slate-800">Artikel tidak ditemukan</p>
+            <p class="mt-1 text-xs text-slate-500">Coba ubah periode atau kata kunci pencarian.</p>
+          </div>
+        </div>
+
         <table
           :class="[
             'border-collapse text-left text-sm',
             props.compactSearch
-              ? 'compact-article-table w-full min-w-0 table-fixed'
+              ? 'compact-article-table hidden w-full min-w-0 table-fixed xl:table'
               : 'w-full min-w-[1650px]',
           ]"
         >
@@ -827,7 +943,9 @@ onBeforeUnmount(() => {
                 {{ article.mediaName }}
               </td>
 
-              <td class="min-w-0 break-words whitespace-normal px-4 py-4 text-xs leading-5 text-slate-600">
+              <td
+                class="min-w-0 break-words whitespace-normal px-4 py-4 text-xs leading-5 text-slate-600"
+              >
                 <template v-if="article.commodityScope === 'cross_commodity'">
                   <p>Lintas Komoditas</p>
                 </template>
@@ -975,7 +1093,7 @@ onBeforeUnmount(() => {
           role="dialog"
           aria-modal="true"
           aria-labelledby="article-form-title"
-          class="max-h-[94vh] w-full max-w-4xl overflow-y-auto rounded-2xl bg-white shadow-2xl shadow-slate-900/20"
+          class="max-h-[calc(100dvh-1.5rem)] w-full max-w-4xl overflow-y-auto rounded-2xl bg-white shadow-2xl shadow-slate-900/20 sm:max-h-[94vh]"
         >
           <div
             class="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-slate-100 bg-white px-5 py-4 sm:px-7"
@@ -1265,7 +1383,6 @@ onBeforeUnmount(() => {
     </Teleport>
   </div>
 </template>
-
 
 <style scoped>
 /* Pop-up daftar artikel: pertahankan seluruh kolom dalam lebar modal. */

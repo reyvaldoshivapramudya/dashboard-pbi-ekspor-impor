@@ -133,32 +133,34 @@ onUnmounted(() => {
         isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
       ]"
     >
-      <!-- Identitas BPS RI dan RITME -->
+      <!-- Identitas BPS dan RITME -->
       <div class="shrink-0 px-5 pb-4 pt-5">
         <div class="flex items-center gap-3 border-b border-white/20 px-1 pb-5">
-          <div class="relative flex h-10 w-10 shrink-0 items-center justify-center">
-            <img :src="logoBps" alt="Logo BPS" class="h-10 w-auto object-contain" />
+          <div class="flex h-12 w-14 shrink-0 items-center justify-start">
+            <img :src="logoBps" alt="Logo BPS" class="h-auto w-14 object-contain" />
           </div>
-          <span class="text-xl font-extrabold tracking-tight text-white">BPS RI</span>
+
+          <div class="flex min-w-0 flex-1 flex-col justify-center">
+            <p
+              class="bg-gradient-to-r from-white via-blue-100 to-cyan-300 bg-clip-text text-[25px] font-black leading-none tracking-[0.14em] text-transparent"
+            >
+              RITME
+            </p>
+            <p
+              class="mt-0.5 text-[9px] font-semibold uppercase leading-3 tracking-[0.1em] text-blue-100/80"
+            >
+              Rekap Informasi &amp; Tren Media
+            </p>
+          </div>
+
           <button
             type="button"
             aria-label="Tutup sidebar"
-            class="ml-auto rounded-lg p-2 text-white/70 hover:bg-white/10 lg:hidden"
+            class="rounded-lg p-2 text-white/70 hover:bg-white/10 lg:hidden"
             @click="closeMobileSidebar"
           >
             <AppIcon name="x" />
           </button>
-        </div>
-
-        <div class="px-1 pt-5">
-          <div class="flex items-center gap-3">
-            <div class="min-w-0">
-              <p class="text-[25px] font-extrabold leading-7 tracking-tight text-white">RITME</p>
-            </div>
-          </div>
-          <p class="mt-2 text-sm leading-5 text-blue-100">
-            Rekap informasi dan tren media ekspor impor
-          </p>
         </div>
       </div>
 
