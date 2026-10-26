@@ -281,18 +281,18 @@ onBeforeUnmount(() => {
   <div class="space-y-6">
     <!-- Panel filter dan pencarian untuk halaman Manajemen Artikel Berita -->
     <section
-      class="rounded-xl border border-slate-200 bg-white p-6 sm:p-7"
+      class="rounded-xl border border-slate-200 bg-white p-4 sm:p-5"
     >
       <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 class="text-base font-semibold text-slate-900">Filter dan pencarian</h2>
+          <h2 class="text-sm font-semibold text-slate-900">Filter dan pencarian</h2>
           <p class="mt-1 text-xs text-slate-500">Cari berdasarkan nama komoditas atau periode.</p>
         </div>
 
         <button
           v-if="props.canManage"
           type="button"
-          class="inline-flex items-center justify-center gap-2 rounded-xl bg-bps-blue px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-bps-blue-dark focus:outline-none focus:ring-2 focus:ring-bps-blue/30"
+          class="inline-flex items-center justify-center gap-2 rounded-lg bg-bps-blue px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-bps-blue-dark focus:outline-none focus:ring-2 focus:ring-bps-blue/30"
           @click="openCreateForm"
         >
           <AppIcon name="plus" class="h-4 w-4" />

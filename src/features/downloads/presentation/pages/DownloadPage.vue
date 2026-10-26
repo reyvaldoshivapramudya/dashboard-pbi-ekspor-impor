@@ -255,21 +255,21 @@ onBeforeUnmount(() => {
       <p>{{ downloadMessage }}</p>
     </div>
 
-    <section class="rounded-xl border border-slate-200 bg-white p-6 sm:p-7">
+    <section class="rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
       <div class="flex items-start gap-3">
-        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-bps-blue/10 text-bps-blue">
+        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-bps-blue/10 text-bps-blue">
           <AppIcon name="download" :size="21" />
         </div>
         <div>
-          <h2 class="text-base font-semibold text-slate-900">Unduh hasil scraping</h2>
-          <p class="mt-1 max-w-2xl text-sm leading-relaxed text-slate-500">
+          <h2 class="text-sm font-semibold text-slate-900">Unduh hasil scraping</h2>
+          <p class="mt-0.5 max-w-2xl text-xs leading-relaxed text-slate-500">
             Pilih periode berita yang dibutuhkan. Data akan diunduh dalam format Microsoft Excel
             (.xlsx) dan hanya mencakup artikel pada periode terpilih.
           </p>
         </div>
       </div>
 
-      <div class="mt-7 grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div ref="periodPickerRoot" class="relative">
           <label for="download-period-trigger" class="mb-2 block text-xs font-medium text-slate-600">
             Periode data
@@ -396,17 +396,17 @@ onBeforeUnmount(() => {
     </section>
 
     <section class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-      <div class="rounded-xl border border-slate-200 bg-white p-5">
+      <div class="rounded-xl border border-slate-200 bg-white p-4">
         <p class="text-xs font-medium text-slate-500">Sumber berita</p>
         <p class="mt-2 text-2xl font-bold tracking-tight text-slate-900">{{ isLoading ? '—' : formatNumber(mediaCount) }}</p>
         <p class="mt-1 text-xs text-slate-500">Media berbeda pada periode terpilih</p>
       </div>
-      <div class="rounded-xl border border-slate-200 bg-white p-5">
+      <div class="rounded-xl border border-slate-200 bg-white p-4">
         <p class="text-xs font-medium text-slate-500">Sentimen positif</p>
         <p class="mt-2 text-2xl font-bold tracking-tight text-emerald-700">{{ isLoading ? '—' : formatNumber(positiveCount) }}</p>
         <p class="mt-1 text-xs text-slate-500">Artikel dengan label positif</p>
       </div>
-      <div class="rounded-xl border border-slate-200 bg-white p-5">
+      <div class="rounded-xl border border-slate-200 bg-white p-4">
         <p class="text-xs font-medium text-slate-500">Sentimen negatif</p>
         <p class="mt-2 text-2xl font-bold tracking-tight text-rose-700">{{ isLoading ? '—' : formatNumber(negativeCount) }}</p>
         <p class="mt-1 text-xs text-slate-500">Artikel dengan label negatif</p>

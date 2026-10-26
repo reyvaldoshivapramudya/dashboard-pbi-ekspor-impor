@@ -150,6 +150,11 @@ seluruh elemen pengelolaan (tombol _Tambah Artikel_, kolom _Aksi_, dan modal for
 - Seluruh antarmuka menggunakan font stack yang konsisten berbasis Inter/system UI, dengan skala
   ukuran standar, line-height yang seragam, dan spacing tipografi yang dikontrol oleh layout.
   Standardisasi ini diterapkan pada header, sidebar, dashboard, tabel, form, dan halaman crawling.
+- Card utama pada seluruh halaman non-dashboard (Manajemen Artikel, Artikel Berita, Crawling,
+  Download, dan Riwayat Perubahan) mengikuti skala Dashboard: radius `rounded-xl`, padding
+  ringkas `p-4` hingga `p-5`, judul `text-sm`, deskripsi `text-xs`, dan angka ringkasan `text-2xl`.
+  Popup kalender, modal formulir, dan dialog detail tetap dapat menggunakan ukuran internal yang
+  lebih besar agar nyaman digunakan.
 
 ## Palet Warna
 

@@ -584,11 +584,11 @@ onBeforeUnmount(() => {
     <!-- Panel filter lengkap: dipakai pada halaman Manajemen Artikel Berita -->
     <section
       v-if="!props.compactSearch"
-      class="rounded-xl border border-slate-200 bg-white p-6 sm:p-7"
+      class="rounded-xl border border-slate-200 bg-white p-4 sm:p-5"
     >
       <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 class="text-base font-semibold text-slate-900">Filter dan pencarian</h2>
+          <h2 class="text-sm font-semibold text-slate-900">Filter dan pencarian</h2>
           <p class="mt-1 text-xs text-slate-500">Cari berdasarkan judul atau nama komoditas.</p>
         </div>
 
@@ -753,7 +753,7 @@ onBeforeUnmount(() => {
     <!-- Satu search bar: dipakai pada pop-up Daftar dan Kelola Artikel -->
     <section
       v-if="props.compactSearch"
-      class="rounded-xl border border-slate-200 bg-white p-5 sm:p-6"
+      class="rounded-xl border border-slate-200 bg-white p-4 sm:p-5"
     >
       <form class="flex flex-col gap-3 sm:flex-row sm:items-end" @submit.prevent="handleSearch">
         <div class="flex-1">

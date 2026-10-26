@@ -264,26 +264,26 @@ onMounted(() => {
       v-if="!currentPeriodHasSuccessfulRun"
       class="overflow-hidden rounded-xl border border-orange-200 bg-white"
     >
-      <div class="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+      <div class="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
         <div class="flex items-start gap-3">
           <div
-            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-50 text-bps-orange"
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-orange-50 text-bps-orange"
           >
             <AppIcon name="bell" class="h-5 w-5" />
           </div>
 
           <div>
             <span
-              class="inline-flex rounded-full bg-orange-50 px-2.5 py-1 text-xs font-semibold text-orange-700"
+              class="inline-flex rounded-full bg-orange-50 px-2 py-0.5 text-xs font-semibold text-orange-700"
             >
               Pengingat periode
             </span>
 
-            <h2 class="mt-2 text-base font-semibold text-slate-900">
+            <h2 class="mt-1 text-sm font-semibold text-slate-900">
               Belum ada crawling berhasil untuk {{ currentPeriodLabel }}
             </h2>
 
-            <p class="mt-1 max-w-2xl text-sm leading-relaxed text-slate-500">
+            <p class="mt-1 max-w-2xl text-xs leading-relaxed text-slate-500">
               Jalankan simulasi untuk seluruh portal agar contoh artikel periode saat ini masuk ke
               dataset dashboard.
             </p>
@@ -293,7 +293,7 @@ onMounted(() => {
         <button
           type="button"
           :disabled="isRunning"
-          class="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-bps-orange px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
+          class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-bps-orange px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
           @click="startCurrentPeriodCrawl"
         >
           <AppIcon
@@ -305,7 +305,7 @@ onMounted(() => {
       </div>
     </section>
 
-    <section v-else class="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-5">
+    <section v-else class="rounded-xl border border-emerald-200 bg-emerald-50/70 p-4">
       <div class="flex items-start gap-3">
         <AppIcon name="circle-check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
 
@@ -343,39 +343,39 @@ onMounted(() => {
 
     <!-- Run summary -->
     <section class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-      <article class="rounded-xl border border-slate-200 bg-white p-5">
+      <article class="rounded-xl border border-slate-200 bg-white p-4">
         <div class="flex items-center justify-between gap-3">
-          <p class="text-sm font-medium text-slate-500">Total Eksekusi Berhasil</p>
+          <p class="text-xs font-semibold leading-4 text-slate-500">Total Eksekusi Berhasil</p>
           <AppIcon name="circle-check" class="h-5 w-5 text-bps-green" />
         </div>
 
-        <p class="mt-3 text-3xl font-bold text-slate-900">
+        <p class="mt-2 text-2xl font-bold leading-none tracking-tight text-slate-900">
           {{ formatNumber(successfulRunsCount) }}
         </p>
 
         <p class="mt-2 text-xs text-slate-500">Berdasarkan riwayat simulasi.</p>
       </article>
 
-      <article class="rounded-xl border border-slate-200 bg-white p-5">
+      <article class="rounded-xl border border-slate-200 bg-white p-4">
         <div class="flex items-center justify-between gap-3">
-          <p class="text-sm font-medium text-slate-500">Portal Berita Tersedia</p>
+          <p class="text-xs font-semibold leading-4 text-slate-500">Portal Berita Tersedia</p>
           <AppIcon name="globe" class="h-5 w-5 text-bps-blue" />
         </div>
 
-        <p class="mt-3 text-3xl font-bold text-slate-900">
+        <p class="mt-2 text-2xl font-bold leading-none tracking-tight text-slate-900">
           {{ NEWS_MEDIA_SOURCES.length }}
         </p>
 
         <p class="mt-2 text-xs text-slate-500">Portal yang dapat dipilih pada prototipe.</p>
       </article>
 
-      <article class="rounded-xl border border-slate-200 bg-white p-5">
+      <article class="rounded-xl border border-slate-200 bg-white p-4">
         <div class="flex items-center justify-between gap-3">
-          <p class="text-sm font-medium text-slate-500">Artikel Ditambahkan</p>
+          <p class="text-xs font-semibold leading-4 text-slate-500">Artikel Ditambahkan</p>
           <AppIcon name="file-plus" class="h-5 w-5 text-bps-orange" />
         </div>
 
-        <p class="mt-3 text-3xl font-bold text-slate-900">
+        <p class="mt-2 text-2xl font-bold leading-none tracking-tight text-slate-900">
           {{ formatNumber(totalArticlesAdded) }}
         </p>
 
@@ -386,18 +386,18 @@ onMounted(() => {
     </section>
 
     <!-- Crawling configuration -->
-    <section class="rounded-xl border border-slate-200 bg-white p-6 sm:p-7">
-      <div class="mb-6 flex items-start gap-3">
+    <section class="rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
+      <div class="mb-4 flex items-start gap-3">
         <div
-          class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-bps-blue"
+          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-bps-blue"
         >
           <AppIcon name="sliders" class="h-5 w-5" />
         </div>
 
         <div>
-          <h2 class="text-base font-semibold text-slate-900">Konfigurasi Crawling</h2>
+          <h2 class="text-sm font-semibold text-slate-900">Konfigurasi Crawling</h2>
 
-          <p class="mt-1 text-sm text-slate-500">
+          <p class="mt-0.5 text-xs text-slate-500">
             Tentukan periode dan portal berita untuk simulasi.
           </p>
         </div>
@@ -427,11 +427,11 @@ onMounted(() => {
         <!-- Popup kalender -->
         <div
           v-if="isPeriodPickerOpen"
-          class="absolute left-0 top-full z-50 mt-2 w-full min-w-[320px] rounded-2xl border border-slate-200 bg-white p-4 shadow-xl sm:min-w-[440px]"
+          class="absolute left-0 top-full z-50 mt-2 w-full min-w-[280px] rounded-xl border border-slate-200 bg-white p-3 shadow-xl sm:min-w-[360px]"
           @click.stop
         >
           <!-- Navigasi tahun -->
-          <div class="mb-5 flex items-center justify-between">
+          <div class="mb-3 flex items-center justify-between">
             <button
               type="button"
               aria-label="Tahun sebelumnya"
@@ -462,7 +462,7 @@ onMounted(() => {
               :key="month.value"
               type="button"
               @click="selectMonth(month.value)"
-              class="flex h-14 items-center justify-center rounded-xl text-base text-slate-600 transition hover:bg-blue-50 hover:text-bps-blue"
+              class="flex h-10 items-center justify-center rounded-lg text-sm text-slate-600 transition hover:bg-blue-50 hover:text-bps-blue"
               :class="{
                 'bg-blue-50 font-semibold text-bps-blue':
                   selectedPeriod === `${calendarYear}-${month.value}`,
@@ -477,7 +477,7 @@ onMounted(() => {
             <button
               type="button"
               @click="closePeriodPicker"
-              class="flex h-[54px] w-full items-center justify-center rounded-xl bg-blue-50 text-base font-medium text-bps-blue transition hover:bg-blue-100"
+              class="flex h-10 w-full items-center justify-center rounded-lg bg-blue-50 text-sm font-medium text-bps-blue transition hover:bg-blue-100"
             >
               Tutup
             </button>
@@ -520,7 +520,7 @@ onMounted(() => {
           v-for="media in NEWS_MEDIA_SOURCES"
           :key="media"
           :class="[
-            'flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition',
+            'flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition',
             selectedMedia.includes(media)
               ? 'border-blue-200 bg-blue-50/60'
               : 'border-slate-200 bg-white hover:bg-slate-50',
@@ -585,7 +585,7 @@ onMounted(() => {
         <button
           type="button"
           :disabled="isRunning || selectedMedia.length === 0"
-          class="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-bps-blue px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-bps-blue-dark focus:outline-none focus:ring-2 focus:ring-bps-blue/30 disabled:cursor-not-allowed disabled:opacity-50"
+          class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-bps-blue px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-bps-blue-dark focus:outline-none focus:ring-2 focus:ring-bps-blue/30 disabled:cursor-not-allowed disabled:opacity-50"
           @click="startCrawling()"
         >
           <AppIcon
@@ -599,9 +599,9 @@ onMounted(() => {
     </section>
 
     <!-- Crawl history -->
-    <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <section class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       <div
-        class="flex flex-col gap-2 border-b border-slate-100 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6"
+        class="flex flex-col gap-2 border-b border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5"
       >
         <div>
           <h2 class="text-base font-semibold text-slate-900">Riwayat Crawling</h2>
