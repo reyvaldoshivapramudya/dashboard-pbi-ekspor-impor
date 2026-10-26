@@ -94,6 +94,8 @@ const rowsPerPage = ref(20)
 const currentPage = ref(1)
 
 const isLoading = ref(false)
+const isRefreshing = ref(false)
+const lastDataLoadedAt = ref<Date | null>(null)
 const errorMessage = ref('')
 const feedbackMessage = ref('')
 
@@ -124,6 +126,14 @@ const selectedPeriodLabel = computed(() =>
   periodInput.value === 'all' ? 'Semua Periode' : formatPeriod(periodInput.value),
 )
 
+const hasFiltersToReset = computed(
+  () =>
+    periodInput.value !== 'all' ||
+    queryInput.value.trim() !== '' ||
+    appliedFilters.value.period !== 'all' ||
+    appliedFilters.value.query !== '',
+)
+
 const totalPages = computed(() =>
   Math.max(1, Math.ceil(filteredArticles.value.length / rowsPerPage.value)),
 )
@@ -150,6 +160,25 @@ const formTitle = computed(() =>
 
 function formatNumber(value: number): string {
   return new Intl.NumberFormat('id-ID').format(value)
+}
+
+function formatDataLoadedAt(value: Date): string {
+  const date = new Intl.DateTimeFormat('id-ID', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    timeZone: 'Asia/Jakarta',
+  }).format(value)
+  const time = new Intl.DateTimeFormat('id-ID', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+    timeZone: 'Asia/Jakarta',
+  })
+    .format(value)
+    .replace(':', '.')
+
+  return `${date}, ${time} WIB`
 }
 
 function formatPeriod(period: string): string {
@@ -259,7 +288,7 @@ async function loadAllArticles(): Promise<void> {
   }
 }
 
-async function runSearch(): Promise<void> {
+async function runSearch(): Promise<boolean> {
   isLoading.value = true
   errorMessage.value = ''
 
@@ -270,11 +299,33 @@ async function runSearch(): Promise<void> {
       currentPage.value,
       Math.max(1, Math.ceil(filteredArticles.value.length / rowsPerPage.value)),
     )
+    return true
   } catch (error) {
     console.error('Gagal mencari artikel:', error)
     errorMessage.value = 'Artikel gagal dimuat. Silakan coba kembali.'
+    return false
   } finally {
     isLoading.value = false
+  }
+}
+
+async function refreshArticles(): Promise<void> {
+  if (isRefreshing.value || isLoading.value) return
+
+  isRefreshing.value = true
+  errorMessage.value = ''
+
+  try {
+    await loadAllArticles()
+
+    if (await runSearch()) {
+      lastDataLoadedAt.value = new Date()
+    }
+  } catch (error) {
+    console.error('Gagal memuat ulang daftar artikel:', error)
+    errorMessage.value = 'Data artikel gagal dimuat ulang. Silakan coba kembali.'
+  } finally {
+    isRefreshing.value = false
   }
 }
 
@@ -307,8 +358,17 @@ function resetFilters(): void {
     .sort((a, b) => b.localeCompare(a))
   periodPickerYear.value = periods[0] ? Number(periods[0].slice(0, 4)) : new Date().getFullYear()
   queryInput.value = ''
+  appliedFilters.value = {
+    period: 'all',
+    mediaName: 'all',
+    category: 'all',
+    query: '',
+    commodity: props.commodity,
+  }
+  currentPage.value = 1
+  feedbackMessage.value = ''
 
-  handleSearch()
+  void runSearch()
 }
 
 function openCreateForm(): void {
@@ -355,8 +415,7 @@ async function refreshAfterMutation(message: string): Promise<void> {
   editingArticleId.value = null
   feedbackMessage.value = message
 
-  await loadAllArticles()
-  await runSearch()
+  await refreshArticles()
 }
 
 async function submitForm(): Promise<void> {
@@ -434,8 +493,7 @@ async function handleDelete(article: NewsArticle): Promise<void> {
   try {
     await deleteArticle.execute(article.id)
 
-    await loadAllArticles()
-    await runSearch()
+    await refreshArticles()
 
     feedbackMessage.value = 'Artikel berhasil dihapus.'
   } catch (error) {
@@ -449,17 +507,7 @@ onMounted(async () => {
   document.addEventListener('pointerdown', handlePeriodPickerOutsideClick)
   document.addEventListener('keydown', handlePeriodPickerKeydown)
 
-  isLoading.value = true
-
-  try {
-    await loadAllArticles()
-    await runSearch()
-  } catch (error) {
-    console.error('Gagal menginisialisasi halaman artikel:', error)
-    errorMessage.value = 'Data artikel gagal dimuat.'
-  } finally {
-    isLoading.value = false
-  }
+  await refreshArticles()
 
   if (props.autoCreate) {
     openCreateForm()
@@ -642,9 +690,11 @@ onBeforeUnmount(() => {
           <div class="flex flex-wrap gap-2">
             <button
               type="button"
-              class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+              :disabled="!hasFiltersToReset"
+              class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-bps-blue/30 disabled:cursor-not-allowed disabled:opacity-50"
               @click="resetFilters"
             >
+              <AppIcon name="refresh" class="h-4 w-4" />
               Reset Filter
             </button>
 
@@ -691,10 +741,12 @@ onBeforeUnmount(() => {
         <div class="flex flex-wrap gap-2">
           <button
             type="button"
-            class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+            :disabled="!hasFiltersToReset"
+            class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-bps-blue/30 disabled:cursor-not-allowed disabled:opacity-50"
             @click="resetFilters"
           >
-            Reset
+            <AppIcon name="refresh" class="h-4 w-4" />
+            Reset Filter
           </button>
 
           <button
@@ -723,6 +775,44 @@ onBeforeUnmount(() => {
           <p class="mt-1 text-xs text-slate-500">
             {{ formatNumber(filteredArticles.length) }} artikel ditemukan
           </p>
+        </div>
+
+        <div
+          v-if="props.canManage"
+          class="flex flex-wrap items-center gap-3 sm:justify-end"
+        >
+          <p
+            class="text-sm font-medium text-slate-700"
+            :title="
+              lastDataLoadedAt
+                ? 'Waktu aplikasi terakhir memuat data, bukan waktu pembaruan sumber data.'
+                : undefined
+            "
+          >
+            Data dimuat:
+            <time v-if="lastDataLoadedAt" :datetime="lastDataLoadedAt.toISOString()">
+              {{ formatDataLoadedAt(lastDataLoadedAt) }}
+            </time>
+            <span v-else>{{ isRefreshing ? 'Memuat...' : 'Belum tersedia' }}</span>
+          </p>
+
+          <button
+            type="button"
+            aria-label="Muat ulang daftar artikel"
+            title="Muat ulang daftar artikel"
+            :disabled="isRefreshing || isLoading"
+            class="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 transition hover:border-bps-blue/40 hover:bg-blue-50 hover:text-bps-blue focus:outline-none focus:ring-2 focus:ring-bps-blue/30 disabled:cursor-not-allowed disabled:opacity-50"
+            @click="refreshArticles"
+          >
+            <AppIcon
+              name="refresh"
+              class="h-4 w-4"
+              :class="isRefreshing || isLoading ? 'animate-spin' : ''"
+            />
+            <span class="sr-only sm:not-sr-only">
+              {{ isRefreshing || isLoading ? 'Memuat...' : 'Muat ulang' }}
+            </span>
+          </button>
         </div>
       </div>
 
