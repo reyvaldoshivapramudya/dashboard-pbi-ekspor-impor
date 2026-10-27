@@ -7,6 +7,7 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '../stores/auth.store'
 import AppLayout from '../layouts/AppLayout.vue'
 import ArticleChangesPage from '@/features/articles/presentation/pages/ArticleChangesPage.vue'
+import LoginPage from '@/features/auth/presentation/pages/LoginPage.vue'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -17,6 +18,11 @@ declare module 'vue-router' {
 }
 
 const routes: RouteRecordRaw[] = [
+  {
+    path: '/login',
+    name: 'login',
+    component: LoginPage,
+  },
   {
     path: '/',
     component: AppLayout,
@@ -86,6 +92,14 @@ const router = createRouter({
 
 router.beforeEach((to) => {
   const authStore = useAuthStore()
+
+  if (!authStore.isAuthenticated && to.name !== 'login') {
+    return { name: 'login' }
+  }
+
+  if (authStore.isAuthenticated && to.name === 'login') {
+    return { name: 'dashboard' }
+  }
 
   // Halaman administrasi hanya untuk Admin.
   if (to.meta.requiresAdmin && !authStore.isAdmin) {

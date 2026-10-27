@@ -3,7 +3,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 
 import AppIcon from '@/shared/components/AppIcon.vue'
-import { useAuthStore, type UserRole } from '@/app/stores/auth.store'
+import { useAuthStore } from '@/app/stores/auth.store'
 
 import logoBps from '@/assets/images/bps-logo.png'
 
@@ -81,21 +81,10 @@ function toggleTheme(): void {
   setTheme(!isDarkMode.value)
 }
 
-function handleRoleChange(event: Event) {
-  const target = event.target as HTMLSelectElement
-  const newRole = target.value as UserRole
-
-  authStore.setRole(newRole)
+function handleLogout(): void {
+  authStore.logout()
   closeMobileSidebar()
-
-  if (newRole === 'user' && route.meta.requiresAdmin) {
-    void router.push({ name: 'dashboard' })
-    return
-  }
-
-  if (newRole === 'admin' && route.name === 'articles') {
-    void router.push({ name: 'article-management' })
-  }
+  void router.push({ name: 'login' })
 }
 
 // Logic jam real-time
@@ -247,21 +236,15 @@ onUnmounted(() => {
             </p>
           </div>
 
-          <div class="mt-3">
-            <label for="role-switcher" class="mb-1 block text-[11px] font-medium text-white/65">
-              Simulasi role
-            </label>
-
-            <select
-              id="role-switcher"
-              :value="authStore.role"
-              class="h-8 w-full rounded-lg border border-white/25 bg-white px-3 text-xs font-semibold text-slate-700 outline-none transition hover:border-white focus:border-white focus:ring-2 focus:ring-white/25"
-              @change="handleRoleChange"
-            >
-              <option value="admin">Admin</option>
-              <option value="user">User</option>
-            </select>
-          </div>
+          <button
+            v-if="authStore.authEnabled"
+            type="button"
+            class="mt-4 inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-white/25 text-xs font-semibold text-white/85 transition hover:bg-white/10 hover:text-white"
+            @click="handleLogout"
+          >
+            <AppIcon name="log-out" class="h-4 w-4" />
+            Keluar
+          </button>
         </div>
 
         <div class="mt-2 flex h-9 items-center rounded-lg bg-white/10 p-1">
@@ -292,20 +275,6 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <!-- Prototype status -->
-      <div class="shrink-0 border-t border-white/20 p-3 sm:p-4">
-        <div
-          class="rounded-xl border border-white/15 bg-white/10 p-3 shadow-sm backdrop-blur-sm"
-        >
-          <div class="flex items-center gap-2">
-            <span class="h-2 w-2 rounded-full bg-amber-400" aria-hidden="true" />
-            <p class="text-xs font-semibold text-white">Mode Prototipe</p>
-          </div>
-          <p class="mt-2 text-xs leading-relaxed text-white/70">
-            Data simulasi. Belum terhubung ke layanan crawling aktif.
-          </p>
-        </div>
-      </div>
     </aside>
 
     <!-- Main content -->

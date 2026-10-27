@@ -28,6 +28,12 @@ function getChartTextColor(): string {
   return document.documentElement.dataset.theme === 'dark' ? '#f8fafc' : '#334155'
 }
 
+function getChartGridColor(): string {
+  return document.documentElement.dataset.theme === 'dark'
+    ? 'rgba(148, 163, 184, 0.1)'
+    : 'rgba(148, 163, 184, 0.16)'
+}
+
 const selectedPeriod = ref('all')
 const isPeriodPickerOpen = ref(false)
 const calendarYear = ref(new Date().getFullYear())
@@ -193,7 +199,8 @@ const horizontalChartOptions: ChartOptions<'bar'> = {
       beginAtZero: true,
       grace: '18%',
       grid: {
-        display: false,
+        color: getChartGridColor,
+        lineWidth: 1,
       },
       border: {
         display: false,
@@ -262,7 +269,8 @@ const verticalChartOptions: ChartOptions<'bar'> = {
       beginAtZero: true,
       grace: '18%',
       grid: {
-        display: false,
+        color: getChartGridColor,
+        lineWidth: 1,
       },
       border: {
         display: false,

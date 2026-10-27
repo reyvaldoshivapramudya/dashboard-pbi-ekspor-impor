@@ -272,3 +272,82 @@ h6,
 p {
   margin: 0;
 }
+
+.page-fade-enter-active,
+.page-fade-leave-active {
+  transition:
+    opacity 280ms ease,
+    transform 280ms ease;
+}
+
+.page-fade-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+.login-brand {
+  animation: login-brand-enter 520ms ease-out both;
+}
+
+@media (max-width: 767px) {
+  .login-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+  }
+
+  .login-page::before {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background: rgb(15 23 42 / 28%);
+    content: '';
+  }
+
+  .login-page > section {
+    position: relative;
+    z-index: 1;
+    min-height: auto;
+    max-width: 32rem;
+    border: 1px solid rgb(255 255 255 / 45%);
+    border-radius: 1.25rem;
+    background: rgb(255 255 255 / 16%);
+    box-shadow: 0 24px 70px rgb(15 23 42 / 28%);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  .login-form-panel {
+    border-radius: inherit;
+    background: rgb(255 255 255 / 82%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+}
+
+@keyframes login-brand-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-fade-enter-active,
+  .page-fade-leave-active,
+  .login-brand {
+    animation: none;
+    transition: none;
+  }
+}

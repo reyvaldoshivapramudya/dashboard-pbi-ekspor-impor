@@ -281,7 +281,7 @@ onBeforeUnmount(() => {
   <div class="space-y-6">
     <!-- Panel filter dan pencarian untuk halaman Manajemen Artikel Berita -->
     <section
-      class="rounded-xl border border-slate-200 bg-white p-4 sm:p-5"
+      class="sticky top-0 z-20 rounded-xl border border-slate-200 bg-white p-4 sm:p-5"
     >
       <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -805,7 +805,7 @@ onBeforeUnmount(() => {
             </button>
           </div>
 
-          <div class="min-h-0 flex-1 overflow-y-auto bg-slate-50/60 p-4 sm:p-6">
+          <div class="min-h-0 flex-1 overflow-y-auto bg-slate-50/60 px-4 pb-4 sm:px-6 sm:pb-6">
             <ArticleExplorer
               :key="popupKey"
               :can-manage="props.canManage"

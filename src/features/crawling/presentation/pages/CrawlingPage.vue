@@ -90,9 +90,31 @@ const currentPeriodLabel = computed(() => {
 
 const selectedPeriodLabel = computed(() => formatPeriod(selectedPeriod.value))
 
-const currentPeriodHasSuccessfulRun = computed(() =>
-  history.value.some((run) => run.period === currentPeriod && run.status === 'success'),
+const currentPeriodHasRun = computed(() =>
+  history.value.some((run) => run.period === currentPeriod),
 )
+
+const isCrawlDay = new Date().getDate() === 13
+
+const canCrawlCurrentPeriod = computed(
+  () => isCrawlDay && !currentPeriodHasRun.value && selectedPeriod.value === currentPeriod,
+)
+
+const crawlAvailabilityMessage = computed(() => {
+  if (currentPeriodHasRun.value) {
+    return `Crawling untuk ${currentPeriodLabel.value} sudah dilakukan. Crawling hanya dapat dilakukan satu kali setiap tanggal 13.`
+  }
+
+  if (!isCrawlDay) {
+    return `Crawling hanya dapat dilakukan pada tanggal 13 setiap bulan. Data yang diambil mencakup tanggal 1–30 pada periode ${currentPeriodLabel.value}.`
+  }
+
+  if (selectedPeriod.value !== currentPeriod) {
+    return `Pilih periode ${currentPeriodLabel.value} untuk menjalankan crawling bulan ini.`
+  }
+
+  return `Hari ini tanggal 13. Crawling mengambil data tanggal 1–30 pada periode ${currentPeriodLabel.value} dan hanya dapat dilakukan satu kali.`
+})
 
 const successfulRunsCount = computed(
   () => history.value.filter((run) => run.status === 'success').length,
@@ -206,7 +228,7 @@ async function startCrawling(
   period = selectedPeriod.value,
   mediaNames = selectedMedia.value,
 ): Promise<void> {
-  if (isRunning.value) return
+  if (isRunning.value || !canCrawlCurrentPeriod.value) return
 
   if (mediaNames.length === 0) {
     errorMessage.value = 'Pilih setidaknya satu portal berita sebelum memulai.'
@@ -245,13 +267,6 @@ async function startCrawling(
   }
 }
 
-function startCurrentPeriodCrawl(): void {
-  selectedPeriod.value = currentPeriod
-  selectedMedia.value = [...NEWS_MEDIA_SOURCES]
-
-  void startCrawling(currentPeriod, [...NEWS_MEDIA_SOURCES])
-}
-
 onMounted(() => {
   void loadHistory()
 })
@@ -261,7 +276,6 @@ onMounted(() => {
   <div class="space-y-6" @click="closePeriodPicker">
     <!-- Current-period reminder -->
     <section
-      v-if="!currentPeriodHasSuccessfulRun"
       class="overflow-hidden rounded-xl border border-orange-200 bg-white"
     >
       <div class="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
@@ -280,45 +294,15 @@ onMounted(() => {
             </span>
 
             <h2 class="mt-1 text-sm font-semibold text-slate-900">
-              Belum ada crawling berhasil untuk {{ currentPeriodLabel }}
+              Jadwal crawling {{ currentPeriodLabel }}
             </h2>
 
             <p class="mt-1 max-w-2xl text-xs leading-relaxed text-slate-500">
-              Jalankan simulasi untuk seluruh portal agar contoh artikel periode saat ini masuk ke
-              dataset dashboard.
+              {{ crawlAvailabilityMessage }}
             </p>
           </div>
         </div>
 
-        <button
-          type="button"
-          :disabled="isRunning"
-          class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-bps-orange px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
-          @click="startCurrentPeriodCrawl"
-        >
-          <AppIcon
-            :name="isRunning ? 'loader' : 'play'"
-            :class="['h-5 w-5', isRunning ? 'animate-spin' : '']"
-          />
-          Crawl Bulan Ini
-        </button>
-      </div>
-    </section>
-
-    <section v-else class="rounded-xl border border-emerald-200 bg-emerald-50/70 p-4">
-      <div class="flex items-start gap-3">
-        <AppIcon name="circle-check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
-
-        <div>
-          <h2 class="text-sm font-semibold text-emerald-900">
-            Periode {{ currentPeriodLabel }} sudah memiliki crawling berhasil
-          </h2>
-
-          <p class="mt-1 text-xs leading-relaxed text-emerald-800">
-            Kamu tetap dapat menjalankan simulasi ulang. Artikel dengan URL yang sama akan dilewati
-            sebagai duplikat.
-          </p>
-        </div>
       </div>
     </section>
 
@@ -413,7 +397,7 @@ onMounted(() => {
         <button
           id="crawl-period"
           type="button"
-          :disabled="isRunning"
+          :disabled="isRunning || !canCrawlCurrentPeriod"
           @click.stop="togglePeriodPicker"
           class="flex h-11 w-full items-center justify-between rounded-lg border border-slate-200 bg-white px-3 text-left text-sm font-medium text-slate-700 outline-none transition hover:border-blue-300 focus:border-bps-blue focus:ring-2 focus:ring-bps-blue/20 disabled:cursor-not-allowed disabled:bg-slate-50"
           :class="{
@@ -584,7 +568,7 @@ onMounted(() => {
 
         <button
           type="button"
-          :disabled="isRunning || selectedMedia.length === 0"
+          :disabled="isRunning || selectedMedia.length === 0 || !canCrawlCurrentPeriod"
           class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-bps-blue px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-bps-blue-dark focus:outline-none focus:ring-2 focus:ring-bps-blue/30 disabled:cursor-not-allowed disabled:opacity-50"
           @click="startCrawling()"
         >
@@ -593,7 +577,13 @@ onMounted(() => {
             :class="['h-5 w-5', isRunning ? 'animate-spin' : '']"
           />
 
-          {{ isRunning ? 'Sedang Berjalan...' : 'Mulai Crawling' }}
+          {{
+            isRunning
+              ? 'Sedang Berjalan...'
+              : currentPeriodHasRun
+                ? 'Crawling Sudah Dilakukan'
+                : 'Mulai Crawling'
+          }}
         </button>
       </div>
     </section>

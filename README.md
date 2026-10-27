@@ -48,7 +48,7 @@ Persyaratan Node.js: `^22.18.0 || >=24.12.0`.
 1. **Dashboard** — ringkasan statistik (total artikel, media terpantau, komoditas spesifik,
    sentimen positif) plus grafik Top 5 Komoditas, distribusi sentimen, artikel per media, dan
    distribusi kategori fenomena. Dapat difilter per periode (bulan/tahun). Grafik bar memakai
-   label sumbu yang terbaca pada kedua tema tanpa garis grid agar visualisasi tetap bersih.
+   label sumbu yang terbaca pada kedua tema dengan garis bantu tipis hanya pada skala angka.
 2. **Daftar Komoditas (Excel-driven)** — tabel komoditas pada halaman Manajemen Artikel Berita
    dan halaman Artikel Berita. Setiap baris dapat diklik untuk membuka pop-up daftar artikel
    yang otomatis difilter berdasarkan komoditas tersebut.
@@ -61,10 +61,13 @@ Persyaratan Node.js: `^22.18.0 || >=24.12.0`.
    lebar kolomnya).
 7. **Riwayat Perubahan (Admin)** — pencatatan aktivitas tambah, ubah, dan hapus artikel dengan
    filter jenis aksi serta periode bulan/tahun.
-8. **Simulasi role** — pengalih role Admin/User pada header untuk menguji kedua tampilan.
-9. **Tampilan responsif** — kartu digunakan pada perangkat ponsel dan tablet, sedangkan tabel
-   lengkap digunakan pada layar desktop yang lebih lebar.
-10. **Tema light/dark** — tema dapat diganti dari sidebar; sidebar menggunakan stroke putih,
+8. **Login sementara** — login berbasis `localStorage` dengan akun demo Admin/User, guard
+   route, tombol logout, dan opsi bypass untuk pengembangan.
+9. **Login responsif** — tampilan desktop menggunakan form dan foto gedung dalam dua kolom;
+   layar mobile menggunakan panel form glassmorphism dengan background foto yang sama.
+10. **Tampilan responsif** — kartu digunakan pada perangkat ponsel dan tablet, sedangkan tabel
+    lengkap digunakan pada layar desktop yang lebih lebar.
+11. **Tema light/dark** — tema dapat diganti dari sidebar; sidebar menggunakan stroke putih,
     termasuk pada mode gelap, dan menu aktif tetap memiliki kontras yang jelas.
 
 ---
@@ -111,8 +114,25 @@ kunci `eksim-insight:articles:v1`; bila kosong, dataset awal dari `articles.mock
 
 ## Role Pengguna
 
-Role disimpan pada `auth.store.ts` (Pinia) dan **default-nya `admin`**. Pengalih role
-("Simulasi role") tersedia di header `AppLayout.vue`.
+Login sementara tersedia selama backend belum terhubung:
+
+| Username | Kata sandi | Role |
+| -------- | ---------- | ---- |
+| `admin`  | `admin123` | Admin |
+| `user`   | `user123`  | User |
+
+Sesi disimpan pada `localStorage` dengan kunci `eksim-insight:auth-session:v1`. Untuk mematikan
+login saat pengembangan, buat file `.env.local` di root proyek dengan isi:
+
+```env
+VITE_AUTH_ENABLED=false
+```
+
+Setelah mengubah file environment, jalankan ulang server Vite. Mode bypass ini tidak boleh
+digunakan pada deployment yang dapat diakses pengguna.
+
+Role aktif disimpan pada `auth.store.ts` (Pinia) dan ditentukan oleh akun yang digunakan saat
+login. Selector simulasi role sudah dihilangkan dari sidebar agar role mengikuti sesi autentikasi.
 
 | Role    | Menu sidebar                                                       | Halaman artikel                                 | CRUD  |
 | ------- | ------------------------------------------------------------------ | ----------------------------------------------- | ----- |
@@ -121,11 +141,17 @@ Role disimpan pada `auth.store.ts` (Pinia) dan **default-nya `admin`**. Pengalih
 
 Guard router (`src/app/router/index.ts`):
 
+- Semua route aplikasi mengharuskan sesi login ketika `VITE_AUTH_ENABLED` tidak bernilai `false`.
 - Route dengan `meta.requiresAdmin` (`crawling`, `article-management`, `article-changes`) dialihkan ke
   `dashboard`
   bila role bukan admin.
 - Route `articles` dialihkan ke `article-management` bila role admin, sehingga tidak ada halaman
   duplikat yang bisa dibuka bersamaan.
+
+Halaman login berada di `src/features/auth/presentation/pages/LoginPage.vue`. Artwork gedung
+login disimpan di `src/assets/images/login-building.png`. Transisi hanya diterapkan pada
+perpindahan login/logout; navigasi antar-feature tidak menggunakan animasi halaman yang
+mengganggu.
 
 Kedua halaman artikel **memakai satu komponen yang sama** (`CommodityOverviewTable`) dan hanya
 berbeda pada prop `canManage`. Prop ini diteruskan ke `ArticleExplorer`, yang menyembunyikan
