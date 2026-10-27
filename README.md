@@ -47,7 +47,8 @@ Persyaratan Node.js: `^22.18.0 || >=24.12.0`.
 
 1. **Dashboard** — ringkasan statistik (total artikel, media terpantau, komoditas spesifik,
    sentimen positif) plus grafik Top 5 Komoditas, distribusi sentimen, artikel per media, dan
-   distribusi kategori fenomena. Dapat difilter per periode (bulan/tahun).
+   distribusi kategori fenomena. Dapat difilter per periode (bulan/tahun). Grafik bar memakai
+   label sumbu yang terbaca pada kedua tema tanpa garis grid agar visualisasi tetap bersih.
 2. **Daftar Komoditas (Excel-driven)** — tabel komoditas pada halaman Manajemen Artikel Berita
    dan halaman Artikel Berita. Setiap baris dapat diklik untuk membuka pop-up daftar artikel
    yang otomatis difilter berdasarkan komoditas tersebut.
@@ -63,6 +64,8 @@ Persyaratan Node.js: `^22.18.0 || >=24.12.0`.
 8. **Simulasi role** — pengalih role Admin/User pada header untuk menguji kedua tampilan.
 9. **Tampilan responsif** — kartu digunakan pada perangkat ponsel dan tablet, sedangkan tabel
    lengkap digunakan pada layar desktop yang lebih lebar.
+10. **Tema light/dark** — tema dapat diganti dari sidebar; sidebar menggunakan stroke putih,
+    termasuk pada mode gelap, dan menu aktif tetap memiliki kontras yang jelas.
 
 ---
 

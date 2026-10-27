@@ -147,7 +147,7 @@ onUnmounted(() => {
     <aside
       :class="[
         'fixed inset-y-0 left-0 z-50 flex w-[min(88vw,20rem)] flex-col lg:w-60',
-        'border-r border-sidebar-navy bg-sidebar-navy text-white shadow-none',
+        'border-r border-white/30 bg-sidebar-navy text-white shadow-none',
         'transition-transform duration-200',
         isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
       ]"

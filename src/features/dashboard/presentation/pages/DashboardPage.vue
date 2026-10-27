@@ -22,10 +22,11 @@ const COLORS = {
   greenLight: '#86efac',
   orange: '#fb923c',
   orangeLight: '#fdba74',
-  text: '#f8fafc',
-  muted: '#f8fafc',
-  grid: '#737373',
 } as const
+
+function getChartTextColor(): string {
+  return document.documentElement.dataset.theme === 'dark' ? '#f8fafc' : '#334155'
+}
 
 const selectedPeriod = ref('all')
 const isPeriodPickerOpen = ref(false)
@@ -192,13 +193,13 @@ const horizontalChartOptions: ChartOptions<'bar'> = {
       beginAtZero: true,
       grace: '18%',
       grid: {
-        color: COLORS.grid,
+        display: false,
       },
       border: {
         display: false,
       },
       ticks: {
-        color: COLORS.muted,
+        color: getChartTextColor,
         precision: 0,
       },
     },
@@ -210,7 +211,7 @@ const horizontalChartOptions: ChartOptions<'bar'> = {
         display: false,
       },
       ticks: {
-        color: COLORS.text,
+        color: getChartTextColor,
       },
     },
   },
@@ -254,20 +255,20 @@ const verticalChartOptions: ChartOptions<'bar'> = {
         display: false,
       },
       ticks: {
-        color: COLORS.text,
+        color: getChartTextColor,
       },
     },
     y: {
       beginAtZero: true,
       grace: '18%',
       grid: {
-        color: COLORS.grid,
+        display: false,
       },
       border: {
         display: false,
       },
       ticks: {
-        color: COLORS.muted,
+        color: getChartTextColor,
         precision: 0,
       },
     },

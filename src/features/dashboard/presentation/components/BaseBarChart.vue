@@ -9,6 +9,7 @@ import {
   Tooltip,
 } from 'chart.js'
 import type { ChartData, ChartOptions, Plugin } from 'chart.js'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { Bar } from 'vue-chartjs'
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend)
@@ -53,10 +54,29 @@ defineProps<{
   chartData: ChartData<'bar'>
   chartOptions: ChartOptions<'bar'>
 }>()
+
+const barChartRef = ref<{ chart?: ChartJS<'bar'> } | null>(null)
+let themeObserver: MutationObserver | undefined
+
+onMounted(() => {
+  themeObserver = new MutationObserver(() => {
+    barChartRef.value?.chart?.update()
+  })
+
+  themeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme'],
+  })
+})
+
+onUnmounted(() => {
+  themeObserver?.disconnect()
+})
 </script>
 
 <template>
   <Bar
+    ref="barChartRef"
     :key="JSON.stringify(chartData.datasets)"
     :data="chartData"
     :options="chartOptions"
