@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 
 import { getCrawlHistory, runCrawlSimulation } from '@/app/container'
 import AppIcon from '@/shared/components/AppIcon.vue'
@@ -78,6 +78,8 @@ const history = ref<CrawlRun[]>([])
 
 const isLoadingHistory = ref(true)
 const isRunning = ref(false)
+const isOnline = ref(typeof navigator === 'undefined' || navigator.onLine)
+const usesApiDataSource = import.meta.env.VITE_DATA_SOURCE === 'api'
 
 const errorMessage = ref('')
 const feedbackMessage = ref('')
@@ -114,6 +116,20 @@ const crawlAvailabilityMessage = computed(() => {
   }
 
   return `Hari ini tanggal 13. Crawling mengambil data tanggal 1–30 pada periode ${currentPeriodLabel.value} dan hanya dapat dilakukan satu kali.`
+})
+
+const connectionMessage = computed(() => {
+  if (isOnline.value && !usesApiDataSource) {
+    return 'Mode simulasi aktif. Proses ini tidak mengakses internet atau portal berita sungguhan.'
+  }
+
+  if (!isOnline.value) {
+    return usesApiDataSource
+      ? 'Internet terputus. Sambungkan kembali internet sebelum menjalankan crawling dan pastikan backend API dapat diakses.'
+      : 'Internet terputus. Simulasi lokal tetap dapat berjalan, tetapi crawling sungguhan memerlukan koneksi internet.'
+  }
+
+  return 'Mode API aktif. Pastikan backend API dan portal berita dapat diakses sebelum menjalankan crawling.'
 })
 
 const successfulRunsCount = computed(
@@ -235,6 +251,12 @@ async function startCrawling(
     return
   }
 
+  if (usesApiDataSource && !isOnline.value) {
+    errorMessage.value =
+      'Crawling tidak dapat dimulai karena internet terputus. Sambungkan internet, lalu coba lagi.'
+    return
+  }
+
   isRunning.value = true
   errorMessage.value = ''
   feedbackMessage.value = ''
@@ -267,8 +289,30 @@ async function startCrawling(
   }
 }
 
+function handleOnline(): void {
+  isOnline.value = true
+  if (errorMessage.value.includes('internet terputus')) {
+    errorMessage.value = ''
+  }
+}
+
+function handleOffline(): void {
+  isOnline.value = false
+  if (!isRunning.value && usesApiDataSource) {
+    errorMessage.value =
+      'Internet terputus. Crawling dinonaktifkan sementara sampai koneksi kembali.'
+  }
+}
+
 onMounted(() => {
+  window.addEventListener('online', handleOnline)
+  window.addEventListener('offline', handleOffline)
   void loadHistory()
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('online', handleOnline)
+  window.removeEventListener('offline', handleOffline)
 })
 </script>
 
@@ -323,6 +367,14 @@ onMounted(() => {
     >
       <AppIcon name="circle-alert" class="mt-0.5 h-4 w-4 shrink-0" />
       <p>{{ errorMessage }}</p>
+    </div>
+
+    <div
+      role="status"
+      class="flex items-start gap-2 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800"
+    >
+      <AppIcon name="globe" class="mt-0.5 h-4 w-4 shrink-0" />
+      <p>{{ connectionMessage }}</p>
     </div>
 
     <!-- Run summary -->
@@ -551,8 +603,8 @@ onMounted(() => {
             <p class="text-sm font-semibold text-slate-800">Simulasi crawling sedang berjalan</p>
 
             <p class="mt-1 text-xs leading-relaxed text-slate-500">
-              Menyiapkan artikel dummy untuk {{ selectedPeriodLabel }}. Proses ini tidak mengakses
-              portal berita sungguhan.
+              Menyiapkan artikel dummy untuk {{ selectedPeriodLabel }}.
+              {{ connectionMessage }}
             </p>
           </div>
         </div>
@@ -568,7 +620,12 @@ onMounted(() => {
 
         <button
           type="button"
-          :disabled="isRunning || selectedMedia.length === 0 || !canCrawlCurrentPeriod"
+          :disabled="
+            isRunning ||
+            selectedMedia.length === 0 ||
+            !canCrawlCurrentPeriod ||
+            (usesApiDataSource && !isOnline)
+          "
           class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-bps-blue px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-bps-blue-dark focus:outline-none focus:ring-2 focus:ring-bps-blue/30 disabled:cursor-not-allowed disabled:opacity-50"
           @click="startCrawling()"
         >
