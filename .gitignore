@@ -10,6 +10,8 @@ lerna-debug.log*
 node_modules
 .venv
 backend/.venv
+__pycache__/
+*.py[cod]
 .env
 backend/.env
 .DS_Store
