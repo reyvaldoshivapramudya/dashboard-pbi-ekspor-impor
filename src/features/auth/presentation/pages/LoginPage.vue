@@ -80,7 +80,7 @@ function submitLogin(): void {
             v-model="username"
             autocomplete="username"
             required
-            class="h-11 w-full rounded-lg border border-slate-200 px-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-bps-blue focus:ring-2 focus:ring-bps-blue/15"
+            class="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-bps-blue focus:ring-2 focus:ring-bps-blue/15"
             placeholder="Masukkan username Anda"
           />
         </div>
@@ -96,7 +96,7 @@ function submitLogin(): void {
               :type="showPassword ? 'text' : 'password'"
               autocomplete="current-password"
               required
-              class="h-11 w-full rounded-lg border border-slate-200 px-3 pr-11 text-sm outline-none transition placeholder:text-slate-400 focus:border-bps-blue focus:ring-2 focus:ring-bps-blue/15"
+              class="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 pr-11 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-bps-blue focus:ring-2 focus:ring-bps-blue/15"
               placeholder="Masukkan kata sandi Anda"
             />
             <button
