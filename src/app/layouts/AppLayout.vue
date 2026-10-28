@@ -19,6 +19,7 @@ const authStore = useAuthStore()
 
 const isMobileSidebarOpen = ref(false)
 const isDarkMode = ref(false)
+const isLogoutDialogOpen = ref(false)
 
 const navigationItems = computed<NavigationItem[]>(() => {
   const items: NavigationItem[] = [
@@ -81,7 +82,16 @@ function toggleTheme(): void {
   setTheme(!isDarkMode.value)
 }
 
+function requestLogout(): void {
+  isLogoutDialogOpen.value = true
+}
+
+function cancelLogout(): void {
+  isLogoutDialogOpen.value = false
+}
+
 function handleLogout(): void {
+  isLogoutDialogOpen.value = false
   setTheme(false)
   authStore.logout()
   closeMobileSidebar()
@@ -241,7 +251,7 @@ onUnmounted(() => {
             v-if="authStore.authEnabled"
             type="button"
             class="mt-4 inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-white/25 text-xs font-semibold text-white/85 transition hover:bg-white/10 hover:text-white"
-            @click="handleLogout"
+            @click="requestLogout"
           >
             <AppIcon name="log-out" class="h-4 w-4" />
             Keluar
@@ -310,6 +320,55 @@ onUnmounted(() => {
       </footer>
     </div>
   </div>
+
+  <Teleport to="body">
+    <div
+      v-if="isLogoutDialogOpen"
+      class="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-[2px]"
+      @click.self="cancelLogout"
+    >
+      <section
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="logout-title"
+        aria-describedby="logout-description"
+        class="w-full max-w-md rounded-xl border border-slate-200 bg-white p-5 shadow-xl shadow-slate-900/15 sm:p-6"
+      >
+        <div class="flex items-start gap-3">
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-50 text-orange-700">
+            <AppIcon name="log-out" class="h-5 w-5" />
+          </div>
+
+          <div class="min-w-0">
+            <h2 id="logout-title" class="text-base font-bold text-slate-900">
+              Keluar dari aplikasi?
+            </h2>
+            <p id="logout-description" class="mt-1 text-sm leading-6 text-slate-500">
+              Anda akan diarahkan kembali ke halaman login.
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <button
+            type="button"
+            class="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 px-4 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
+            @click="cancelLogout"
+          >
+            Batal
+          </button>
+          <button
+            type="button"
+            class="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-orange-600 px-4 text-sm font-semibold text-white transition hover:bg-orange-700"
+            @click="handleLogout"
+          >
+            <AppIcon name="log-out" class="h-4 w-4" />
+            Ya, keluar
+          </button>
+        </div>
+      </section>
+    </div>
+  </Teleport>
 </template>
 
 <style scoped>
