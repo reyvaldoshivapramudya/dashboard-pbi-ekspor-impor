@@ -280,9 +280,7 @@ onBeforeUnmount(() => {
 <template>
   <div class="space-y-6">
     <!-- Panel filter dan pencarian untuk halaman Manajemen Artikel Berita -->
-    <section
-      class="sticky top-0 z-20 rounded-xl border border-slate-200 bg-white p-4 sm:p-5"
-    >
+    <section class="sticky top-0 z-20 rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
       <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 class="text-sm font-semibold text-slate-900">Filter dan pencarian</h2>
@@ -449,9 +447,7 @@ onBeforeUnmount(() => {
     </section>
 
     <!-- Komoditas table -->
-    <section
-      class="overflow-hidden rounded-xl border border-slate-200 bg-white"
-    >
+    <section class="overflow-hidden rounded-xl border border-slate-200 bg-white">
       <div
         class="flex flex-col gap-2 border-b border-slate-100 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6"
       >
