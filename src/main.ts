@@ -6,7 +6,8 @@ import router from './app/router'
 
 import './assets/main.css'
 
-document.documentElement.dataset.theme = 'light'
+document.documentElement.dataset.theme =
+  window.localStorage.getItem('eksim-insight:theme') === 'dark' ? 'dark' : 'light'
 
 const app = createApp(App)
 

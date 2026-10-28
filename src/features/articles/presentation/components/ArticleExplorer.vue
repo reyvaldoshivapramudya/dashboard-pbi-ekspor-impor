@@ -98,6 +98,7 @@ const isRefreshing = ref(false)
 const lastDataLoadedAt = ref<Date | null>(null)
 const errorMessage = ref('')
 const feedbackMessage = ref('')
+let feedbackTimeout: ReturnType<typeof setTimeout> | undefined
 
 const isFormOpen = ref(false)
 const editingArticleId = ref<string | null>(null)
@@ -452,9 +453,21 @@ function closeForm(): void {
 async function refreshAfterMutation(message: string): Promise<void> {
   isFormOpen.value = false
   editingArticleId.value = null
-  feedbackMessage.value = message
+  showFeedback(message)
 
   await refreshArticles()
+}
+
+function showFeedback(message: string): void {
+  if (feedbackTimeout !== undefined) {
+    clearTimeout(feedbackTimeout)
+  }
+
+  feedbackMessage.value = message
+  feedbackTimeout = setTimeout(() => {
+    feedbackMessage.value = ''
+    feedbackTimeout = undefined
+  }, 3000)
 }
 
 async function submitForm(): Promise<void> {
@@ -545,7 +558,7 @@ async function confirmDelete(): Promise<void> {
     articlePendingDeletion.value = null
     await refreshArticles()
 
-    feedbackMessage.value = 'Artikel berhasil dihapus.'
+    showFeedback('Artikel berhasil dihapus.')
   } catch (error) {
     console.error('Gagal menghapus artikel:', error)
 
@@ -571,6 +584,9 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
+  if (feedbackTimeout !== undefined) {
+    clearTimeout(feedbackTimeout)
+  }
   document.removeEventListener('pointerdown', handlePeriodPickerOutsideClick)
   document.removeEventListener('keydown', handlePeriodPickerKeydown)
   const scrollTarget = detailScrollContainer.value ?? window

@@ -7,6 +7,6 @@ import { RouterView } from 'vue-router'
     <Transition v-if="route.name === 'login'" name="page-fade" mode="out-in">
       <component :is="Component" :key="route.fullPath" />
     </Transition>
-    <component v-else :is="Component" :key="route.fullPath" />
+    <component v-else :is="Component" />
   </RouterView>
 </template>
