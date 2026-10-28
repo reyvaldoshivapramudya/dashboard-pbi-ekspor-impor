@@ -56,19 +56,27 @@ Persyaratan Node.js: `^22.18.0 || >=24.12.0`.
    dan **satu search bar** di dalam pop-up.
 4. **CRUD artikel (Admin)** — tambah, ubah, dan hapus artikel melalui formulir di dalam pop-up.
 5. **Crawling berita (Admin)** — simulasi pengambilan berita per periode dan portal, dengan
-   riwayat crawling serta deduplikasi berdasarkan URL.
+   riwayat crawling serta deduplikasi berdasarkan URL. Status koneksi dipantau langsung: saat
+   `navigator.onLine` bernilai `false` dan sumber data API aktif, proses crawling diblokir dan
+   banner peringatan ditampilkan hingga koneksi pulih.
 6. **Download Excel** — ekspor artikel per periode ke berkas `.xlsx` (13 kolom, sudah diformat
    lebar kolomnya).
 7. **Riwayat Perubahan (Admin)** — pencatatan aktivitas tambah, ubah, dan hapus artikel dengan
    filter jenis aksi serta periode bulan/tahun.
 8. **Login sementara** — login berbasis `localStorage` dengan akun demo Admin/User, guard
-   route, tombol logout, dan opsi bypass untuk pengembangan.
+   route, dialog konfirmasi logout, dan opsi bypass untuk pengembangan.
 9. **Login responsif** — tampilan desktop menggunakan form dan foto gedung dalam dua kolom;
    layar mobile menggunakan panel form glassmorphism dengan background foto yang sama.
-10. **Tampilan responsif** — kartu digunakan pada perangkat ponsel dan tablet, sedangkan tabel
-    lengkap digunakan pada layar desktop yang lebih lebar.
-11. **Tema light/dark** — tema dapat diganti dari sidebar; sidebar menggunakan stroke putih,
-    termasuk pada mode gelap, dan menu aktif tetap memiliki kontras yang jelas.
+10. **Tampilan responsif** — daftar artikel memakai _Card or Block Layout_ yang jumlah
+    kolomnya menyesuaikan lebar layar, sedangkan daftar komoditas tetap memakai tabel lengkap
+    dengan versi kartu pada perangkat ponsel dan tablet.
+11. **Tema light/dark** — mode terang adalah default dan dapat diganti dari sidebar; pilihan
+    tema tersimpan di `localStorage` sehingga bertahan saat berpindah menu maupun dimuat ulang,
+    kecuali pada halaman login dan setelah logout yang selalu kembali ke mode terang. Sidebar
+    menggunakan stroke putih, termasuk pada mode gelap, dan menu aktif tetap memiliki kontras
+    yang jelas.
+12. **Notifikasi aksi** — pesan berhasil/gagal pada halaman artikel tampil sebagai notifikasi
+    yang menutup sendiri setelah 3 detik.
 
 ---
 
@@ -147,6 +155,12 @@ Guard router (`src/app/router/index.ts`):
   bila role bukan admin.
 - Route `articles` dialihkan ke `article-management` bila role admin, sehingga tidak ada halaman
   duplikat yang bisa dibuka bersamaan.
+- Route `login` selalu mengembalikan tema ke mode terang, sehingga halaman login tidak mewarisi
+  mode gelap dari sesi sebelumnya.
+
+Tombol **Keluar** pada sidebar membuka dialog konfirmasi terlebih dahulu; sesi baru dihapus
+setelah pengguna menekan _Ya, keluar_. Dialog ini memakai pola yang sama dengan konfirmasi hapus
+artikel dan mengembalikan tema ke mode terang.
 
 Halaman login berada di `src/features/auth/presentation/pages/LoginPage.vue`. Artwork gedung
 login disimpan di `src/assets/images/login-building.png`. Transisi hanya diterapkan pada
@@ -155,8 +169,9 @@ mengganggu.
 
 Kedua halaman artikel **memakai satu komponen yang sama** (`CommodityOverviewTable`) dan hanya
 berbeda pada prop `canManage`. Prop ini diteruskan ke `ArticleExplorer`, yang menyembunyikan
-seluruh elemen pengelolaan (tombol _Tambah Artikel_, kolom _Aksi_, dan modal formulir) saat
-`canManage` bernilai `false`. Hasilnya, tampilan User identik dengan Admin kecuali fitur CRUD.
+seluruh elemen pengelolaan (tombol _Tambah Artikel_, tombol aksi edit/hapus pada setiap kartu,
+dan modal formulir) saat `canManage` bernilai `false`. Hasilnya, tampilan User identik dengan
+Admin kecuali fitur CRUD.
 
 ---
 
@@ -165,10 +180,15 @@ seluruh elemen pengelolaan (tombol _Tambah Artikel_, kolom _Aksi_, dan modal for
 - Halaman daftar komoditas menampilkan kartu pada perangkat ponsel dan tablet agar nama
   komoditas, statistik, serta poin ringkasan tetap mudah dibaca tanpa memaksa pengguna
   menggeser tabel yang terlalu lebar.
-- Pop-up artikel menampilkan kartu detail pada layar kecil dan menengah. Pada layar desktop,
-  tabel artikel lengkap tetap digunakan untuk perbandingan antar kolom.
-- Kolom **Tanggal** pada tabel detail artikel dapat diklik untuk mengurutkan artikel secara
-  descending (terbaru ke terlama) atau ascending (terlama ke terbaru).
+- Daftar artikel memakai konsep **Card or Block Layout** pada semua ukuran layar. Grid kartu
+  dibangun dengan `grid-template-columns: repeat(auto-fit, minmax(min(100%, 21rem), 1fr))`
+  sehingga jumlah kolom menyesuaikan lebar viewport tanpa horizontal scroll.
+- Setiap kartu artikel menampilkan media, tanggal, kategori, badge sentimen, judul, bagian
+  **Ringkasan** (maksimal 3 poin utama dengan tombol _Baca selengkapnya_), daftar Komoditas,
+  Negara terkait, Kata kunci, dan Skor sentimen. Di footer kartu tersedia tombol _Baca Artikel_
+  serta tombol ikon edit dan hapus untuk Admin.
+- Tombol urut **Terbaru/Terlama** di header daftar artikel mengurutkan artikel berdasarkan
+  tanggal secara descending (terbaru ke terlama) atau ascending (terlama ke terbaru).
 - Dialog dan formulir mengikuti tinggi viewport dinamis, sehingga tetap dapat di-scroll pada
   layar pendek atau browser mobile.
 - Sidebar menggunakan logo BPS tanpa latar tambahan, dengan branding **RITME** berwarna putih
@@ -205,8 +225,10 @@ berbeda dari warna utama.
 
 ### Dark mode
 
-Dark mode dapat dipilih melalui kontrol tema pada sidebar. Paletnya menggunakan latar netral
-gelap dan solid agar teks tidak menyatu dengan latar biru:
+Dark mode dapat dipilih melalui kontrol tema pada sidebar. Mode terang adalah default, dan
+pilihan tema disimpan pada `localStorage` dengan kunci `eksim-insight:theme` sehingga bertahan
+saat halaman dimuat ulang maupun saat berpindah menu di sidebar. Paletnya menggunakan latar
+netral gelap dan solid agar teks tidak menyatu dengan latar biru:
 
 | Elemen | Warna dark mode | Keterangan |
 | --- | --- | --- |
@@ -272,9 +294,11 @@ sesuai role (`Kelola artikel komoditas …` vs `Lihat artikel komoditas …`).
   baris **Beras** hanya menampilkan artikel dengan komoditas Beras.
 - `popupKey` memaksa komponen di-_remount_ saat mode berubah (daftar ↔ formulir). Setiap kali
   pop-up ditutup, ringkasan komoditas dimuat ulang agar jumlah artikel tetap konsisten.
-- Kolom tabel artikel di dalam pop-up: Tanggal, Kategori, Kata Kunci, Judul Berita, Media,
-  Komoditas, Negara Terkait, Ringkasan, Tautan, Sentimen, Skor, dan **Aksi** (khusus Admin,
-  berisi tombol edit dan hapus).
+- Kartu artikel di dalam pop-up memakai susunan yang sama dengan halaman utama: media, tanggal,
+  kategori, badge sentimen, judul, bagian **Ringkasan**, daftar Komoditas, Negara terkait, Kata
+  kunci, dan Skor sentimen. Tautan **Baca Artikel** selalu tampil, sedangkan tombol edit dan
+  hapus hanya muncul untuk Admin. Tombol urut **Terbaru/Terlama** juga tersedia di header
+  daftar.
 - Bagian pencarian di pop-up **hanya berupa satu search bar** dengan tombol `Reset` dan `Cari`;
   panel filter lengkap tidak dirender pada mode ini. Formulir tambah/ubah artikel juga muncul di
   dalam pop-up ini.
@@ -311,8 +335,8 @@ Halaman ini merender komponen yang sama dengan Admin memakai `can-manage="false"
 
 - Panel "Filter dan pencarian" tanpa tombol Tambah Artikel.
 - Tabel "Daftar Komoditas" dengan kolom dan urutan yang identik.
-- Pop-up `DAFTAR ARTIKEL` dengan 11 kolom artikel (tanpa kolom `Aksi`), satu search bar, dan
-  tanpa modal formulir.
+- Pop-up `DAFTAR ARTIKEL` dengan kartu artikel tanpa tombol edit dan hapus, satu search bar,
+  dan tanpa modal formulir.
 - Teks bantuan berubah menjadi _Klik baris untuk membuka daftar artikel._
 
 Deskripsi route: _Cari, filter, dan telusuri data artikel berita ekspor impor_ (tanpa kata
@@ -351,7 +375,7 @@ src/
 │   │   │   └── use-cases/…                                  # search, create, update, delete,
 │   │   │                                                    # get-commodity-overview
 │   │   └── presentation/
-│   │       ├── components/ArticleExplorer.vue               # Tabel artikel + CRUD opsional
+│   │       ├── components/ArticleExplorer.vue               # Kartu artikel + CRUD opsional
 │   │       ├── pages/ArticlesPage.vue                       # can-manage = false
 │   │       └── pages/ArticleChangesPage.vue                 # Riwayat perubahan Admin
 │   ├── crawling/                 # Simulasi crawling + riwayat
@@ -483,8 +507,11 @@ npm run format
   dinonaktifkan).
 - **`withDefaults` adalah compiler macro** — jangan mengimpornya dari `vue`; mengimpornya akan
   memunculkan peringatan bahwa macro tersebut tidak perlu diimpor lagi.
-- **Urutan kolom tabel** — saat mengubah urutan kolom, sel `<th>` dan `<td>` pasangannya harus
-  dipindahkan bersamaan agar header dan isi tabel tidak bergeser diam-diam.
+- **Urutan kolom tabel komoditas** — saat mengubah urutan kolom pada tabel "Daftar Komoditas",
+  sel `<th>` dan `<td>` pasangannya harus dipindahkan bersamaan agar header dan isi tabel tidak
+  bergeser diam-diam.
+- **Grid kartu artikel** — lebar minimum kartu diatur melalui `minmax(min(100%, 21rem), 1fr)`
+  pada `.article-card-grid`. Mengubah nilai ini akan mengubah jumlah kolom pada layar lebar.
 - **Lint yang sudah ada sebelumnya** — `npm run lint` masih melaporkan satu error yang tidak
   berkaitan dengan perubahan ini:
   `src/shared/utils/xlsx-export.ts:25:16 error eslint(no-control-regex)`.
