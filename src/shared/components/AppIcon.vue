@@ -18,6 +18,8 @@ import {
   Database,
   Download,
   ExternalLink,
+  Eye,
+  EyeOff,
   File,
   FilePenLine,
   FilePlus,
@@ -27,6 +29,7 @@ import {
   LoaderCircle,
   LogOut,
   Menu,
+  Moon,
   Package,
   Pencil,
   Play,
@@ -34,7 +37,6 @@ import {
   RefreshCw,
   Search,
   SlidersHorizontal,
-  Moon,
   Sun,
   ThumbsUp,
   Trash2,
@@ -51,7 +53,7 @@ const props = withDefaults(
   }>(),
   {
     size: 18,
-    strokeWidth: 2,
+    strokeWidth: 1.8,
   },
 )
 
@@ -71,6 +73,8 @@ const icons: Record<string, Component> = {
   database: Database,
   download: Download,
   'external-link': ExternalLink,
+  eye: Eye,
+  'eye-off': EyeOff,
   file: File,
   'file-edit': FilePenLine,
   'file-plus': FilePlus,
@@ -103,6 +107,8 @@ const resolvedIcon = computed(() => icons[props.name] ?? CircleHelp)
     v-bind="$attrs"
     :size="size"
     :stroke-width="strokeWidth"
+    stroke-linecap="round"
+    stroke-linejoin="round"
     aria-hidden="true"
   />
 </template>

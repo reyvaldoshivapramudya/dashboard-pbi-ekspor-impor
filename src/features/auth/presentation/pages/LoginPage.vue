@@ -12,6 +12,7 @@ const authStore = useAuthStore()
 
 const username = ref('')
 const password = ref('')
+const showPassword = ref(false)
 const errorMessage = ref('')
 const isSubmitting = ref(false)
 
@@ -88,15 +89,26 @@ function submitLogin(): void {
           <label for="login-password" class="mb-1.5 block text-xs font-semibold text-slate-700">
             Kata sandi
           </label>
-          <input
-            id="login-password"
-            v-model="password"
-            type="password"
-            autocomplete="current-password"
-            required
-            class="h-11 w-full rounded-lg border border-slate-200 px-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-bps-blue focus:ring-2 focus:ring-bps-blue/15"
-            placeholder="Masukkan kata sandi Anda"
-          />
+          <div class="relative">
+            <input
+              id="login-password"
+              v-model="password"
+              :type="showPassword ? 'text' : 'password'"
+              autocomplete="current-password"
+              required
+              class="h-11 w-full rounded-lg border border-slate-200 px-3 pr-11 text-sm outline-none transition placeholder:text-slate-400 focus:border-bps-blue focus:ring-2 focus:ring-bps-blue/15"
+              placeholder="Masukkan kata sandi Anda"
+            />
+            <button
+              type="button"
+              class="absolute inset-y-0 right-0 inline-flex w-11 items-center justify-center text-slate-400 transition hover:text-slate-600"
+              :aria-label="showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'"
+              :aria-pressed="showPassword"
+              @click="showPassword = !showPassword"
+            >
+              <AppIcon :name="showPassword ? 'eye-off' : 'eye'" class="h-4 w-4" />
+            </button>
+          </div>
         </div>
 
         <button

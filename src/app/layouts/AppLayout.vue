@@ -107,8 +107,7 @@ const timeLabel = computed(() => {
 })
 
 onMounted(() => {
-  const savedTheme = window.localStorage.getItem('eksim-insight:theme')
-  setTheme(savedTheme === 'dark')
+  setTheme(false)
   clockInterval = setInterval(() => {
     currentTime.value = new Date()
   }, 1000)

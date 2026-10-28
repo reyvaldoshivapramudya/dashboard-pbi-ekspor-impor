@@ -6,6 +6,8 @@ import router from './app/router'
 
 import './assets/main.css'
 
+document.documentElement.dataset.theme = 'light'
+
 const app = createApp(App)
 
 app.use(createPinia())

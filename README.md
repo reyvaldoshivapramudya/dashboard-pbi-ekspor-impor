@@ -373,6 +373,34 @@ komoditasnya belum ada di Excel, lalu mengurutkannya berdasarkan nama komoditas.
 npm install
 ```
 
+### Menjalankan API PostgreSQL
+
+Backend API berada di folder [`backend/`](./backend/). Backend tidak dijalankan oleh Vite
+dan tidak boleh dihubungkan langsung dari browser ke PostgreSQL.
+
+```powershell
+cd backend
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+Copy-Item .env.example .env
+uvicorn app.main:app --reload --port 8000
+```
+
+Isi `DATABASE_URL` pada `backend/.env` menggunakan connection string Supabase. Ambil
+connection string melalui **Supabase Dashboard > Connect > ORMs > SQLAlchemy** dan gunakan
+`DATABASE_SSL_MODE=require`. Endpoint pemeriksaan: `http://localhost:8000/health`.
+
+Frontend tetap memakai data lokal secara default. Untuk mengaktifkan repository API artikel,
+buat `.env.local` di root frontend:
+
+```env
+VITE_DATA_SOURCE=api
+VITE_API_URL=http://localhost:8000/api
+```
+
+Pastikan API sudah berjalan sebelum menyalakan mode ini.
+
 ### Compile dan hot-reload untuk pengembangan
 
 ```sh

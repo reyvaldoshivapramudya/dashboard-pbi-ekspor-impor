@@ -1,4 +1,5 @@
 import { ArticleRepositoryImpl } from '@/features/articles/data/repositories/article.repository.impl'
+import { ArticleApiRepository } from '@/features/articles/data/repositories/article-api.repository'
 import { CommodityOverviewRepositoryImpl } from '@/features/articles/data/repositories/commodity-overview.repository.impl'
 import { DashboardRepositoryImpl } from '@/features/dashboard/data/repositories/dashboard.repository.impl'
 import { GetDashboardPeriods } from '@/features/dashboard/domain/use-cases/get-dashboard-periods'
@@ -14,7 +15,11 @@ import { RunCrawlSimulation } from '@/features/crawling/domain/use-cases/run-cra
 import { ArticleChangeRepositoryImpl } from '@/features/articles/data/repositories/article-change.repository.impl'
 import { GetArticleChanges } from '@/features/articles/domain/use-cases/get-article-changes'
 
-export const articleRepository = new ArticleRepositoryImpl()
+const useApiDataSource = import.meta.env.VITE_DATA_SOURCE === 'api'
+
+export const articleRepository = useApiDataSource
+  ? new ArticleApiRepository()
+  : new ArticleRepositoryImpl()
 export const commodityOverviewRepository = new CommodityOverviewRepositoryImpl()
 export const searchArticles = new SearchArticles(articleRepository)
 export const createArticle = new CreateArticle(articleRepository)

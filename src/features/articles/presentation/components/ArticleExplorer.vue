@@ -102,6 +102,8 @@ const feedbackMessage = ref('')
 const isFormOpen = ref(false)
 const editingArticleId = ref<string | null>(null)
 const isSaving = ref(false)
+const articlePendingDeletion = ref<NewsArticle | null>(null)
+const isDeleting = ref(false)
 const explorerRoot = ref<HTMLElement | null>(null)
 const detailScrollContainer = ref<HTMLElement | null>(null)
 const showBackToTop = ref(false)
@@ -239,6 +241,9 @@ function handlePeriodPickerOutsideClick(event: PointerEvent): void {
 function handlePeriodPickerKeydown(event: KeyboardEvent): void {
   if (event.key === 'Escape') {
     periodPickerOpen.value = false
+    if (articlePendingDeletion.value && !isDeleting.value) {
+      articlePendingDeletion.value = null
+    }
   }
 }
 
@@ -437,7 +442,7 @@ function openEditForm(article: NewsArticle): void {
 }
 
 function closeForm(): void {
-  if (isSaving.value) return
+  if (isSaving.value || isDeleting.value) return
 
   isFormOpen.value = false
   editingArticleId.value = null
@@ -514,19 +519,30 @@ async function submitForm(): Promise<void> {
   }
 }
 
-async function handleDelete(article: NewsArticle): Promise<void> {
-  const confirmed = window.confirm(
-    `Hapus artikel "${article.title}"? Tindakan ini tidak dapat dibatalkan.`,
-  )
+function requestDelete(article: NewsArticle): void {
+  if (isSaving.value || isDeleting.value) return
 
-  if (!confirmed) return
+  articlePendingDeletion.value = article
+}
+
+function cancelDelete(): void {
+  if (isDeleting.value) return
+
+  articlePendingDeletion.value = null
+}
+
+async function confirmDelete(): Promise<void> {
+  const article = articlePendingDeletion.value
+  if (!article || isDeleting.value) return
 
   errorMessage.value = ''
   feedbackMessage.value = ''
+  isDeleting.value = true
 
   try {
     await deleteArticle.execute(article.id)
 
+    articlePendingDeletion.value = null
     await refreshArticles()
 
     feedbackMessage.value = 'Artikel berhasil dihapus.'
@@ -534,6 +550,8 @@ async function handleDelete(article: NewsArticle): Promise<void> {
     console.error('Gagal menghapus artikel:', error)
 
     errorMessage.value = error instanceof Error ? error.message : 'Artikel gagal dihapus.'
+  } finally {
+    isDeleting.value = false
   }
 }
 
@@ -898,7 +916,7 @@ onBeforeUnmount(() => {
                   :aria-label="`Hapus ${article.title}`"
                   title="Hapus artikel"
                   class="flex h-9 w-9 items-center justify-center rounded-lg border border-orange-100 bg-orange-50 text-orange-700 transition hover:bg-orange-100"
-                  @click="handleDelete(article)"
+                  @click="requestDelete(article)"
                 >
                   <AppIcon name="trash" class="h-4 w-4" />
                 </button>
@@ -1156,7 +1174,7 @@ onBeforeUnmount(() => {
                     :aria-label="`Hapus ${article.title}`"
                     title="Hapus artikel"
                     class="flex h-9 w-9 items-center justify-center rounded-lg border border-orange-100 bg-orange-50 text-orange-700 transition hover:bg-orange-100"
-                    @click="handleDelete(article)"
+                    @click="requestDelete(article)"
                   >
                     <AppIcon name="trash" class="h-4 w-4" />
                   </button>
@@ -1237,6 +1255,67 @@ onBeforeUnmount(() => {
         <AppIcon name="arrow-up" class="h-5 w-5" />
       </button>
     </Transition>
+
+    <!-- Delete confirmation dialog -->
+    <Teleport to="body">
+      <div
+        v-if="props.canManage && articlePendingDeletion"
+        class="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-[2px]"
+        @click.self="cancelDelete"
+      >
+        <section
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="delete-article-title"
+          aria-describedby="delete-article-description"
+          class="w-full max-w-md rounded-xl border border-slate-200 bg-white p-5 shadow-xl shadow-slate-900/15 sm:p-6"
+        >
+          <div class="flex items-start gap-3">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-50 text-orange-700">
+              <AppIcon name="trash" class="h-5 w-5" />
+            </div>
+
+            <div class="min-w-0">
+              <h2 id="delete-article-title" class="text-base font-bold text-slate-900">
+                Hapus artikel?
+              </h2>
+              <p id="delete-article-description" class="mt-1 text-sm leading-6 text-slate-500">
+                Artikel ini akan dihapus permanen dan tidak dapat dipulihkan.
+              </p>
+            </div>
+          </div>
+
+          <div class="mt-4 rounded-lg bg-slate-50 px-3 py-2.5">
+            <p class="line-clamp-2 text-sm font-medium leading-5 text-slate-700">
+              {{ articlePendingDeletion.title }}
+            </p>
+          </div>
+
+          <div class="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <button
+              type="button"
+              :disabled="isDeleting"
+              class="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 px-4 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+              @click="cancelDelete"
+            >
+              Batal
+            </button>
+            <button
+              type="button"
+              :disabled="isDeleting"
+              class="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-orange-600 px-4 text-sm font-semibold text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-60"
+              @click="confirmDelete"
+            >
+              <AppIcon
+                :name="isDeleting ? 'loader' : 'trash'"
+                :class="['h-4 w-4', isDeleting ? 'animate-spin' : '']"
+              />
+              {{ isDeleting ? 'Menghapus...' : 'Ya, hapus artikel' }}
+            </button>
+          </div>
+        </section>
+      </div>
+    </Teleport>
 
     <!-- Create / edit dialog -->
     <Teleport to="body">
