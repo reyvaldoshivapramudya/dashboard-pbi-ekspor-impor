@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import AppIcon from '@/shared/components/AppIcon.vue'
 import ArticleExplorer from '@/features/articles/presentation/components/ArticleExplorer.vue'
@@ -528,7 +528,7 @@ onBeforeUnmount(() => {
                 </dd>
               </div>
               <div>
-                <dt class="text-slate-400">Poin utama</dt>
+                <dt class="text-slate-400">Jumlah Ringkasan</dt>
                 <dd class="mt-1 font-semibold tabular-nums text-slate-700">
                   {{ formatNumber(row.mainPointCount) }}
                 </dd>
@@ -548,7 +548,7 @@ onBeforeUnmount(() => {
             </dl>
 
             <div class="mt-4 border-t border-slate-100 pt-3">
-              <p class="text-xs font-medium text-slate-400">Poin ringkasan</p>
+              <p class="text-xs font-medium text-slate-400">Ringkasan</p>
               <ul v-if="row.points.length > 0" class="mt-2 space-y-2">
                 <li
                   v-for="(point, index) in row.points"
@@ -588,12 +588,19 @@ onBeforeUnmount(() => {
           </div>
         </div>
 
-        <div class="hidden overflow-x-auto lg:block">
+        <!-- Tabel dapat digulir sendiri (vertikal + horizontal) agar baris nama kolom tetap terlihat. -->
+        <div class="hidden lg:block lg:max-h-[70vh] lg:overflow-auto">
           <table class="w-full min-w-[1120px] border-collapse text-left text-sm">
-            <thead class="bg-slate-50 text-xs font-semibold text-slate-500">
+            <thead class="text-xs font-semibold text-slate-500">
               <tr>
-                <th class="min-w-56 px-4 py-4">Komoditas</th>
-                <th class="whitespace-nowrap px-4 py-4">
+                <th
+                  class="sticky top-0 z-10 shadow-[inset_0_-1px_0_rgba(148,163,184,0.35)] min-w-56 bg-slate-50 px-4 py-4"
+                >
+                  Komoditas
+                </th>
+                <th
+                  class="sticky top-0 z-10 shadow-[inset_0_-1px_0_rgba(148,163,184,0.35)] whitespace-nowrap bg-slate-50 px-4 py-4"
+                >
                   <button
                     type="button"
                     class="inline-flex items-center gap-1.5 font-semibold transition hover:text-bps-blue"
@@ -607,10 +614,26 @@ onBeforeUnmount(() => {
                     />
                   </button>
                 </th>
-                <th class="whitespace-nowrap px-4 py-4">Positif</th>
-                <th class="whitespace-nowrap px-4 py-4">Negatif</th>
-                <th class="whitespace-nowrap px-4 py-4">Jumlah Poin Utama</th>
-                <th class="min-w-96 px-4 py-4">Poin Ringkasan</th>
+                <th
+                  class="sticky top-0 z-10 shadow-[inset_0_-1px_0_rgba(148,163,184,0.35)] whitespace-nowrap bg-slate-50 px-4 py-4"
+                >
+                  Positif
+                </th>
+                <th
+                  class="sticky top-0 z-10 shadow-[inset_0_-1px_0_rgba(148,163,184,0.35)] whitespace-nowrap bg-slate-50 px-4 py-4"
+                >
+                  Negatif
+                </th>
+                <th
+                  class="sticky top-0 z-10 shadow-[inset_0_-1px_0_rgba(148,163,184,0.35)] whitespace-nowrap bg-slate-50 px-4 py-4"
+                >
+                  Jumlah Ringkasan
+                </th>
+                <th
+                  class="sticky top-0 z-10 shadow-[inset_0_-1px_0_rgba(148,163,184,0.35)] min-w-96 bg-slate-50 px-4 py-4"
+                >
+                  Ringkasan
+                </th>
               </tr>
             </thead>
 

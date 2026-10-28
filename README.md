@@ -178,13 +178,13 @@ Admin kecuali fitur CRUD.
 ## Responsivitas dan Branding
 
 - Halaman daftar komoditas menampilkan kartu pada perangkat ponsel dan tablet agar nama
-  komoditas, statistik, serta poin ringkasan tetap mudah dibaca tanpa memaksa pengguna
+  komoditas, statistik, serta ringkasan tetap mudah dibaca tanpa memaksa pengguna
   menggeser tabel yang terlalu lebar.
 - Daftar artikel memakai konsep **Card or Block Layout** pada semua ukuran layar. Grid kartu
   dibangun dengan `grid-template-columns: repeat(auto-fit, minmax(min(100%, 21rem), 1fr))`
   sehingga jumlah kolom menyesuaikan lebar viewport tanpa horizontal scroll.
 - Setiap kartu artikel menampilkan media, tanggal, kategori, badge sentimen, judul, bagian
-  **Ringkasan** (maksimal 3 poin utama dengan tombol _Baca selengkapnya_), daftar Komoditas,
+  **Ringkasan** (maksimal 3 butir ringkasan dengan tombol _Baca selengkapnya_), daftar Komoditas,
   Negara terkait, Kata kunci, dan Skor sentimen. Di footer kartu tersedia tombol _Baca Artikel_
   serta tombol ikon edit dan hapus untuk Admin.
 - Tombol urut **Terbaru/Terlama** di header daftar artikel mengurutkan artikel berdasarkan
@@ -273,10 +273,14 @@ Kolom, sesuai urutan tampil:
 | Jumlah Berita     | Jumlah artikel komoditas tersebut                                                                |
 | Positif           | Jumlah artikel bersentimen positif (badge hijau)                                                 |
 | Negatif           | Jumlah artikel bersentimen negatif (badge oranye)                                                |
-| Jumlah Poin Utama | Jumlah poin utama hasil ekstraksi                                                                |
-| Poin Ringkasan    | **Seluruh** poin ringkasan (tanpa pemotongan `+N poin lainnya`) lengkap dengan media dan tanggal |
+| Jumlah Ringkasan  | Jumlah ringkasan hasil ekstraksi                                                                 |
+| Ringkasan         | **Seluruh** ringkasan (tanpa pemotongan `+N ringkasan lainnya`) lengkap dengan media dan tanggal |
 
 Kolom **Jumlah Poin Pendukung** dan **Rentang Tanggal** dihilangkan dari tabel.
+
+Baris nama kolom bersifat _sticky_ (`sticky top-0` pada setiap `<th>`): tabel desktop dapat
+digulir sendiri secara vertikal dan horizontal, sehingga nama kolom tetap terlihat saat
+menelusuri banyak komoditas — sama seperti panel filter di atasnya.
 
 Setiap baris bersifat interaktif (`role="button"`, dapat difokus dan diaktifkan dengan
 `Enter`/`Space`), memiliki efek hover, dan membuka pop-up. Label aksesibilitas baris berbeda
