@@ -387,9 +387,21 @@ Copy-Item .env.example .env
 uvicorn app.main:app --reload --port 8000
 ```
 
-Isi `DATABASE_URL` pada `backend/.env` menggunakan connection string Supabase. Ambil
-connection string melalui **Supabase Dashboard > Connect > ORMs > SQLAlchemy** dan gunakan
-`DATABASE_SSL_MODE=require`. Endpoint pemeriksaan: `http://localhost:8000/health`.
+Buat database PostgreSQL lokal terlebih dahulu, misalnya `dashboard_pbi`, lalu isi
+`DATABASE_URL` pada `backend/.env`. Konfigurasi default memakai `localhost:5432`,
+user `postgres`, dan `DATABASE_SSL_MODE=disable`. Endpoint pemeriksaan:
+`http://localhost:8000/health`.
+
+Contoh `backend/.env`:
+
+```env
+DATABASE_URL=postgresql://postgres:[PASSWORD]@localhost:5432/dashboard_pbi
+DATABASE_SSL_MODE=disable
+FRONTEND_ORIGIN=http://localhost:5173
+```
+
+Jika password mengandung karakter khusus seperti `@`, `:`, `/`, atau `#`, lakukan
+URL-encoding pada password. Jangan menaruh password di frontend atau commit file `.env`.
 
 Frontend tetap memakai data lokal secara default. Untuk mengaktifkan repository API artikel,
 buat `.env.local` di root frontend:

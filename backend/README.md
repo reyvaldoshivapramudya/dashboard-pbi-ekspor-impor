@@ -13,11 +13,13 @@ untuk proses scraping.
    pip install -r requirements.txt
    ```
 
-2. Salin `.env.example` menjadi `.env`, lalu isi `DATABASE_URL` dari Supabase.
-   Ambil dari **Supabase Dashboard > Connect > ORMs > SQLAlchemy**, atau gunakan
-   **Session pooler** bila koneksi direct Supabase tidak dapat dijangkau dari jaringan Anda.
-3. Pastikan `DATABASE_SSL_MODE=require` untuk koneksi Supabase.
-4. Jalankan API dari folder `backend`:
+2. Buat database lokal, misalnya `dashboard_pbi`.
+3. Salin `.env.example` menjadi `.env`, lalu sesuaikan `DATABASE_URL` dengan PostgreSQL lokal.
+   Nilai default menggunakan host `localhost`, port `5432`, user `postgres`, dan database
+   `dashboard_pbi`.
+4. Gunakan `DATABASE_SSL_MODE=disable` untuk PostgreSQL lokal. Jika PostgreSQL lokal Anda
+   dikonfigurasi menggunakan SSL, ubah nilainya menjadi `require`.
+5. Jalankan API dari folder `backend`:
 
    ```powershell
    uvicorn app.main:app --reload --port 8000
@@ -28,11 +30,11 @@ Endpoint:
 - `GET http://localhost:8000/health`
 - `GET http://localhost:8000/api/articles`
 
-Contoh `.env` untuk Supabase:
+Contoh `.env` untuk PostgreSQL lokal:
 
 ```env
-DATABASE_URL=postgresql://postgres:PASSWORD@db.PROJECT_REF.supabase.co:5432/postgres
-DATABASE_SSL_MODE=require
+DATABASE_URL=<postgresql-connection-string>
+DATABASE_SSL_MODE=disable
 FRONTEND_ORIGIN=http://localhost:5173
 ```
 
