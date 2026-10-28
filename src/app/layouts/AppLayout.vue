@@ -82,6 +82,7 @@ function toggleTheme(): void {
 }
 
 function handleLogout(): void {
+  setTheme(false)
   authStore.logout()
   closeMobileSidebar()
   void router.push({ name: 'login' })

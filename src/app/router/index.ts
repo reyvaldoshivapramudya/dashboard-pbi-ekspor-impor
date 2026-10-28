@@ -93,6 +93,11 @@ const router = createRouter({
 router.beforeEach((to) => {
   const authStore = useAuthStore()
 
+  if (to.name === 'login') {
+    document.documentElement.dataset.theme = 'light'
+    window.localStorage.setItem('eksim-insight:theme', 'light')
+  }
+
   if (!authStore.isAuthenticated && to.name !== 'login') {
     return { name: 'login' }
   }
