@@ -955,21 +955,7 @@ onBeforeUnmount(() => {
           <section class="mt-4 flex-1">
             <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-500">Ringkasan</h4>
 
-            <ul
-              v-if="article.mainPoints?.length"
-              class="mt-2 list-disc space-y-1.5 pl-5 text-sm leading-6 text-slate-600"
-            >
-              <li
-                v-for="(point, index) in expandedArticleIds.has(article.id)
-                  ? article.mainPoints
-                  : article.mainPoints.slice(0, 3)"
-                :key="index"
-              >
-                {{ point }}
-              </li>
-            </ul>
-
-            <p v-else class="mt-2 whitespace-pre-line break-words text-sm leading-6 text-slate-600">
+            <p class="mt-2 whitespace-pre-line break-words text-sm leading-6 text-slate-600">
               {{
                 expandedArticleIds.has(article.id)
                   ? article.summary || 'Ringkasan tidak tersedia.'
@@ -981,11 +967,7 @@ onBeforeUnmount(() => {
               >
             </p>
 
-            <button
-              v-if="
-                (article.mainPoints?.length ?? 0) > 3 ||
-                (!article.mainPoints?.length && article.summary.length > 220)
-              "
+            <button v-if="article.summary.length > 220"
               type="button"
               class="mt-2 text-sm font-semibold text-bps-blue transition hover:text-bps-blue-dark hover:underline focus:outline-none focus:ring-2 focus:ring-bps-blue/30"
               :aria-expanded="expandedArticleIds.has(article.id)"

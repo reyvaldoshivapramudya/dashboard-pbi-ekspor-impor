@@ -21,11 +21,12 @@ interface PeriodOption {
   value: string
 }
 
-function getCurrentPeriod(): string {
+function getPreviousPeriod(): string {
   const now = new Date()
-  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const date = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+  const month = String(date.getMonth() + 1).padStart(2, '0')
 
-  return `${now.getFullYear()}-${month}`
+  return `${date.getFullYear()}-${month}`
 }
 
 function buildPeriodOptions(): PeriodOption[] {
@@ -48,7 +49,7 @@ function buildPeriodOptions(): PeriodOption[] {
   return options
 }
 
-const currentPeriod = getCurrentPeriod()
+const currentPeriod = getPreviousPeriod()
 
 const periodOptions = computed(() => buildPeriodOptions())
 
@@ -96,26 +97,26 @@ const currentPeriodHasRun = computed(() =>
   history.value.some((run) => run.period === currentPeriod),
 )
 
-const isCrawlDay = new Date().getDate() === 13
+const isCrawlWindow = new Date().getDate() >= 25
 
 const canCrawlCurrentPeriod = computed(
-  () => isCrawlDay && !currentPeriodHasRun.value && selectedPeriod.value === currentPeriod,
+  () => isCrawlWindow && !currentPeriodHasRun.value && selectedPeriod.value === currentPeriod,
 )
 
 const crawlAvailabilityMessage = computed(() => {
   if (currentPeriodHasRun.value) {
-    return `Crawling untuk ${currentPeriodLabel.value} sudah dilakukan. Crawling hanya dapat dilakukan satu kali setiap tanggal 13.`
+    return `Crawling untuk ${currentPeriodLabel.value} sudah dilakukan. Crawling hanya dapat dilakukan satu kali setiap bulan.`
   }
 
-  if (!isCrawlDay) {
-    return `Crawling hanya dapat dilakukan pada tanggal 13 setiap bulan. Data yang diambil mencakup tanggal 1–30 pada periode ${currentPeriodLabel.value}.`
+  if (!isCrawlWindow) {
+    return `Crawling periode ${currentPeriodLabel.value} tersedia menjelang akhir bulan, mulai tanggal 25. Data yang diambil mencakup periode bulan sebelumnya.`
   }
 
   if (selectedPeriod.value !== currentPeriod) {
     return `Pilih periode ${currentPeriodLabel.value} untuk menjalankan crawling bulan ini.`
   }
 
-  return `Hari ini tanggal 13. Crawling mengambil data tanggal 1–30 pada periode ${currentPeriodLabel.value} dan hanya dapat dilakukan satu kali.`
+  return `Crawling periode ${currentPeriodLabel.value} siap dijalankan. Proses ini hanya dapat dilakukan satu kali setiap bulan.`
 })
 
 const connectionMessage = computed(() => {
@@ -603,7 +604,7 @@ onBeforeUnmount(() => {
             <p class="text-sm font-semibold text-slate-800">Simulasi crawling sedang berjalan</p>
 
             <p class="mt-1 text-xs leading-relaxed text-slate-500">
-              Menyiapkan artikel dummy untuk {{ selectedPeriodLabel }}.
+              Menyiapkan artikel dummy untuk periode {{ selectedPeriodLabel }}.
               {{ connectionMessage }}
             </p>
           </div>
@@ -614,8 +615,9 @@ onBeforeUnmount(() => {
         class="mt-6 flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:items-center sm:justify-between"
       >
         <p class="max-w-xl text-xs leading-relaxed text-slate-400">
-          Setiap portal menghasilkan paling banyak satu artikel contoh pada simulasi ini. Artikel
-          dengan URL yang sudah tercatat akan dilewati untuk mencegah duplikasi.
+          Setiap portal menghasilkan paling banyak satu artikel contoh pada simulasi ini. Crawling
+          hanya dijalankan sekali pada akhir bulan untuk periode bulan sebelumnya. Artikel dengan
+          URL yang sudah tercatat akan dilewati untuk mencegah duplikasi.
         </p>
 
         <button
@@ -639,7 +641,7 @@ onBeforeUnmount(() => {
               ? 'Sedang Berjalan...'
               : currentPeriodHasRun
                 ? 'Crawling Sudah Dilakukan'
-                : 'Mulai Crawling'
+                : 'Mulai Crawling Periode Sebelumnya'
           }}
         </button>
       </div>
