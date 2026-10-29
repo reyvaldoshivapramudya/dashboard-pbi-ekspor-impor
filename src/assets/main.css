@@ -47,7 +47,7 @@ body {
 
 html[data-theme='dark'] body {
   background: #101827;
-  color: #e5edf7;
+  color: #d7e0ec;
 }
 
 html[data-theme='dark'] .bg-slate-50 {
@@ -85,25 +85,25 @@ html[data-theme='dark'] .bg-rose-50 {
 
 html[data-theme='dark'] .text-slate-900,
 html[data-theme='dark'] .text-slate-800 {
-  color: #e8f0fa !important;
+  color: #dce5f0 !important;
 }
 
 html[data-theme='dark'] .text-slate-700,
 html[data-theme='dark'] .text-slate-600 {
-  color: #cbd8e8 !important;
+  color: #b8c6d8 !important;
 }
 
 html[data-theme='dark'] .text-slate-500,
 html[data-theme='dark'] .text-slate-400 {
-  color: #9fb0c5 !important;
+  color: #8fa1b7 !important;
 }
 
 html[data-theme='dark'] .text-bps-blue {
-  color: #7dd3fc !important;
+  color: #62b6df !important;
 }
 
 html[data-theme='dark'] .text-bps-blue-dark {
-  color: #9bdcff !important;
+  color: #80c5e8 !important;
 }
 
 html[data-theme='dark'] .text-emerald-600,
@@ -112,7 +112,7 @@ html[data-theme='dark'] .text-orange-500,
 html[data-theme='dark'] .text-orange-600,
 html[data-theme='dark'] .text-orange-700,
 html[data-theme='dark'] .text-orange-800 {
-  color: #fdc98b !important;
+  color: #e7b274 !important;
 }
 
 html[data-theme='dark'] .border-slate-200,
@@ -126,17 +126,17 @@ html[data-theme='dark'] select,
 html[data-theme='dark'] textarea {
   background-color: #172235 !important;
   border-color: #4a607b !important;
-  color: #e8f0fa !important;
+  color: #dce5f0 !important;
 }
 
 html[data-theme='dark'] select option {
   background-color: #172235 !important;
-  color: #e8f0fa !important;
+  color: #dce5f0 !important;
 }
 
 html[data-theme='dark'] input::placeholder,
 html[data-theme='dark'] textarea::placeholder {
-  color: #8fa3bb !important;
+  color: #8294aa !important;
 }
 
 html[data-theme='dark'] .hover\:bg-slate-50:hover,
@@ -165,7 +165,7 @@ html[data-theme='dark'] .hover\:bg-blue-50:hover {
 }
 
 html[data-theme='dark'] .ring-blue-100 {
-  --tw-ring-color: #7dd3fc !important;
+  --tw-ring-color: #62b6df !important;
 }
 
 html[data-theme='dark'] .bg-sidebar-navy {
