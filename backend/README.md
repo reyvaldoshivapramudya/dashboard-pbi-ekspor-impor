@@ -29,6 +29,21 @@ Endpoint:
 
 - `GET http://localhost:8000/health`
 - `GET http://localhost:8000/api/articles`
+- `POST http://localhost:8000/api/crawling/run`
+
+Contoh body crawling:
+
+```json
+{
+  "period": "2026-09",
+  "mediaNames": ["Antara", "CNBC Indonesia", "DetikFinance"]
+}
+```
+
+Endpoint crawling mengambil kandidat dari Google News RSS, membuka URL artikel asli,
+mengekstrak isi berita, membuat ringkasan dasar, lalu menyimpan artikel baru ke PostgreSQL.
+Artikel dengan URL yang sudah tersimpan dilewati. Analisis sentimen tahap awal menggunakan
+aturan kata kunci; model LLM dari script notebook belum dijalankan di backend.
 
 Contoh `.env` untuk PostgreSQL lokal:
 

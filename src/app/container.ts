@@ -10,6 +10,7 @@ import { UpdateArticle } from '@/features/articles/domain/use-cases/update-artic
 import { DeleteArticle } from '@/features/articles/domain/use-cases/delete-article'
 import { GetCommodityOverview } from '@/features/articles/domain/use-cases/get-commodity-overview'
 import { CrawlRepositoryImpl } from '@/features/crawling/data/repositories/crawl.repository.impl'
+import { CrawlApiRepository } from '@/features/crawling/data/repositories/crawl-api.repository'
 import { GetCrawlHistory } from '@/features/crawling/domain/use-cases/get-crawl-history'
 import { RunCrawlSimulation } from '@/features/crawling/domain/use-cases/run-crawl-simulation'
 import { ArticleChangeRepositoryImpl } from '@/features/articles/data/repositories/article-change.repository.impl'
@@ -36,6 +37,8 @@ export const dashboardRepository = new DashboardRepositoryImpl(articleRepository
 export const getDashboardSummary = new GetDashboardSummary(dashboardRepository)
 export const getDashboardPeriods = new GetDashboardPeriods(dashboardRepository)
 
-export const crawlRepository = new CrawlRepositoryImpl(articleRepository)
+export const crawlRepository = useApiDataSource
+  ? new CrawlApiRepository()
+  : new CrawlRepositoryImpl(articleRepository)
 export const getCrawlHistory = new GetCrawlHistory(crawlRepository)
 export const runCrawlSimulation = new RunCrawlSimulation(crawlRepository)
