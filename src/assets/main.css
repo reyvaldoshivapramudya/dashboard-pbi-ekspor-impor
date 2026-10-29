@@ -47,7 +47,7 @@ body {
 
 html[data-theme='dark'] body {
   background: #0b0b0b;
-  color: #d7e0ec;
+  color: #c9c9c9;
 }
 
 html[data-theme='dark'] .bg-slate-50 {
@@ -85,34 +85,37 @@ html[data-theme='dark'] .bg-rose-50 {
 
 html[data-theme='dark'] .text-slate-900,
 html[data-theme='dark'] .text-slate-800 {
-  color: #dce5f0 !important;
+  color: #d6d6d6 !important;
 }
 
 html[data-theme='dark'] .text-slate-700,
 html[data-theme='dark'] .text-slate-600 {
-  color: #b8c6d8 !important;
+  color: #b5b5b5 !important;
 }
 
 html[data-theme='dark'] .text-slate-500,
 html[data-theme='dark'] .text-slate-400 {
-  color: #8fa1b7 !important;
+  color: #888888 !important;
 }
 
 html[data-theme='dark'] .text-bps-blue {
-  color: #62b6df !important;
+  color: #5b9eb6 !important;
 }
 
 html[data-theme='dark'] .text-bps-blue-dark {
-  color: #80c5e8 !important;
+  color: #6eaabd !important;
 }
 
 html[data-theme='dark'] .text-emerald-600,
-html[data-theme='dark'] .text-emerald-700,
+html[data-theme='dark'] .text-emerald-700 {
+  color: #76a97b !important;
+}
+
 html[data-theme='dark'] .text-orange-500,
 html[data-theme='dark'] .text-orange-600,
 html[data-theme='dark'] .text-orange-700,
 html[data-theme='dark'] .text-orange-800 {
-  color: #e7b274 !important;
+  color: #c49663 !important;
 }
 
 html[data-theme='dark'] .border-slate-200,
@@ -126,17 +129,17 @@ html[data-theme='dark'] select,
 html[data-theme='dark'] textarea {
   background-color: #171717 !important;
   border-color: #4d4d4d !important;
-  color: #dce5f0 !important;
+  color: #d6d6d6 !important;
 }
 
 html[data-theme='dark'] select option {
   background-color: #171717 !important;
-  color: #dce5f0 !important;
+  color: #d6d6d6 !important;
 }
 
 html[data-theme='dark'] input::placeholder,
 html[data-theme='dark'] textarea::placeholder {
-  color: #8294aa !important;
+  color: #777777 !important;
 }
 
 html[data-theme='dark'] .hover\:bg-slate-50:hover,
@@ -165,7 +168,7 @@ html[data-theme='dark'] .hover\:bg-blue-50:hover {
 }
 
 html[data-theme='dark'] .ring-blue-100 {
-  --tw-ring-color: #62b6df !important;
+  --tw-ring-color: #5b9eb6 !important;
 }
 
 html[data-theme='dark'] .bg-sidebar-navy {
