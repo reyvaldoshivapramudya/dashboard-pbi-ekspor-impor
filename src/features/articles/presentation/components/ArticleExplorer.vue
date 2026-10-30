@@ -1,8 +1,15 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import AppIcon from '@/shared/components/AppIcon.vue'
+import CommoditySearchInput from '@/shared/components/CommoditySearchInput.vue'
 
 import { createArticle, deleteArticle, searchArticles, updateArticle } from '@/app/container'
+import { useAuthStore } from '@/app/stores/auth.store'
+import {
+  readCommoditySearchHistory,
+  removeCommoditySearchHistory,
+  saveCommoditySearch,
+} from '@/shared/utils/commodity-search'
 
 import type {
   NewsArticle,
@@ -32,9 +39,12 @@ const props = withDefaults(
     compactSearch: false,
   },
 )
+const authStore = useAuthStore()
+const searchHistoryOwner = computed(() => authStore.user?.username ?? 'anonymous')
 
 interface ArticleFormState {
   publishedAt: string
+  period: string
   category: NewsCategory
   searchKeywords: string
   title: string
@@ -43,6 +53,7 @@ interface ArticleFormState {
   commodityScope: CommodityScope
   relatedCountries: string
   summary: string
+  mainPoints: string
   url: string
   sentiment: SentimentLabel
   sentimentScore: string
@@ -81,12 +92,17 @@ const periodInput = ref('all')
 const periodPickerOpen = ref(false)
 const periodPickerYear = ref(new Date().getFullYear())
 const periodPickerRoot = ref<HTMLElement | null>(null)
+const formPeriodPickerOpen = ref(false)
+const formPeriodPickerYear = ref(new Date().getFullYear())
+const formPeriodPickerRoot = ref<HTMLElement | null>(null)
 const queryInput = ref('')
+const commoditySearchHistory = ref<string[]>([])
 const appliedFilters = ref<SearchArticleFilters>({
   period: 'all',
   mediaName: 'all',
   category: 'all',
   query: '',
+  queryBy: 'title',
   commodity: props.commodity,
 })
 
@@ -112,8 +128,11 @@ const articleSortDirection = ref<'asc' | 'desc'>('desc')
 const expandedArticleIds = ref(new Set<string>())
 
 function emptyForm(): ArticleFormState {
+  const today = new Date().toISOString().slice(0, 10)
+
   return {
-    publishedAt: new Date().toISOString().slice(0, 10),
+    publishedAt: today,
+    period: today.slice(0, 7),
     category: 'commodity',
     searchKeywords: '',
     title: '',
@@ -122,6 +141,7 @@ function emptyForm(): ArticleFormState {
     commodityScope: 'specific',
     relatedCountries: '',
     summary: '',
+    mainPoints: '',
     url: '',
     sentiment: 'positive',
     sentimentScore: '0.50',
@@ -133,6 +153,8 @@ const form = ref<ArticleFormState>(emptyForm())
 const selectedPeriodLabel = computed(() =>
   periodInput.value === 'all' ? 'Semua Periode' : formatPeriod(periodInput.value),
 )
+
+const formPeriodLabel = computed(() => formatPeriod(form.value.period))
 
 const hasFiltersToReset = computed(
   () =>
@@ -169,6 +191,10 @@ const showingFrom = computed(() =>
 const showingTo = computed(() =>
   Math.min(currentPage.value * rowsPerPage.value, filteredArticles.value.length),
 )
+
+const articleTitles = computed(() => [
+  ...new Set(availableArticles.value.map((article) => article.title)),
+])
 
 const isEditing = computed(() => editingArticleId.value !== null)
 
@@ -240,17 +266,40 @@ function changePeriodPickerYear(offset: number): void {
   periodPickerYear.value += offset
 }
 
+function toggleFormPeriodPicker(): void {
+  formPeriodPickerOpen.value = !formPeriodPickerOpen.value
+
+  if (formPeriodPickerOpen.value) {
+    periodPickerOpen.value = false
+    formPeriodPickerYear.value = Number(form.value.period.slice(0, 4))
+  }
+}
+
+function isFormPeriodMonthSelected(month: string): boolean {
+  return form.value.period === `${formPeriodPickerYear.value}-${month}`
+}
+
+function selectFormPeriodMonth(month: string): void {
+  form.value.period = `${formPeriodPickerYear.value}-${month}`
+  formPeriodPickerOpen.value = false
+}
+
 function handlePeriodPickerOutsideClick(event: PointerEvent): void {
   const target = event.target
 
   if (target instanceof Node && !periodPickerRoot.value?.contains(target)) {
     periodPickerOpen.value = false
   }
+
+  if (target instanceof Node && !formPeriodPickerRoot.value?.contains(target)) {
+    formPeriodPickerOpen.value = false
+  }
 }
 
 function handlePeriodPickerKeydown(event: KeyboardEvent): void {
   if (event.key === 'Escape') {
     periodPickerOpen.value = false
+    formPeriodPickerOpen.value = false
     if (articlePendingDeletion.value && !isDeleting.value) {
       articlePendingDeletion.value = null
     }
@@ -260,7 +309,7 @@ function handlePeriodPickerKeydown(event: KeyboardEvent): void {
 function handleDetailScroll(): void {
   const scrollTop = detailScrollContainer.value?.scrollTop ?? window.scrollY
 
-  if (scrollTop > 360) showBackToTop.value = true
+  showBackToTop.value = scrollTop > 360
 }
 
 function scrollToTop(): void {
@@ -316,6 +365,13 @@ function splitCommaSeparated(value: string): string[] {
         .filter(Boolean),
     ),
   ]
+}
+
+function splitLines(value: string): string[] {
+  return value
+    .split(/\r?\n/)
+    .map((item) => item.trim())
+    .filter(Boolean)
 }
 
 async function loadAllArticles(): Promise<void> {
@@ -380,6 +436,12 @@ async function refreshArticles(): Promise<void> {
 
 function handleSearch(): void {
   periodPickerOpen.value = false
+  commoditySearchHistory.value = saveCommoditySearch(
+    queryInput.value,
+    commoditySearchHistory.value,
+    'article',
+    searchHistoryOwner.value,
+  )
 
   // Filter sumber berita dan kategori disembunyikan dari UI,
   // sehingga pencarian tetap mencakup seluruh media dan kategori.
@@ -389,6 +451,7 @@ function handleSearch(): void {
     mediaName: 'all',
     category: 'all',
     query: queryInput.value.trim(),
+    queryBy: 'title',
     commodity: props.commodity,
   }
 
@@ -396,6 +459,15 @@ function handleSearch(): void {
   feedbackMessage.value = ''
 
   void runSearch()
+}
+
+function removeSearchHistoryEntry(entry: string): void {
+  commoditySearchHistory.value = removeCommoditySearchHistory(
+    entry,
+    commoditySearchHistory.value,
+    'article',
+    searchHistoryOwner.value,
+  )
 }
 
 function resetFilters(): void {
@@ -412,6 +484,7 @@ function resetFilters(): void {
     mediaName: 'all',
     category: 'all',
     query: '',
+    queryBy: 'title',
     commodity: props.commodity,
   }
   currentPage.value = 1
@@ -423,6 +496,7 @@ function resetFilters(): void {
 function openCreateForm(): void {
   editingArticleId.value = null
   form.value = emptyForm()
+  formPeriodPickerOpen.value = false
   errorMessage.value = ''
   feedbackMessage.value = ''
   isFormOpen.value = true
@@ -430,9 +504,11 @@ function openCreateForm(): void {
 
 function openEditForm(article: NewsArticle): void {
   editingArticleId.value = article.id
+  formPeriodPickerOpen.value = false
 
   form.value = {
     publishedAt: article.publishedAt,
+    period: article.period || article.publishedAt.slice(0, 7),
     category: article.category,
     searchKeywords: article.searchKeywords.join(', '),
     title: article.title,
@@ -441,6 +517,7 @@ function openEditForm(article: NewsArticle): void {
     commodityScope: article.commodityScope,
     relatedCountries: article.relatedCountries.join(', '),
     summary: article.summary,
+    mainPoints: (article.mainPoints ?? []).join('\n'),
     url: article.url,
     sentiment: article.sentiment,
     sentimentScore: String(article.sentimentScore),
@@ -455,6 +532,7 @@ function closeForm(): void {
   if (isSaving.value || isDeleting.value) return
 
   isFormOpen.value = false
+  formPeriodPickerOpen.value = false
   editingArticleId.value = null
   form.value = emptyForm()
 }
@@ -502,7 +580,7 @@ async function submitForm(): Promise<void> {
 
   const payload: NewArticleInput = {
     publishedAt,
-    period: publishedAt.slice(0, 7),
+    period: form.value.period,
     category: form.value.category,
     searchKeywords: splitCommaSeparated(form.value.searchKeywords),
     title: form.value.title.trim(),
@@ -511,6 +589,7 @@ async function submitForm(): Promise<void> {
     commodityScope: form.value.commodityScope,
     relatedCountries: splitCommaSeparated(form.value.relatedCountries),
     summary: form.value.summary.trim(),
+    mainPoints: splitLines(form.value.mainPoints),
     url: form.value.url.trim(),
     sentiment: form.value.sentiment,
     sentimentScore: score,
@@ -578,6 +657,7 @@ async function confirmDelete(): Promise<void> {
 }
 
 onMounted(async () => {
+  commoditySearchHistory.value = readCommoditySearchHistory('article', searchHistoryOwner.value)
   document.addEventListener('pointerdown', handlePeriodPickerOutsideClick)
   document.addEventListener('keydown', handlePeriodPickerKeydown)
   detailScrollContainer.value = explorerRoot.value?.closest<HTMLElement>('.overflow-y-auto') ?? null
@@ -730,24 +810,20 @@ onBeforeUnmount(() => {
 
         <div>
           <label for="article-query" class="mb-2 block text-xs font-medium text-slate-600">
-            Judul atau komoditas
+            Judul artikel
           </label>
 
-          <div class="relative">
-            <AppIcon
-              name="search"
-              :size="16"
-              class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-            />
-
-            <input
-              id="article-query"
-              v-model="queryInput"
-              type="search"
-              placeholder="Contoh: nikel, beras..."
-              class="h-11 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-sm outline-none focus:border-bps-blue focus:ring-2 focus:ring-bps-blue/15"
-            />
-          </div>
+          <CommoditySearchInput
+            id="article-query"
+            v-model="queryInput"
+            placeholder="Contoh: judul artikel..."
+            :commodities="articleTitles"
+            :history="commoditySearchHistory"
+            suggestion-label="Judul artikel terkait"
+            history-label="Riwayat pencarian artikel"
+            @select="handleSearch"
+            @remove-history="removeSearchHistoryEntry"
+          />
         </div>
 
         <div
@@ -804,37 +880,23 @@ onBeforeUnmount(() => {
             Cari artikel
           </label>
 
-          <div class="relative">
-            <AppIcon
-              name="search"
-              :size="16"
-              class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-            />
-
-            <input
-              id="article-query"
-              v-model="queryInput"
-              type="search"
-              placeholder="Contoh: kebijakan, logistik, beras..."
-              class="h-11 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-sm outline-none focus:border-bps-blue focus:ring-2 focus:ring-bps-blue/15"
-            />
-          </div>
+          <CommoditySearchInput
+            id="article-query"
+            v-model="queryInput"
+            placeholder="Contoh: perkembangan ekspor beras..."
+            :commodities="articleTitles"
+            :history="commoditySearchHistory"
+            suggestion-label="Judul artikel terkait"
+            history-label="Riwayat pencarian artikel"
+            @select="handleSearch"
+            @remove-history="removeSearchHistoryEntry"
+          />
         </div>
 
         <div class="flex flex-wrap gap-2">
           <button
-            type="button"
-            :disabled="!hasFiltersToReset"
-            class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-bps-blue/30 disabled:cursor-not-allowed disabled:opacity-50"
-            @click="resetFilters"
-          >
-            <AppIcon name="refresh" class="h-4 w-4" />
-            Reset Filter
-          </button>
-
-          <button
             type="submit"
-            class="inline-flex items-center justify-center gap-2 rounded-xl border border-bps-blue px-5 py-2.5 text-sm font-semibold text-bps-blue transition hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-bps-blue/30"
+            class="inline-flex items-center justify-center gap-2 rounded-xl bg-bps-blue px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-bps-blue-dark focus:outline-none focus:ring-2 focus:ring-bps-blue/30"
           >
             <AppIcon name="search" class="h-4 w-4" />
             Cari
@@ -967,7 +1029,8 @@ onBeforeUnmount(() => {
               >
             </p>
 
-            <button v-if="article.summary.length > 220"
+            <button
+              v-if="article.summary.length > 220"
               type="button"
               class="mt-2 text-sm font-semibold text-bps-blue transition hover:text-bps-blue-dark hover:underline focus:outline-none focus:ring-2 focus:ring-bps-blue/30"
               :aria-expanded="expandedArticleIds.has(article.id)"
@@ -1261,7 +1324,79 @@ onBeforeUnmount(() => {
                   />
 
                   <p class="mt-1.5 text-xs text-slate-400">
-                    Periode akan ditentukan otomatis berdasarkan tanggal.
+                    Tanggal berita diterbitkan oleh media.
+                  </p>
+                </div>
+
+                <div ref="formPeriodPickerRoot" class="relative">
+                  <label for="form-period" class="mb-2 block text-xs font-medium text-slate-600">
+                    Periode fenomena *
+                  </label>
+
+                  <button
+                    id="form-period"
+                    type="button"
+                    aria-haspopup="dialog"
+                    :aria-expanded="formPeriodPickerOpen"
+                    class="flex h-11 w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-3 text-left text-sm text-slate-700 outline-none transition hover:border-slate-300 focus:border-bps-blue focus:ring-2 focus:ring-bps-blue/15"
+                    @click="toggleFormPeriodPicker"
+                  >
+                    <span>{{ formPeriodLabel }}</span>
+                    <AppIcon name="calendar" :size="17" class="shrink-0 text-slate-500" />
+                  </button>
+
+                  <div
+                    v-if="formPeriodPickerOpen"
+                    role="dialog"
+                    aria-label="Pilih periode fenomena berdasarkan bulan dan tahun"
+                    class="absolute left-0 top-full z-30 mt-2 w-full min-w-72 rounded-xl border border-slate-200 bg-white p-3 shadow-xl shadow-slate-900/10"
+                  >
+                    <div class="flex items-center justify-between gap-2">
+                      <button
+                        type="button"
+                        aria-label="Tahun sebelumnya"
+                        class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-bps-blue/30"
+                        @click="formPeriodPickerYear--"
+                      >
+                        <AppIcon name="chevron-left" :size="16" />
+                      </button>
+
+                      <span class="text-sm font-semibold text-slate-800">
+                        {{ formPeriodPickerYear }}
+                      </span>
+
+                      <button
+                        type="button"
+                        aria-label="Tahun berikutnya"
+                        class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-bps-blue/30"
+                        @click="formPeriodPickerYear++"
+                      >
+                        <AppIcon name="chevron-right" :size="16" />
+                      </button>
+                    </div>
+
+                    <div class="mt-3 grid grid-cols-4 gap-2">
+                      <button
+                        v-for="month in MONTH_OPTIONS"
+                        :key="month.value"
+                        type="button"
+                        :aria-label="`${month.label} ${formPeriodPickerYear}`"
+                        :aria-pressed="isFormPeriodMonthSelected(month.value)"
+                        :class="[
+                          'rounded-lg px-2 py-2.5 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-bps-blue/30',
+                          isFormPeriodMonthSelected(month.value)
+                            ? 'bg-slate-900 text-white shadow-sm'
+                            : 'text-slate-700 hover:bg-slate-100',
+                        ]"
+                        @click="selectFormPeriodMonth(month.value)"
+                      >
+                        {{ month.label }}
+                      </button>
+                    </div>
+                  </div>
+
+                  <p class="mt-1.5 text-xs text-slate-400">
+                    Pilih bulan dan tahun fenomena berita.
                   </p>
                 </div>
 
@@ -1399,6 +1534,26 @@ onBeforeUnmount(() => {
                     class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-bps-blue focus:ring-2 focus:ring-bps-blue/15"
                     placeholder="Tuliskan ringkasan berita..."
                   />
+                </div>
+
+                <div class="md:col-span-2">
+                  <label for="form-main-points" class="mb-2 block text-xs font-medium text-slate-600">
+                    Poin berita*
+                  </label>
+
+                  <textarea
+                    id="form-main-points"
+                    v-model="form.mainPoints"
+                    required
+                    rows="4"
+                    maxlength="5000"
+                    class="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-bps-blue focus:ring-2 focus:ring-bps-blue/15"
+                    placeholder="Tuliskan satu poin berita per baris..."
+                  />
+
+                  <p class="mt-1.5 text-xs text-slate-400">
+                    Setiap baris akan disimpan sebagai satu poin.
+                  </p>
                 </div>
               </div>
             </section>

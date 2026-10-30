@@ -78,10 +78,6 @@ function setTheme(dark: boolean): void {
   window.localStorage.setItem('eksim-insight:theme', dark ? 'dark' : 'light')
 }
 
-function toggleTheme(): void {
-  setTheme(!isDarkMode.value)
-}
-
 function requestLogout(): void {
   isLogoutDialogOpen.value = true
 }
@@ -160,14 +156,10 @@ onUnmounted(() => {
           </div>
 
           <div class="sidebar-brand-copy min-w-0 flex-1">
-            <p
-              class="truncate text-2xl font-extrabold leading-none tracking-[0.08em] text-white"
-            >
+            <p class="truncate text-2xl font-extrabold leading-none tracking-[0.08em] text-white">
               RITME
             </p>
-            <p
-              class="mt-1 break-words text-[11px] font-medium leading-4 text-white/75"
-            >
+            <p class="mt-1 wrap-break-word text-[11px] font-medium leading-4 text-white/75">
               Rekap Informasi &amp; Tren Media
             </p>
           </div>
@@ -203,7 +195,7 @@ onUnmounted(() => {
             >
               <AppIcon :name="item.icon" class="h-5 w-5 shrink-0" />
 
-              <span class="min-w-0 flex-1 break-words leading-5">
+              <span class="min-w-0 flex-1 wrap-break-word leading-5">
                 {{ item.label }}
               </span>
             </RouterLink>
@@ -213,9 +205,7 @@ onUnmounted(() => {
 
       <!-- Informasi profil, waktu, dan role -->
       <div class="shrink-0 px-3 py-3 sm:px-4">
-        <div
-          class="rounded-xl border border-white/15 bg-white/10 p-3 shadow-sm backdrop-blur-sm"
-        >
+        <div class="rounded-xl border border-white/15 bg-white/10 p-3 shadow-sm backdrop-blur-sm">
           <div class="flex items-center gap-3">
             <div
               :class="[
@@ -275,7 +265,8 @@ onUnmounted(() => {
             type="button"
             class="flex flex-1 items-center justify-center rounded-md py-1.5 text-white/70 transition hover:bg-white/10 hover:text-white"
             :class="{
-              'bg-slate-800 text-slate-100 shadow-sm hover:bg-slate-800 hover:text-slate-100': isDarkMode,
+              'bg-slate-800 text-slate-100 shadow-sm hover:bg-slate-800 hover:text-slate-100':
+                isDarkMode,
             }"
             aria-label="Gunakan mode gelap"
             :aria-pressed="isDarkMode"
@@ -285,7 +276,6 @@ onUnmounted(() => {
           </button>
         </div>
       </div>
-
     </aside>
 
     <!-- Main content -->
@@ -324,7 +314,7 @@ onUnmounted(() => {
   <Teleport to="body">
     <div
       v-if="isLogoutDialogOpen"
-      class="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-[2px]"
+      class="fixed inset-0 z-110 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-[2px]"
       @click.self="cancelLogout"
     >
       <section
@@ -335,7 +325,9 @@ onUnmounted(() => {
         class="w-full max-w-md rounded-xl border border-slate-200 bg-white p-5 shadow-xl shadow-slate-900/15 sm:p-6"
       >
         <div class="flex items-start gap-3">
-          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-50 text-orange-700">
+          <div
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-50 text-orange-700"
+          >
             <AppIcon name="log-out" class="h-5 w-5" />
           </div>
 

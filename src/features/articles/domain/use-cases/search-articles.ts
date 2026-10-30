@@ -6,6 +6,7 @@ export interface SearchArticleFilters {
   mediaName: string
   category: 'all' | NewsCategory
   query: string
+  queryBy?: 'all' | 'title'
   /** Batasi hasil ke komoditas tertentu (pencocokan tanpa memedakan huruf besar/kecil). */
   commodity?: string
 }
@@ -31,9 +32,10 @@ export class SearchArticles {
           (item) => item.toLocaleLowerCase('id-ID') === commodity,
         )
 
-      const searchableText = [article.title, ...article.commodities]
-        .join(' ')
-        .toLocaleLowerCase('id-ID')
+      const searchableText =
+        filters.queryBy === 'title'
+          ? article.title.toLocaleLowerCase('id-ID')
+          : [article.title, ...article.commodities].join(' ').toLocaleLowerCase('id-ID')
 
       const matchesQuery = query.length === 0 || searchableText.includes(query)
 

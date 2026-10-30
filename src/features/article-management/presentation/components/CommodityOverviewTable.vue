@@ -1,12 +1,21 @@
 ﻿<script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import AppIcon from '@/shared/components/AppIcon.vue'
+import CommoditySearchInput from '@/shared/components/CommoditySearchInput.vue'
+import {
+  readCommoditySearchHistory,
+  removeCommoditySearchHistory,
+  saveCommoditySearch,
+} from '@/shared/utils/commodity-search'
 import ArticleExplorer from '@/features/articles/presentation/components/ArticleExplorer.vue'
 import { getCommodityOverview } from '@/app/container'
+import { useAuthStore } from '@/app/stores/auth.store'
 import type { CommodityOverview } from '@/features/articles/domain/entities/commodity-overview'
 
 /** Role admin dapat mengelola artikel; role user hanya melihat daftar. */
 const props = withDefaults(defineProps<{ canManage?: boolean }>(), { canManage: false })
+const authStore = useAuthStore()
+const searchHistoryOwner = computed(() => authStore.user?.username ?? 'anonymous')
 
 const ROW_OPTIONS = [20, 50, 100]
 
@@ -43,6 +52,7 @@ const popupKey = computed(
 )
 
 const queryInput = ref('')
+const commoditySearchHistory = ref<string[]>([])
 const periodInput = ref('all')
 const periodPickerOpen = ref(false)
 const periodPickerYear = ref(new Date().getFullYear())
@@ -67,6 +77,8 @@ const availablePeriods = computed(() => {
 
   return [...periods].sort((a, b) => b.localeCompare(a))
 })
+
+const availableCommodities = computed(() => rows.value.map((row) => row.commodity))
 
 const selectedPeriodLabel = computed(() =>
   periodInput.value === 'all' ? 'Semua Periode' : formatPeriod(periodInput.value),
@@ -139,7 +151,7 @@ function toggleArticleSort(): void {
 }
 
 function handleWindowScroll(): void {
-  if (window.scrollY > 360) showBackToTop.value = true
+  showBackToTop.value = window.scrollY > 360
 }
 
 function scrollToTop(): void {
@@ -195,11 +207,26 @@ function handlePeriodPickerOutsideClick(event: PointerEvent): void {
 
 function handleSearch(): void {
   periodPickerOpen.value = false
+  commoditySearchHistory.value = saveCommoditySearch(
+    queryInput.value,
+    commoditySearchHistory.value,
+    'commodity',
+    searchHistoryOwner.value,
+  )
   appliedFilters.value = {
     period: periodInput.value,
     query: queryInput.value.trim(),
   }
   currentPage.value = 1
+}
+
+function removeSearchHistoryEntry(entry: string): void {
+  commoditySearchHistory.value = removeCommoditySearchHistory(
+    entry,
+    commoditySearchHistory.value,
+    'commodity',
+    searchHistoryOwner.value,
+  )
 }
 
 function resetFilters(): void {
@@ -262,6 +289,7 @@ function handleKeydown(event: KeyboardEvent): void {
 }
 
 onMounted(async () => {
+  commoditySearchHistory.value = readCommoditySearchHistory('commodity', searchHistoryOwner.value)
   document.addEventListener('keydown', handleKeydown)
   document.addEventListener('pointerdown', handlePeriodPickerOutsideClick)
   window.addEventListener('scroll', handleWindowScroll, { passive: true })
@@ -388,21 +416,15 @@ onBeforeUnmount(() => {
             Nama komoditas
           </label>
 
-          <div class="relative">
-            <AppIcon
-              name="search"
-              :size="16"
-              class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-            />
-
-            <input
-              id="commodity-query"
-              v-model="queryInput"
-              type="search"
-              placeholder="Contoh: beras, furnitur, kereta api..."
-              class="h-11 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-sm outline-none focus:border-bps-blue focus:ring-2 focus:ring-bps-blue/15"
-            />
-          </div>
+          <CommoditySearchInput
+            id="commodity-query"
+            v-model="queryInput"
+            placeholder="Contoh: beras, furnitur, kereta api..."
+            :commodities="availableCommodities"
+            :history="commoditySearchHistory"
+            @select="handleSearch"
+            @remove-history="removeSearchHistoryEntry"
+          />
         </div>
 
         <div
@@ -777,7 +799,7 @@ onBeforeUnmount(() => {
 
     <Transition name="back-to-top">
       <button
-        v-if="showBackToTop"
+        v-if="showBackToTop && filteredRows.length > 5"
         type="button"
         aria-label="Kembali ke atas daftar komoditas"
         title="Kembali ke atas"
