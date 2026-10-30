@@ -17,6 +17,12 @@ MEDIA_SOURCES = {
     "Liputan6": "liputan6.com",
     "SINDOnews": "sindonews.com",
     "Tribun": "tribunnews.com",
+    "China Customs": "customs.gov.cn",
+    "Reuters": "reuters.com",
+    "China Data": "chinadata.live",
+    "Trading Economics": "tradingeconomics.com",
+    "Bloominglobal": "bloominglobal.com",
+    "BLS": "bls.gov",
 }
 
 KEYWORDS = {
@@ -117,8 +123,7 @@ SESSION.headers.update(
 
 def _period_dates(period: str) -> tuple[datetime, datetime]:
     start = datetime.strptime(period, "%Y-%m")
-    end = start.replace(day=28) + timedelta(days=4)
-    return start, end.replace(day=1)
+    return start, start.replace(day=11)
 
 
 def _parse_date(value: str) -> datetime | None:
@@ -325,7 +330,7 @@ def crawl_articles(period: str, media_names: list[str], limit_per_media: int = 8
                 continue
             published = _article_date(response.text) or _parse_date("")
             if published is None:
-                published = datetime.strptime(f"{period}-15", "%Y-%m-%d")
+                published = datetime.strptime(f"{period}-05", "%Y-%m-%d")
             if not _in_period(published, period):
                 continue
             title = _clean_title(title)

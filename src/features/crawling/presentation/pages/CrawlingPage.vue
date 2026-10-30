@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { getCrawlHistory, runCrawlSimulation } from '@/app/container'
 import AppIcon from '@/shared/components/AppIcon.vue'
@@ -14,6 +14,12 @@ const NEWS_MEDIA_SOURCES = [
   'SINDOnews',
   'Bisnis.com',
   'Tribun',
+  'China Customs',
+  'Reuters',
+  'China Data',
+  'Trading Economics',
+  'Bloominglobal',
+  'BLS',
 ]
 
 interface PeriodOption {
@@ -79,6 +85,11 @@ const history = ref<CrawlRun[]>([])
 
 const isLoadingHistory = ref(true)
 const isRunning = ref(false)
+const crawlProgress = ref(0)
+const crawlFailed = ref(false)
+const crawlProgressMessage = ref('Menyiapkan koneksi ke portal berita...')
+let crawlProgressTimer: ReturnType<typeof setInterval> | undefined
+let lastCrawlInput: { period: string; mediaNames: string[] } | null = null
 const isOnline = ref(typeof navigator === 'undefined' || navigator.onLine)
 const usesApiDataSource = import.meta.env.VITE_DATA_SOURCE === 'api'
 
@@ -97,7 +108,7 @@ const currentPeriodHasRun = computed(() =>
   history.value.some((run) => run.period === currentPeriod),
 )
 
-const isCrawlWindow = new Date().getDate() >= 25
+const isCrawlWindow = new Date().getDate() <= 10
 
 const canCrawlCurrentPeriod = computed(
   () => isCrawlWindow && !currentPeriodHasRun.value && selectedPeriod.value === currentPeriod,
@@ -105,19 +116,36 @@ const canCrawlCurrentPeriod = computed(
 
 const crawlAvailabilityMessage = computed(() => {
   if (currentPeriodHasRun.value) {
-    return `Crawling untuk ${currentPeriodLabel.value} sudah dilakukan. Crawling hanya dapat dilakukan satu kali setiap bulan.`
+    return `Crawling ${currentPeriodLabel.value} sudah dilakukan. Jadwal berikutnya tanggal 1–10 bulan depan.`
   }
 
-  if (!isCrawlWindow) {
-    return `Crawling periode ${currentPeriodLabel.value} tersedia menjelang akhir bulan, mulai tanggal 25. Data yang diambil mencakup periode bulan sebelumnya.`
-  }
-
-  if (selectedPeriod.value !== currentPeriod) {
-    return `Pilih periode ${currentPeriodLabel.value} untuk menjalankan crawling bulan ini.`
-  }
-
-  return `Crawling periode ${currentPeriodLabel.value} siap dijalankan. Proses ini hanya dapat dilakukan satu kali setiap bulan.`
+  return `Jadwal crawling: tanggal 1–10 setiap bulan untuk mengambil berita tanggal 1–10 dari ${currentPeriodLabel.value}.`
 })
+
+const typedCrawlAvailabilityMessage = ref('')
+let typewriterTimer: ReturnType<typeof setTimeout> | undefined
+
+function startTypewriter(message: string): void {
+  if (typewriterTimer !== undefined) {
+    clearTimeout(typewriterTimer)
+  }
+
+  typedCrawlAvailabilityMessage.value = ''
+  let characterIndex = 0
+
+  const typeNextCharacter = (): void => {
+    typedCrawlAvailabilityMessage.value = message.slice(0, characterIndex + 1)
+    characterIndex += 1
+
+    if (characterIndex < message.length) {
+      typewriterTimer = setTimeout(typeNextCharacter, 18)
+    }
+  }
+
+  typeNextCharacter()
+}
+
+watch(crawlAvailabilityMessage, startTypewriter, { immediate: true })
 
 const connectionMessage = computed(() => {
   if (isOnline.value && !usesApiDataSource) {
@@ -228,6 +256,40 @@ function clearSelectedMedia(): void {
   selectedMedia.value = []
 }
 
+function updateCrawlProgress(): void {
+  if (crawlProgress.value >= 92) return
+
+  crawlProgress.value = Math.min(92, crawlProgress.value + 3)
+
+  if (crawlProgress.value >= 75) {
+    crawlProgressMessage.value = 'Memvalidasi tanggal dan menyimpan artikel baru...'
+  } else if (crawlProgress.value >= 40) {
+    crawlProgressMessage.value = 'Membaca dan memeriksa isi berita...'
+  } else {
+    crawlProgressMessage.value = 'Mencari berita dari portal yang dipilih...'
+  }
+}
+
+function startProgressAnimation(): void {
+  if (crawlProgressTimer !== undefined) {
+    clearInterval(crawlProgressTimer)
+  }
+
+  crawlProgressTimer = setInterval(updateCrawlProgress, 700)
+}
+
+function stopProgressAnimation(): void {
+  if (crawlProgressTimer !== undefined) {
+    clearInterval(crawlProgressTimer)
+    crawlProgressTimer = undefined
+  }
+}
+
+function dismissCrawlFailure(): void {
+  crawlFailed.value = false
+  errorMessage.value = ''
+}
+
 async function loadHistory(): Promise<void> {
   isLoadingHistory.value = true
 
@@ -259,8 +321,13 @@ async function startCrawling(
   }
 
   isRunning.value = true
+  crawlFailed.value = false
+  crawlProgress.value = 8
+  crawlProgressMessage.value = 'Menyiapkan koneksi ke portal berita...'
+  lastCrawlInput = { period, mediaNames: [...mediaNames] }
   errorMessage.value = ''
   feedbackMessage.value = ''
+  startProgressAnimation()
 
   try {
     const pendingRun = runCrawlSimulation.execute({
@@ -276,18 +343,31 @@ async function startCrawling(
     await loadHistory()
 
     if (result.status === 'success') {
+      crawlProgress.value = 100
+      crawlProgressMessage.value = 'Crawling selesai dan hasil berhasil disimpan.'
       feedbackMessage.value = result.message
     } else {
+      crawlFailed.value = true
+      crawlProgressMessage.value = 'Crawling berhenti sebelum selesai.'
       errorMessage.value = result.message
     }
   } catch (error) {
     console.error('Gagal menjalankan simulasi crawling:', error)
 
+    crawlFailed.value = true
+    crawlProgressMessage.value = 'Crawling berhenti sebelum selesai.'
     errorMessage.value =
       error instanceof Error ? error.message : 'Simulasi crawling gagal dijalankan.'
   } finally {
+    stopProgressAnimation()
     isRunning.value = false
   }
+}
+
+function retryCrawling(): void {
+  if (!lastCrawlInput) return
+
+  void startCrawling(lastCrawlInput.period, lastCrawlInput.mediaNames)
 }
 
 function handleOnline(): void {
@@ -312,6 +392,12 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  stopProgressAnimation()
+
+  if (typewriterTimer !== undefined) {
+    clearTimeout(typewriterTimer)
+  }
+
   window.removeEventListener('online', handleOnline)
   window.removeEventListener('offline', handleOffline)
 })
@@ -319,6 +405,89 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="space-y-6" @click="closePeriodPicker">
+    <Teleport to="body">
+      <div
+        v-if="isRunning || crawlFailed"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="crawl-progress-title"
+      >
+        <section class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+          <div class="flex items-start gap-3">
+            <div
+              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
+              :class="crawlFailed ? 'bg-orange-50 text-orange-600' : 'bg-blue-50 text-bps-blue'"
+            >
+              <AppIcon
+                :name="crawlFailed ? 'circle-alert' : 'loader'"
+                :class="['h-6 w-6', isRunning && !crawlFailed ? 'animate-spin' : '']"
+              />
+            </div>
+
+            <div class="min-w-0">
+              <h2 id="crawl-progress-title" class="text-base font-semibold text-slate-900">
+                {{ crawlFailed ? 'Crawling gagal' : 'Crawling sedang berjalan' }}
+              </h2>
+              <p class="mt-1 text-xs leading-relaxed text-slate-500">
+                {{ crawlProgressMessage }}
+              </p>
+            </div>
+          </div>
+
+          <div class="mt-6">
+            <div class="mb-2 flex items-center justify-between text-xs font-semibold">
+              <span class="text-slate-500">Progres proses</span>
+              <span :class="crawlFailed ? 'text-orange-600' : 'text-bps-blue'">
+                {{ crawlProgress }}%
+              </span>
+            </div>
+            <div
+              class="h-3 overflow-hidden rounded-full bg-slate-100"
+              role="progressbar"
+              :aria-valuenow="crawlProgress"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              :aria-label="`Progres crawling ${crawlProgress}%`"
+            >
+              <div
+                class="h-full rounded-full transition-all duration-500"
+                :class="crawlFailed ? 'bg-orange-500' : 'bg-bps-blue'"
+                :style="{ width: `${crawlProgress}%` }"
+              />
+            </div>
+          </div>
+
+          <div v-if="crawlFailed" class="mt-5 rounded-xl border border-orange-100 bg-orange-50 p-3">
+            <p class="text-xs font-semibold text-orange-900">Yang bisa dilakukan:</p>
+            <ul class="mt-2 list-disc space-y-1 pl-4 text-xs leading-relaxed text-orange-800">
+              <li>Pastikan koneksi internet dan backend API tersedia.</li>
+              <li>Periksa apakah portal berita sedang dapat diakses.</li>
+              <li>Coba jalankan kembali setelah beberapa saat.</li>
+            </ul>
+            <p class="mt-2 text-xs leading-relaxed text-orange-800">{{ errorMessage }}</p>
+          </div>
+
+          <div v-if="crawlFailed" class="mt-5 flex justify-end gap-2">
+            <button
+              type="button"
+              class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
+              @click="dismissCrawlFailure"
+            >
+              Tutup
+            </button>
+            <button
+              type="button"
+              class="rounded-lg bg-bps-blue px-3 py-2 text-xs font-semibold text-white transition hover:bg-bps-blue-dark"
+              @click="retryCrawling"
+            >
+              Coba Lagi
+            </button>
+          </div>
+        </section>
+      </div>
+    </Teleport>
+
     <!-- Current-period reminder -->
     <section
       class="overflow-hidden rounded-xl border border-orange-200 bg-white"
@@ -342,8 +511,14 @@ onBeforeUnmount(() => {
               Jadwal crawling {{ currentPeriodLabel }}
             </h2>
 
-            <p class="mt-1 max-w-2xl text-xs leading-relaxed text-slate-500">
-              {{ crawlAvailabilityMessage }}
+            <p
+              class="mt-1 max-w-2xl text-xs leading-relaxed text-slate-500"
+              aria-live="polite"
+            >
+              {{ typedCrawlAvailabilityMessage }}<span
+                class="ml-0.5 inline-block h-3 w-px animate-pulse bg-orange-400 align-middle"
+                aria-hidden="true"
+              />
             </p>
           </div>
         </div>
@@ -615,9 +790,8 @@ onBeforeUnmount(() => {
         class="mt-6 flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:items-center sm:justify-between"
       >
         <p class="max-w-xl text-xs leading-relaxed text-slate-400">
-          Setiap portal menghasilkan paling banyak satu artikel contoh pada simulasi ini. Crawling
-          hanya dijalankan sekali pada akhir bulan untuk periode bulan sebelumnya. Artikel dengan
-          URL yang sudah tercatat akan dilewati untuk mencegah duplikasi.
+          Setiap portal menghasilkan paling banyak satu artikel contoh pada simulasi ini. Artikel
+          dengan URL yang sudah tercatat akan dilewati untuk mencegah duplikasi.
         </p>
 
         <button

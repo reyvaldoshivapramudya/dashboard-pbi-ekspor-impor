@@ -39,6 +39,12 @@ const MEDIA_SOURCE_ORDER = [
   'SINDOnews',
   'Bisnis.com',
   'Tribun',
+  'China Customs',
+  'Reuters',
+  'China Data',
+  'Trading Economics',
+  'Bloominglobal',
+  'BLS',
 ] as const
 
 const ARTICLE_SEEDS = [
@@ -106,7 +112,7 @@ function buildSimulatedArticle(mediaName: string, period: string, index: number)
   const commodities = seed.commodity ? [seed.commodity] : []
 
   return {
-    publishedAt: `${period}-15`,
+    publishedAt: `${period}-05`,
     period,
 
     category: seed.category,

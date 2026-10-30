@@ -40,7 +40,8 @@ Contoh body crawling:
 }
 ```
 
-Endpoint crawling mengambil kandidat dari Google News RSS, membuka URL artikel asli,
+Endpoint crawling mengambil kandidat dari Google News RSS untuk tanggal 1 sampai 10 pada periode
+yang dipilih, membuka URL artikel asli,
 mengekstrak isi berita, membuat ringkasan dasar, lalu menyimpan artikel baru ke PostgreSQL.
 Artikel dengan URL yang sudah tersimpan dilewati. Analisis sentimen tahap awal menggunakan
 aturan kata kunci; model LLM dari script notebook belum dijalankan di backend.
