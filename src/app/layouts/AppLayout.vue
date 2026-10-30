@@ -18,6 +18,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const isMobileSidebarOpen = ref(false)
+const isSidebarCollapsed = ref(false)
 const isDarkMode = ref(false)
 const isLogoutDialogOpen = ref(false)
 
@@ -142,32 +143,62 @@ onUnmounted(() => {
     <!-- Sidebar -->
     <aside
       :class="[
-        'fixed inset-y-0 left-0 z-50 flex w-[min(88vw,20rem)] flex-col lg:w-60',
+        'fixed inset-y-0 left-0 z-50 flex w-[min(88vw,20rem)] flex-col',
         'border-r border-white/30 bg-sidebar-navy text-white shadow-none',
-        'transition-transform duration-200',
+        'transition-[width,transform] duration-200',
+        isSidebarCollapsed ? 'lg:w-20' : 'lg:w-60',
         isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
       ]"
     >
       <!-- Identitas BPS dan RITME -->
-      <div class="shrink-0 px-4 pb-4 pt-5 sm:px-5 sm:pt-6">
-        <div class="flex items-center gap-3 border-b border-white/20 px-1 pb-5">
-          <div class="sidebar-brand-logo flex h-14 w-14 shrink-0 items-center justify-center">
-            <img :src="logoBps" alt="Logo BPS" class="h-auto max-h-14 w-full object-contain" />
-          </div>
+      <div
+        :class="['shrink-0 px-4 pt-5 sm:px-5 sm:pt-6', isSidebarCollapsed ? 'lg:px-3 lg:pt-4' : '']"
+      >
+        <div
+          :class="[
+            'flex items-center border-b border-white/20 px-1 pb-5',
+            isSidebarCollapsed ? 'gap-2' : 'gap-4',
+          ]"
+        >
+          <button
+            type="button"
+            :aria-label="isSidebarCollapsed ? 'Perlebar sidebar' : 'Kecilkan sidebar'"
+            :title="isSidebarCollapsed ? 'Perlebar sidebar' : 'Kecilkan sidebar'"
+            :aria-expanded="!isSidebarCollapsed"
+            class="hidden h-10 w-10 items-center justify-center rounded-lg text-white/80 transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/40 lg:flex"
+            @click="isSidebarCollapsed = !isSidebarCollapsed"
+          >
+            <AppIcon name="menu" class="h-5 w-5" />
+          </button>
 
-          <div class="sidebar-brand-copy min-w-0 flex-1">
-            <p class="truncate text-2xl font-extrabold leading-none tracking-[0.08em] text-white">
-              RITME
-            </p>
-            <p class="mt-1 wrap-break-word text-[11px] font-medium leading-4 text-white/75">
-              Rekap Informasi &amp; Tren Media
-            </p>
+          <div
+            :class="[
+              'flex min-w-0 flex-1 items-center gap-3',
+              isSidebarCollapsed ? 'lg:hidden' : '',
+            ]"
+          >
+            <div
+              class="sidebar-brand-logo flex h-12 w-12 shrink-0 items-center justify-center sm:h-14 sm:w-14"
+            >
+              <img :src="logoBps" alt="Logo BPS" class="h-auto max-h-14 w-full object-contain" />
+            </div>
+
+            <div class="sidebar-brand-copy min-w-0 flex-1">
+              <p
+                class="truncate text-base font-extrabold leading-none tracking-[0.08em] text-white"
+              >
+                RITME
+              </p>
+              <p class="mt-1 wrap-break-word text-[11px] font-medium leading-4 text-white/75">
+                Rekap Informasi &amp; Tren Media
+              </p>
+            </div>
           </div>
 
           <button
             type="button"
             aria-label="Tutup sidebar"
-            class="shrink-0 rounded-lg p-2 text-white/75 hover:bg-white/10 lg:hidden"
+            class="ml-auto shrink-0 rounded-lg p-2 text-white/75 hover:bg-white/10 lg:hidden"
             @click="closeMobileSidebar"
           >
             <AppIcon name="x" />
@@ -176,7 +207,13 @@ onUnmounted(() => {
       </div>
 
       <!-- Navigation -->
-      <nav aria-label="Navigasi utama" class="flex-1 space-y-1 overflow-y-auto px-3 py-3 sm:px-4">
+      <nav
+        aria-label="Navigasi utama"
+        :class="[
+          'flex-1 space-y-1 overflow-y-auto py-3',
+          isSidebarCollapsed ? 'px-2 lg:px-1' : 'px-3 sm:px-4',
+        ]"
+      >
         <section>
           <div class="space-y-1.5">
             <RouterLink
@@ -184,9 +221,13 @@ onUnmounted(() => {
               :key="item.routeName"
               :to="{ name: item.routeName }"
               :aria-current="route.name === item.routeName ? 'page' : undefined"
+              :title="isSidebarCollapsed ? item.label : undefined"
               :class="[
                 'flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium',
                 'transition-colors duration-150',
+                isSidebarCollapsed
+                  ? 'lg:mx-auto lg:min-h-16 lg:w-[4.5rem] lg:flex-col lg:justify-center lg:gap-1 lg:px-1 lg:py-2 lg:text-center lg:text-[10px] lg:leading-tight'
+                  : '',
                 route.name === item.routeName
                   ? 'bg-sidebar-active text-white shadow-sm'
                   : 'text-white/75 hover:bg-white/10 hover:text-white',
@@ -195,7 +236,12 @@ onUnmounted(() => {
             >
               <AppIcon :name="item.icon" class="h-5 w-5 shrink-0" />
 
-              <span class="min-w-0 flex-1 wrap-break-word leading-5">
+              <span
+                :class="[
+                  'min-w-0 flex-1 wrap-break-word leading-5',
+                  isSidebarCollapsed ? 'lg:w-full lg:flex-none lg:text-center lg:text-[10px]' : '',
+                ]"
+              >
                 {{ item.label }}
               </span>
             </RouterLink>
@@ -204,9 +250,19 @@ onUnmounted(() => {
       </nav>
 
       <!-- Informasi profil, waktu, dan role -->
-      <div class="shrink-0 px-3 py-3 sm:px-4">
-        <div class="rounded-xl border border-white/15 bg-white/10 p-3 shadow-sm backdrop-blur-sm">
-          <div class="flex items-center gap-3">
+      <div :class="['shrink-0 py-3', isSidebarCollapsed ? 'px-2 lg:px-2' : 'px-3 sm:px-4']">
+        <div
+          :class="[
+            'rounded-xl border border-white/15 bg-white/10 shadow-sm backdrop-blur-sm',
+            isSidebarCollapsed ? 'p-3 lg:flex lg:flex-col lg:items-center lg:gap-2 lg:p-2' : 'p-3',
+          ]"
+        >
+          <div
+            :class="[
+              'flex items-center gap-3 lg:justify-center',
+              isSidebarCollapsed ? 'lg:flex-col lg:gap-1' : '',
+            ]"
+          >
             <div
               :class="[
                 'flex h-9 w-9 shrink-0 items-center justify-center rounded-full',
@@ -220,17 +276,29 @@ onUnmounted(() => {
               {{ authStore.isAdmin ? 'AD' : 'US' }}
             </div>
 
-            <div class="min-w-0">
-              <p class="truncate text-sm font-semibold text-white">
+            <div
+              :class="['min-w-0', isSidebarCollapsed ? 'lg:flex lg:flex-col lg:items-center' : '']"
+            >
+              <p
+                :class="[
+                  'truncate text-sm font-semibold text-white',
+                  isSidebarCollapsed ? 'lg:text-[10px] lg:leading-tight' : '',
+                ]"
+              >
                 {{ authStore.isAdmin ? 'Admin' : 'User' }}
               </p>
-              <p class="mt-1 text-xs font-medium tabular-nums text-white/70">
+              <p
+                :class="[
+                  'mt-1 text-xs font-medium tabular-nums text-white/70',
+                  isSidebarCollapsed ? 'lg:hidden' : '',
+                ]"
+              >
                 {{ timeLabel }}
               </p>
             </div>
           </div>
 
-          <div class="mt-3">
+          <div :class="['mt-3', isSidebarCollapsed ? 'lg:hidden' : '']">
             <p class="text-[11px] font-medium text-white/65">Hari ini</p>
             <p class="mt-0.5 text-xs font-medium capitalize leading-5 text-white">
               {{ dateLabel }}
@@ -240,15 +308,25 @@ onUnmounted(() => {
           <button
             v-if="authStore.authEnabled"
             type="button"
-            class="mt-4 inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-white/25 text-xs font-semibold text-white/85 transition hover:bg-white/10 hover:text-white"
+            :aria-label="isSidebarCollapsed ? 'Keluar' : undefined"
+            :title="isSidebarCollapsed ? 'Keluar' : undefined"
+            :class="[
+              'inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-white/25 text-xs font-semibold text-white/85 transition hover:bg-white/10 hover:text-white',
+              isSidebarCollapsed ? 'mt-4 w-full lg:mt-0 lg:w-9' : 'mt-4 w-full',
+            ]"
             @click="requestLogout"
           >
             <AppIcon name="log-out" class="h-4 w-4" />
-            Keluar
+            <span :class="isSidebarCollapsed ? 'lg:hidden' : ''">Keluar</span>
           </button>
         </div>
 
-        <div class="mt-2 flex h-9 items-center rounded-lg bg-white/10 p-1">
+        <div
+          :class="[
+            'mt-2 flex h-9 items-center rounded-lg bg-white/10 p-1',
+            isSidebarCollapsed ? 'lg:mx-auto lg:w-12' : '',
+          ]"
+        >
           <button
             type="button"
             class="theme-light-toggle flex flex-1 items-center justify-center rounded-md py-1.5 text-white/70 transition hover:bg-white/10 hover:text-white"
@@ -279,7 +357,12 @@ onUnmounted(() => {
     </aside>
 
     <!-- Main content -->
-    <div class="min-h-screen lg:pl-60">
+    <div
+      :class="[
+        'min-h-screen transition-[padding] duration-200',
+        isSidebarCollapsed ? 'lg:pl-20' : 'lg:pl-60',
+      ]"
+    >
       <button
         type="button"
         aria-label="Buka navigasi"

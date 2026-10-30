@@ -1,13 +1,6 @@
-import ArticleManagementPage from '@/features/article-management/presentation/pages/ArticleManagementPage.vue'
-import ArticlesPage from '@/features/articles/presentation/pages/ArticlesPage.vue'
-import CrawlingPage from '@/features/crawling/presentation/pages/CrawlingPage.vue'
-import DashboardPage from '@/features/dashboard/presentation/pages/DashboardPage.vue'
-import DownloadPage from '@/features/downloads/presentation/pages/DownloadPage.vue'
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '../stores/auth.store'
 import AppLayout from '../layouts/AppLayout.vue'
-import ArticleChangesPage from '@/features/articles/presentation/pages/ArticleChangesPage.vue'
-import LoginPage from '@/features/auth/presentation/pages/LoginPage.vue'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -21,7 +14,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/login',
     name: 'login',
-    component: LoginPage,
+    component: () => import('@/features/auth/presentation/pages/LoginPage.vue'),
   },
   {
     path: '/',
@@ -31,7 +24,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'dashboard',
         name: 'dashboard',
-        component: DashboardPage,
+        component: () => import('@/features/dashboard/presentation/pages/DashboardPage.vue'),
         meta: {
           title: 'RITME Ekspor Impor',
           description: 'Rekap informasi dan tren media ekspor impor',
@@ -40,7 +33,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'articles',
         name: 'articles',
-        component: ArticlesPage,
+        component: () => import('@/features/articles/presentation/pages/ArticlesPage.vue'),
         meta: {
           title: 'Artikel Berita',
           description: 'Cari, filter, dan telusuri data artikel berita ekspor impor',
@@ -49,7 +42,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'download',
         name: 'download',
-        component: DownloadPage,
+        component: () => import('@/features/downloads/presentation/pages/DownloadPage.vue'),
         meta: {
           title: 'Download',
           description: 'Unduh hasil pengolahan berita ekspor impor dalam format Excel per periode.',
@@ -58,7 +51,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'crawling',
         name: 'crawling',
-        component: CrawlingPage,
+        component: () => import('@/features/crawling/presentation/pages/CrawlingPage.vue'),
         meta: {
           requiresAdmin: true,
         },
@@ -66,7 +59,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'article-changes',
         name: 'article-changes',
-        component: ArticleChangesPage,
+        component: () => import('@/features/articles/presentation/pages/ArticleChangesPage.vue'),
         meta: {
           requiresAdmin: true,
         },
@@ -74,7 +67,8 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'article-management',
         name: 'article-management',
-        component: ArticleManagementPage,
+        component: () =>
+          import('@/features/article-management/presentation/pages/ArticleManagementPage.vue'),
         meta: {
           title: 'Manajemen Artikel Berita',
           description: 'Cari, filter, dan kelola data artikel berita ekspor impor.',

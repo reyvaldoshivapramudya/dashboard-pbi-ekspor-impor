@@ -621,6 +621,11 @@ onBeforeUnmount(() => {
                   Komoditas
                 </th>
                 <th
+                  class="sticky top-0 z-10 shadow-[inset_0_-1px_0_rgba(148,163,184,0.35)] min-w-96 bg-slate-50 px-4 py-4"
+                >
+                  Ringkasan
+                </th>
+                <th
                   class="sticky top-0 z-10 shadow-[inset_0_-1px_0_rgba(148,163,184,0.35)] whitespace-nowrap bg-slate-50 px-4 py-4"
                 >
                   <button
@@ -651,11 +656,6 @@ onBeforeUnmount(() => {
                 >
                   Jumlah Ringkasan
                 </th>
-                <th
-                  class="sticky top-0 z-10 shadow-[inset_0_-1px_0_rgba(148,163,184,0.35)] min-w-96 bg-slate-50 px-4 py-4"
-                >
-                  Ringkasan
-                </th>
               </tr>
             </thead>
 
@@ -683,6 +683,25 @@ onBeforeUnmount(() => {
                   </div>
                 </td>
 
+                <td class="px-4 py-4">
+                  <ul v-if="row.points.length > 0" class="space-y-2">
+                    <li
+                      v-for="(point, index) in row.points"
+                      :key="index"
+                      class="text-xs leading-5 text-slate-600"
+                    >
+                      &bull; {{ point.text }}
+                      <span
+                        class="ml-1 inline-flex rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700 ring-1 ring-inset ring-blue-100"
+                      >
+                        {{ point.mediaName }} &middot; {{ formatDate(point.publishedAt) }}
+                      </span>
+                    </li>
+                  </ul>
+
+                  <span v-else class="text-xs text-slate-400">&mdash;</span>
+                </td>
+
                 <td class="whitespace-nowrap px-4 py-4 font-semibold tabular-nums text-slate-700">
                   {{ formatNumber(row.articleCount) }}
                 </td>
@@ -705,25 +724,6 @@ onBeforeUnmount(() => {
 
                 <td class="whitespace-nowrap px-4 py-4 font-semibold tabular-nums text-slate-700">
                   {{ formatNumber(row.mainPointCount) }}
-                </td>
-
-                <td class="px-4 py-4">
-                  <ul v-if="row.points.length > 0" class="space-y-2">
-                    <li
-                      v-for="(point, index) in row.points"
-                      :key="index"
-                      class="text-xs leading-5 text-slate-600"
-                    >
-                      &bull; {{ point.text }}
-                      <span
-                        class="ml-1 inline-flex rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700 ring-1 ring-inset ring-blue-100"
-                      >
-                        {{ point.mediaName }} &middot; {{ formatDate(point.publishedAt) }}
-                      </span>
-                    </li>
-                  </ul>
-
-                  <span v-else class="text-xs text-slate-400">&mdash;</span>
                 </td>
               </tr>
 
